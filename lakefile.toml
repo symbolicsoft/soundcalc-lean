@@ -1,0 +1,10 @@
+name = "soundcalc"
+defaultTargets = ["Soundcalc"]
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+version = "git#v4.30.0"
+
+[[lean_lib]]
+name = "Soundcalc"

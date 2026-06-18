@@ -45,7 +45,7 @@ def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
 /-! ## SP1 core config
 
 `denseLen` is the FRI dimension `d`; `n = d/ρ = 2^23`.  The trace length
-(`2^22`, used by the S5 zerocheck) is a *separate* quantity and deliberately
+(`2^22`, used by zerocheck) is a *separate* quantity and deliberately
 does **not** appear in `FRIConfig`. -/
 
 def sp1CoreFRI : FRIConfig where

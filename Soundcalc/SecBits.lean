@@ -228,7 +228,7 @@ theorem le_secBits_iff (ε : ℚ) (hε : 0 < ε) (hε1 : ε ≤ 1) (k : ℕ) :
   ⟨le_secBits_if ε hε hε1 k, secBits_ge ε hε k⟩
 
 
--- M0 gate "hello world": the 100-bit claim is exact, not an approximation.
+-- the 100-bit claim is exact, not an approximation.
 example : secBits ((5 / 8 : ℚ) ^ 124 / 2 ^ 16) = 100 := by native_decide
 
 

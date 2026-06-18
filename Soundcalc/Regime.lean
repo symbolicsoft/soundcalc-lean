@@ -79,12 +79,9 @@ The classical decoder corrects up to *half* the minimum distance:
 def UDR (F : FieldParams) : Regime where
   θ              := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2
   listSize       := fun _      _   => 1
-  errLinear      := fun ⟨ρ, _⟩ d   =>
-    ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)
-  errPowers      := fun ⟨ρ, _⟩ d b =>
-    ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (b - 1)
-  errMultilinear := fun ⟨ρ, _⟩ d b =>
-    ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (Nat.clog 2 b : ℚ)
+  errLinear      := fun ⟨ρ, _⟩ d   => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)
+  errPowers      := fun ⟨ρ, _⟩ d b => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (b - 1)
+  errMultilinear := fun ⟨ρ, _⟩ d b => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (Nat.clog 2 b : ℚ)
 
 /-!
 ## Exit criterion

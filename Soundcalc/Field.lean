@@ -11,8 +11,8 @@ travels as a *proof* and every size is an exact `ℕ` — no floats.
 * `twoAdicity` — the field's max power-of-2 root-of-unity exponent. It is
   *stored*, not derived: across presets it is `v₂(p-1)` for the NTT fields but
   `v₂(pᵉ-1)` for Mersenne31 (whose `v₂(p-1)` is only 1), so no single formula
-  reproduces it. It is certified by `twoAdicity_dvd`, which is characterized by
-  two conjuncts:
+  reproduces it. It is certified by `twoAdicity_spec`, which is characterized
+  by two conjuncts:
   - `2 ^ twoAdicity ∣ p - 1` ensures `2 ^ twoAdicity` divides `p-1` (i.e., a
     `2^twoAdicity`-th root of unity exists in `F`);
   - `¬ 2 ^ (twoAdicity + 1) ∣ p - 1` ensures `2 ^ (twoAdicity+1)` does *not*

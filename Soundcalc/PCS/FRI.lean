@@ -78,16 +78,7 @@ theorem FRIConfig.earlyStop_ok (c : FRIConfig) (hc : c = sp1CoreFRI) :
 `(1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
 
 example : secBits (sp1CoreFRI.queryErr (UDR koalaBear4)) = 100 := by native_decide
-  -- `decide` should also work: `pow` is structural (124 GMP-backed `Rat` mults),
-  -- `floor`/`log2Fuel` use GMP-accelerated `Nat` ops.
 
-/-
-The other three depend on the `errPowers` / `errMultilinear` numerators, which
-are placeholders above.  Once they match fri.py, these close `by decide`:
-
-    secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104
-    secBits (sp1CoreFRI.commitErr   (UDR koalaBear4) 0)  = 103
-    secBits (sp1CoreFRI.commitErr   (UDR koalaBear4) 20) = 122
-
-and `earlyStop_ok` is one `subst`+`norm_num` for each of the three SP1 configs.
--/
+example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4)) = 104 := by native_decide
+example : secBits (sp1CoreFRI.commitErr (UDR koalaBear4) 0) = 103 := by native_decide
+example : secBits (sp1CoreFRI.commitErr (UDR koalaBear4) 20) = 122 := by native_decide

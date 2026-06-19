@@ -1,6 +1,6 @@
 # soundcalc-lean
 
-A Lean 4 port of [soundcalc](https://github.com/your-org/soundcalc), following a pedagogical roadmap.
+A Lean 4 port of [soundcalc](https://github.com/ethereum/soundcalc), following a pedagogical roadmap.
 
 The calculator is a definition; the report is a theorem; the what-if is a quantified theorem.
 

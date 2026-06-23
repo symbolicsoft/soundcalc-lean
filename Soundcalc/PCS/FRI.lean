@@ -2,6 +2,7 @@ import Mathlib
 import Soundcalc.Regime        -- brings in FieldParams, Rate, Regime, UDR, koalaBear4
                                -- and transitively SecBits (secBits)
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits
+import Soundcalc.Field          -- certified koalaBear4.elementSizeBits (= 124)
 
 open Soundcalc
 
@@ -119,13 +120,12 @@ def getFRIProofSizeBits
 
 /-! ## Proof size exit criteria
 
-`koalaBear4FieldBits` is the number of bits needed to represent one element of KoalaBear⁴:
-4 coefficients × ⌈log₂ p⌉ bits each, where p = `koalaBearPrime`. -/
+`koalaBear4FieldBits` is the number of bits to represent one element of KoalaBear⁴
+(`4 · ⌈log₂ p⌉`).  Rather than recompute it with a private `⌈log₂⌉`, we reuse the
+*certified* field-element size from `Soundcalc.Field`, where `koalaBear4_elementBits`
+proves `elementSizeBits = 124`. -/
 
-def ceilLog2 (n : Nat) : Nat :=
-  if n ≤ 1 then 0 else Nat.log2 (n - 1) + 1
-
-def koalaBear4FieldBits : N := 4 * ceilLog2 koalaBearPrime
+def koalaBear4FieldBits : N := Soundcalc.Field.koalaBear4.elementSizeBits
 
 /-! ## Jagged reduction proof size
 

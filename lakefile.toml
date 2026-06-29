@@ -8,3 +8,6 @@ version = "git#v4.30.0"
 
 [[lean_lib]]
 name = "Soundcalc"
+
+[[lean_lib]]
+name = "SoundcalcIO"

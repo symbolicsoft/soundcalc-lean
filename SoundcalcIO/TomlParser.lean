@@ -401,6 +401,6 @@ end SoundcalcIO.TomlParser
 /-
   We preserve the namespace while redeclaring the main.
   This enables the following:
-  `lean --run TomlParser.lean`
+  `lean exe tomlparser`
 -/
 def main := SoundcalcIO.TomlParser.main

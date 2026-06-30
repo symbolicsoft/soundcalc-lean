@@ -184,3 +184,4 @@ example : secBits (SP1_shrink_FRI.queryErr (UDR koalaBear4)) = 100 := by native_
 
 example : secBits SP1_shrink_jagged.reduceErr = 116 := by native_decide
 example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by native_decide
+

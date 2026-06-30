@@ -1,5 +1,5 @@
 name = "soundcalc"
-defaultTargets = ["Soundcalc"]
+defaultTargets = ["Soundcalc", "SoundcalcIO"]
 
 [[require]]
 name = "mathlib"
@@ -11,3 +11,7 @@ name = "Soundcalc"
 
 [[lean_lib]]
 name = "SoundcalcIO"
+
+[[lean_exe]]
+name = "tomlparser"
+root = "SoundcalcIO.TomlParser"

@@ -5,3 +5,5 @@ import Soundcalc.Circuit.Jagged
 import Soundcalc.Field
 import Soundcalc.Lookup
 import Soundcalc.Common.Utils
+import Soundcalc.Common.Log
+import Soundcalc.ZkVM.SP1

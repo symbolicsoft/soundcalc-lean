@@ -1,5 +1,6 @@
 import Mathlib
 import Soundcalc.Regime
+import Soundcalc.PCS.FRI
 
 namespace Soundcalc
 
@@ -48,35 +49,54 @@ def JaggedCfg.zerocheckErr (c : JaggedCfg) : Q :=
   ((c.numConstraints : Q) + (c.airMaxDegree + 2) * Nat.clog 2 c.traceLength)
   / (c.field.card : Q)
 
-/-!
-## SP1 core instance
+/-! ## Jagged reduction proof size
 
-Parameters from `circuits/jagged.py`:
-* `denseLen = 2^21`, `batchSize = 193` → `ℓ = 21 + 8 = 29`
-* `traceWidth = 3741`, `numConstraints = 3412`, `airMaxDegree = 3`
-* `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
--/
-def sp1Core : JaggedCfg where
-  field          := koalaBear4
-  denseLen       := 2 ^ 21
-  batchSize      := 193
-  traceWidth     := 3741
-  traceLength    := 2 ^ 22
-  numConstraints := 3412
-  airMaxDegree   := 3
+In the Jagged proof system (used by SP1), the dense FRI interaction is only part of the proof.
+On top of it sits the *Jagged reduction*: two sumcheck protocols that reduce the multilinear
+constraint system down to the dense FRI oracle.
 
-/-!
-## Exit criteria
+Source: `soundcalc/circuits/jagged.py`, `JaggedPCS._reduction_proof_size_bits`.
 
-`secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
+The helper `sumcheckSizeBits degree numVars fieldBits` gives the transcript size of one
+sumcheck with a degree-`degree` polynomial in `numVars` variables.  The formula is verbatim
+from the Python:
 
-Derivation sketch:
-* `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
-* numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
--/
+    (numVars * (degree + 2) + 2) * fieldBits
 
-example : secBits sp1Core.reduceErr = 116 := by native_decide
+`getJaggedReductionSizeBits denseTraceLen batchSize fieldBits` runs two such sumchecks:
 
-example : secBits sp1Core.zerocheckErr = 112 := by native_decide
+1. **Jagged sumcheck** over `logTrace` variables, where
+       `logTrace = ⌈log₂ denseTraceLen⌉ + ⌈log₂ batchSize⌉`
+
+2. **Jagged evaluation sumcheck** over `2 * logTrace + 2` variables.
+
+Both use degree 2. -/
+
+def sumcheckSizeBits (degree numVars fieldBits : N) : N :=
+  (numVars * (degree + 2) + 2) * fieldBits
+
+def getJaggedReductionSizeBits (denseTraceLen batchSize fieldBits : N) : N :=
+  let logTrace := Nat.clog 2 denseTraceLen + Nat.clog 2 batchSize
+  sumcheckSizeBits 2 logTrace fieldBits + sumcheckSizeBits 2 (2 * logTrace + 2) fieldBits
+
+/-! ## Full Jagged proof size
+
+`getJaggedProofSizeBits` = `getFRIProofSizeBits` + `getJaggedReductionSizeBits`.
+
+This matches `JaggedPCS.get_proof_size_bits` / `get_expected_proof_size_bits` in the
+soundcalc Python, which is what the SP1 report numbers are computed from.
+
+Note: lookups are *not* included in the soundcalc proof-size estimate (they appear only in
+the security-level table); `getJaggedProofSizeBits` therefore matches the report exactly
+without any lookup term. -/
+
+def getJaggedProofSizeBits
+    (hashSizeBits fieldSizeBits batchSize numQueries denseTraceLen domainSize : N)
+    (foldingFactors : List N)
+    (rate : ℚ)
+    (expected : Bool) : N :=
+  getFRIProofSizeBits
+      hashSizeBits fieldSizeBits batchSize numQueries domainSize foldingFactors rate expected +
+  getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
 
 end Soundcalc

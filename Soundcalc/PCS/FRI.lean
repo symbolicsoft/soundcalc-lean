@@ -9,9 +9,11 @@ open Soundcalc
 /-!
 # FRI soundness configuration
 
-Verbatim from the spec: `FRIConfig`, `FRIConfig.batchingErr`,
-`FRIConfig.commitErr`, `FRIConfig.queryErr`, and the *statement* of
-`FRIConfig.earlyStop_ok`.
+Generic structures and error formulas: `FRIConfig`, `FRIConfig.batchingErr`,
+`FRIConfig.commitErr`, `FRIConfig.queryErr`, and `getFRIProofSizeBits`.
+SP1-specific instances and exit criteria live in `Soundcalc.ZkVM.SP1`.
+Jagged-layer proof size helpers (`sumcheckSizeBits`, `getJaggedReductionSizeBits`,
+`getJaggedProofSizeBits`) live in `Soundcalc.Circuit.Jagged`.
 
 `ρ` is stored as `Rate` (the subtype `{ρ : ℚ // 0 < ρ ∧ ρ < 1}`) so the
 constraint is enforced at construction time and Regime's field signatures are
@@ -43,47 +45,6 @@ def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
 
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   (1 - R.θ c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
-
-/-! ## SP1 core config
-
-`denseLen` is the FRI dimension `d`; `n = d/ρ = 2^23`.  The trace length
-(`2^22`, used by zerocheck) is a *separate* quantity and deliberately
-does **not** appear in `FRIConfig`. -/
-
-def sp1CoreFRI : FRIConfig where
-  field          := koalaBear4
-  ρ              := ⟨1 / 4, by norm_num⟩   -- 0 < 1/4 < 1, proved at definition time
-  denseLen       := 2 ^ 21
-  batchSize      := 193
-  numQueries     := 124
-  foldingFactors := List.replicate 21 2
-  earlyStopDeg   := 4
-  grindQuery     := 16
-  grindBatch     := 5
-
-/-! ## Early-stop side condition
-
-The statement is the spec's, with explicit `ℚ` coercions made visible:
-`c.denseLen / (c.ρ : Q)` mixes `ℕ` and `ℚ`; the cast `(c.ρ : Q)` extracts
-the value from the `Rate` subtype. -/
-
-theorem FRIConfig.earlyStop_ok (c : FRIConfig) (hc : c = sp1CoreFRI) :
-    ((c.denseLen : Q) / (c.ρ : Q)) / ((c.foldingFactors.foldl (· * ·) 1 : N) : Q)
-      = (c.earlyStopDeg : Q) := by
-  subst hc
-  simp only [sp1CoreFRI]
-  norm_num [show ((List.replicate 21 2).foldl (· * ·) 1 : N) = 2097152 from by decide]
-
-/-! ## Exit criteria
-
-`queryErr` is fully determined by `θ = (1−ρ)/2`, so it closes now:
-`(1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
-
-example : secBits (sp1CoreFRI.queryErr (UDR koalaBear4)) = 100 := by native_decide
-
-example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4)) = 104 := by native_decide
-example : secBits (sp1CoreFRI.commitErr (UDR koalaBear4) 0) = 103 := by native_decide
-example : secBits (sp1CoreFRI.commitErr (UDR koalaBear4) 20) = 122 := by native_decide
 
 /-! ## FRI proof size -/
 
@@ -127,68 +88,6 @@ proves `elementSizeBits = 124`. -/
 
 def koalaBear4FieldBits : N := Soundcalc.Field.koalaBear4.elementSizeBits
 
-/-! ## Jagged reduction proof size
-
-In the Jagged proof system (used by SP1), the dense FRI interaction is only part of the proof.
-On top of it sits the *Jagged reduction*: two sumcheck protocols that reduce the multilinear
-constraint system down to the dense FRI oracle.
-
-Source: `soundcalc/circuits/jagged.py`, `JaggedPCS._reduction_proof_size_bits`.
-
-The helper `sumcheckSizeBits degree numVars fieldBits` gives the transcript size of one
-sumcheck with a degree-`degree` polynomial in `numVars` variables.  The formula is verbatim
-from the Python:
-
-    (numVars * (degree + 2) + 2) * fieldBits
-
-`getJaggedReductionSizeBits denseTraceLen batchSize fieldBits` runs two such sumchecks:
-
-1. **Jagged sumcheck** over `logTrace` variables, where
-       logTrace = ⌈log₂ denseTraceLen⌉ + ⌈log₂ batchSize⌉
-
-2. **Jagged evaluation sumcheck** over `2 * logTrace + 2` variables.
-
-Both use degree 2. -/
-
-def sumcheckSizeBits (degree numVars fieldBits : N) : N :=
-  (numVars * (degree + 2) + 2) * fieldBits
-
-def getJaggedReductionSizeBits (denseTraceLen batchSize fieldBits : N) : N :=
-  let logTrace := Nat.clog 2 denseTraceLen + Nat.clog 2 batchSize
-  sumcheckSizeBits 2 logTrace fieldBits + sumcheckSizeBits 2 (2 * logTrace + 2) fieldBits
-
-/-! ## Full Jagged proof size
-
-`getJaggedProofSizeBits` = `getFRIProofSizeBits` + `getJaggedReductionSizeBits`.
-
-This matches `JaggedPCS.get_proof_size_bits` / `get_expected_proof_size_bits` in the
-soundcalc Python, which is what the SP1 report numbers are computed from.
-
-Note: lookups are *not* included in the soundcalc proof-size estimate (they appear only in
-the security-level table); `getJaggedProofSizeBits` therefore matches the report exactly
-without any lookup term. -/
-
-def getJaggedProofSizeBits
-    (hashSizeBits fieldSizeBits batchSize numQueries denseTraceLen domainSize : N)
-    (foldingFactors : List N)
-    (rate : ℚ)
-    (expected : Bool) : N :=
-  getFRIProofSizeBits
-      hashSizeBits fieldSizeBits batchSize numQueries domainSize foldingFactors rate expected +
-  getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
-
-/-!
-Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
-
-| circuit  | denseTraceLen | ρ    | domainSize        | batchSize | numQueries | foldRounds |
-|----------|---------------|------|-------------------|-----------|------------|------------|
-| core     | 2^21          | 1/4  | 2^21/(1/4) = 2^23 | 193       | 124        | 21 × 2     |
-| compress | 2^20          | 1/4  | 2^20/(1/4) = 2^22 | 128       | 124        | 20 × 2     |
-| shrink   | 2^18          | 1/8  | 2^18/(1/8) = 2^21 | 128       | 94         | 18 × 2     |
-
-`hashSizeBits = 248` for all three.
-Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report. -/
-
 -- FRI-only sizes (getFRIProofSizeBits, matching the Python get_FRI_proof_size_bits):
 -- core: 913 KiB (expected) / 1474 KiB (worst case)
 example : getFRIProofSizeBits 248 koalaBear4FieldBits 193 124 (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 913  := by native_decide
@@ -200,13 +99,3 @@ example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 124 (2^22) (List.repli
 example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 524  := by native_decide
 example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 882  := by native_decide
 
--- Full Jagged proof sizes (getJaggedProofSizeBits, matching the SP1 report):
--- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 918  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) false / KIB = 1479 := by native_decide
--- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) true  / KIB = 735  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) false / KIB = 1267 := by native_decide
--- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 529  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 887  := by native_decide

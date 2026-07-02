@@ -73,7 +73,7 @@ The classical decoder corrects up to *half* the minimum distance:
 /-- The Unique Decoding Regime instance.
     We destructure `⟨ρ, _⟩ : Rate` in each field to extract the value `ρ : ℚ`;
     the proof component is not needed in the formula but is enforced by the type. -/
-def UDR (F : Field.FieldParams) : Regime where
+def UDR (F : FieldParams) : Regime where
   θ              := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2
   listSize       := fun _      _   => 1
   errLinear      := fun ⟨ρ, _⟩ d   => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)

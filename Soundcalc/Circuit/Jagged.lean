@@ -25,7 +25,7 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 
 /-- Parameters for a jagged circuit instance. -/
 structure JaggedCfg where
-  field          : Field.FieldParams
+  field          : FieldParams
   denseLen       : N    -- e.g. 2^21 (FRI dimension d)
   batchSize      : N    -- e.g. 193  (contributes ⌈log₂ b⌉ to ℓ)
   traceWidth     : N    -- e.g. 3741

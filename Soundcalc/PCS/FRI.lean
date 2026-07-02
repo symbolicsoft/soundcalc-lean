@@ -25,7 +25,7 @@ abbrev Q := Rat
 /-! ## FRI configuration -/
 
 structure FRIConfig where
-  field          : Field.FieldParams
+  field          : FieldParams
   ρ              : Rate          -- rate, constrained to (0,1) by the Rate subtype
   denseLen       : N             -- = 2^21 for SP1 core
   batchSize      : N             -- = 193
@@ -85,7 +85,7 @@ def getFRIProofSizeBits
 *certified* field-element size from `Soundcalc.Field`, where `koalaBear4_elementBits`
 proves `elementSizeBits = 124`. -/
 
-def koalaBear4FieldBits : N := Soundcalc.Field.koalaBear4.elementSizeBits
+def koalaBear4FieldBits : N := koalaBear4.elementSizeBits
 
 -- FRI-only sizes (getFRIProofSizeBits, matching the Python get_FRI_proof_size_bits):
 -- core: 913 KiB (expected) / 1474 KiB (worst case)

@@ -5,7 +5,6 @@ import Soundcalc.Field
 
 namespace Soundcalc
 
-open Soundcalc.Lookup
 
 /-!
 # SP1 zkVM — circuit instances
@@ -21,7 +20,7 @@ Concrete instantiation for SP1's FRI-based sumcheck, verifying that the symbolic
 formula reduces to the expected closed form and achieves the claimed security level.
 
 Parameters:
-* field : KoalaBear degree-4 extension, `|F| = Field.koalaBear4.card`
+* field : KoalaBear degree-4 extension, `|F| = koalaBear4.card`
 * rate  : `ρ = 1/4`
 * dim   : `2^21` (trace column degree)
 * batch : `193` rounds, so `⌈log₂ 193⌉ = 8` (since `2^7 = 128 < 193 ≤ 256 = 2^8`)
@@ -31,8 +30,8 @@ Parameters:
     `(3/8 · 2^23 + 1) / |F| · 8`.
 
     Derivation: `θ = (1 - 1/4)/2 = 3/8`, `dim / ρ = 2^21 / (1/4) = 2^23`, `⌈log₂ 193⌉ = 8`. -/
-example : (UDR Field.koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
-    = (3 / 8 * (2 : ℚ) ^ 23 + 1) / (Field.koalaBear4.card : ℚ) * 8 := by
+example : (UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
+    = (3 / 8 * (2 : ℚ) ^ 23 + 1) / (koalaBear4.card : ℚ) * 8 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
   push_cast
@@ -42,11 +41,11 @@ example : (UDR Field.koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 
 
     Note: the 104-bit claim in SP1 belongs to `batchingErr`, which divides
     `errMultilinear` by `2 ^ grindBatch = 32`, adding 5 bits (99 + 5 = 104). -/
-example : secBits ((UDR Field.koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193) = 99 := by
+example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193) = 99 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
   push_cast
-  norm_num [secBits, Field.koalaBear4, Field.FieldParams.card]
+  norm_num [secBits, koalaBear4, FieldParams.card]
   native_decide
 
 /-! ## Jagged -/
@@ -58,7 +57,7 @@ Parameters from `circuits/jagged.py`:
 * `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
 -/
 def sp1Core : JaggedCfg where
-  field          := Field.koalaBear4
+  field          := koalaBear4
   denseLen       := 2 ^ 21
   batchSize      := 193
   traceWidth     := 3741
@@ -82,7 +81,7 @@ example : secBits sp1Core.zerocheckErr = 112 := by native_decide
 (`2^22`, used by zerocheck) is a *separate* quantity and deliberately
 does **not** appear in `FRIConfig`. -/
 def sp1CoreFRI : FRIConfig where
-  field          := Field.koalaBear4
+  field          := koalaBear4
   ρ              := ⟨1 / 4, by norm_num⟩
   denseLen       := 2 ^ 21
   batchSize      := 193
@@ -104,10 +103,10 @@ theorem FRIConfig.earlyStop_ok (c : FRIConfig) (hc : c = sp1CoreFRI) :
   norm_num [show ((List.replicate 21 2).foldl (· * ·) 1 : N) = 2097152 from by decide]
 
 /-! `queryErr = (1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
-example : secBits (sp1CoreFRI.queryErr   (UDR Field.koalaBear4))     = 100 := by native_decide
-example : secBits (sp1CoreFRI.batchingErr (UDR Field.koalaBear4))    = 104 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR Field.koalaBear4)  0)  = 103 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR Field.koalaBear4) 20)  = 122 := by native_decide
+example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by native_decide
+example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by native_decide
+example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4)  0)  = 103 := by native_decide
+example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4) 20)  = 122 := by native_decide
 
 /-! ## FRI proof sizes
 
@@ -139,7 +138,7 @@ Parsed from https://github.com/ethereum/soundcalc/blob/main/soundcalc/zkvms/sp1/
 -/
 
 def sp1CoreLookup : LookupCfg where
-  field           := Field.koalaBear4
+  field           := koalaBear4
   rowsT           := 0
   rowsL           := 4194304    -- 2 ^ 22
   numColumnsS     := 107
@@ -147,7 +146,7 @@ def sp1CoreLookup : LookupCfg where
   grindBitsLookup := 12
 
 def sp1CompressLookup : LookupCfg where
-  field           := Field.koalaBear4
+  field           := koalaBear4
   rowsT           := 0
   rowsL           := 2097152    -- 2 ^ 21
   numColumnsS     := 6
@@ -155,7 +154,7 @@ def sp1CompressLookup : LookupCfg where
   grindBitsLookup := 12
 
 def sp1ShrinkLookup : LookupCfg where
-  field           := Field.koalaBear4
+  field           := koalaBear4
   rowsT           := 0
   rowsL           := 524288     -- 2 ^ 19
   numColumnsS     := 6

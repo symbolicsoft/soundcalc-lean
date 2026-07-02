@@ -1,8 +1,6 @@
 import Soundcalc.Regime
 import Soundcalc.Common.Log
 
-open Soundcalc.Common.Log
-
 /-!
 # `Soundcalc.Lookup` — LogUp and GKR soundness errors (roadmap S6)
   Mirrors `soundcalc/lookup/logup.py` and `soundcalc/lookup/gkr.py`.
@@ -18,10 +16,10 @@ open Soundcalc.Common.Log
   throughout this file for this purpose.
 -/
 
-namespace Soundcalc.Lookup
+namespace Soundcalc
 
 structure LookupCfg where
-  field           : Field.FieldParams
+  field           : FieldParams
   rowsT           : ℕ -- Rows of "big" table `T`
   rowsL           : ℕ -- Rows of "small" table `L` (looked up inside `T`)
   numColumnsS     : ℕ -- Number of columns of `T` and `L` (`S=1` for single column case)
@@ -40,7 +38,7 @@ structure LookupCfg where
     Logarithms are upper-bounded as per `log2UB`, ensuring a bounded
     and verifiable over-approximation of the error.
 -/
-def gkrErrorUB (F : Field.FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
+def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   let n := log2UB alphabetSize 64
   let m := log2UB numLookupsM 64
   let nm := n + m
@@ -77,4 +75,4 @@ def LookupCfg.errUB (c: LookupCfg) : ℚ :=
   -- We account for the grinding at the very end
   (baseError + gkrError) / 2 ^ c.grindBitsLookup
 
-end Soundcalc.Lookup
+end Soundcalc

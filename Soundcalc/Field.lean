@@ -28,7 +28,7 @@ travels as a *proof* and every size is an exact `ℕ` — no floats.
   This comes later in the roadmap.
 -/
 
-namespace Soundcalc.Field
+namespace Soundcalc
 
 /-- A finite field `F = 𝔽_{p^e}`, carrying *proofs* of its invariants. -/
 structure FieldParams where
@@ -87,4 +87,4 @@ theorem koalaBear4_baseBits : koalaBear4.baseElementSizeBits = 31 := by
 theorem koalaBear4_elementBits : koalaBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, koalaBear4_baseBits]; rfl
 
-end Soundcalc.Field
+end Soundcalc

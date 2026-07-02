@@ -6,8 +6,6 @@ import Soundcalc.Field
 import Soundcalc.Lookup
 
 open Soundcalc
-open Soundcalc.Lookup
-open Soundcalc.Field
 
 /- SP1: core -/
 

@@ -8,7 +8,7 @@ with the theorems bounding the approximation error.  Used by `Soundcalc.Lookup` 
 the GKR and LogUp soundness error formulas.
 -/
 
-namespace Soundcalc.Common.Log
+namespace Soundcalc
 
 /-- A rational approximation for `log_2 x` at dyadic granularity `m`
     (e.g. `m = 64` overstates by `< 2^(-6)`); certificate is
@@ -117,4 +117,4 @@ theorem log2UB_approx_bound {x m : ℕ} (hxm : 1 < x^m) (hm : 0 < m) :
   (log2UB x m) - (1 : ℚ) / m < Real.logb 2 x ∧ Real.logb 2 x ≤ log2UB x m :=
   ⟨log2UB_lower_bound hxm hm, log2UB_upper_bound hxm hm⟩
 
-end Soundcalc.Common.Log
+end Soundcalc

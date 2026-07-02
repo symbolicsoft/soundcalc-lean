@@ -1,22 +1,10 @@
 import Soundcalc.Circuit.Jagged
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
+import Soundcalc.Field
 
-/-! Field definitions at `Soundcalc` namespace level so that downstream files
-    (e.g. `SoundcalcIO.ZkVM.SP1`) can access them via `open Soundcalc`. -/
 namespace Soundcalc
 
-/-- The KoalaBear prime: `p = 2^31 - 2^24 + 1`, a Mersenne-like prime chosen for
-    efficient Montgomery reduction on 32-bit hardware. -/
-def koalaBearPrime : ℕ := 2 ^ 31 - 2 ^ 24 + 1
-
-/-- KoalaBear degree-4 extension field (used in SP1 / Plonky3).
-    Element count: `p^4` where `p` is the KoalaBear prime. -/
-def koalaBear4 : FieldParams := { card := koalaBearPrime ^ 4 }
-
-end Soundcalc
-
-open Soundcalc
 open Soundcalc.Lookup
 
 /-!
@@ -33,7 +21,7 @@ Concrete instantiation for SP1's FRI-based sumcheck, verifying that the symbolic
 formula reduces to the expected closed form and achieves the claimed security level.
 
 Parameters:
-* field : KoalaBear degree-4 extension, `|F| = p^4` where `p = 2^31 - 2^24 + 1`
+* field : KoalaBear degree-4 extension, `|F| = Field.koalaBear4.card`
 * rate  : `ρ = 1/4`
 * dim   : `2^21` (trace column degree)
 * batch : `193` rounds, so `⌈log₂ 193⌉ = 8` (since `2^7 = 128 < 193 ≤ 256 = 2^8`)
@@ -43,8 +31,8 @@ Parameters:
     `(3/8 · 2^23 + 1) / |F| · 8`.
 
     Derivation: `θ = (1 - 1/4)/2 = 3/8`, `dim / ρ = 2^21 / (1/4) = 2^23`, `⌈log₂ 193⌉ = 8`. -/
-example : (UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
-    = (3 / 8 * (2 : ℚ) ^ 23 + 1) / (koalaBear4.card : ℚ) * 8 := by
+example : (UDR Field.koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
+    = (3 / 8 * (2 : ℚ) ^ 23 + 1) / (Field.koalaBear4.card : ℚ) * 8 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
   push_cast
@@ -54,11 +42,11 @@ example : (UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
 
     Note: the 104-bit claim in SP1 belongs to `batchingErr`, which divides
     `errMultilinear` by `2 ^ grindBatch = 32`, adding 5 bits (99 + 5 = 104). -/
-example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193) = 99 := by
+example : secBits ((UDR Field.koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193) = 99 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
   push_cast
-  norm_num [secBits, koalaBear4, koalaBearPrime]
+  norm_num [secBits, Field.koalaBear4, Field.FieldParams.card]
   native_decide
 
 /-! ## Jagged -/
@@ -70,7 +58,7 @@ Parameters from `circuits/jagged.py`:
 * `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
 -/
 def sp1Core : JaggedCfg where
-  field          := koalaBear4
+  field          := Field.koalaBear4
   denseLen       := 2 ^ 21
   batchSize      := 193
   traceWidth     := 3741
@@ -94,7 +82,7 @@ example : secBits sp1Core.zerocheckErr = 112 := by native_decide
 (`2^22`, used by zerocheck) is a *separate* quantity and deliberately
 does **not** appear in `FRIConfig`. -/
 def sp1CoreFRI : FRIConfig where
-  field          := koalaBear4
+  field          := Field.koalaBear4
   ρ              := ⟨1 / 4, by norm_num⟩
   denseLen       := 2 ^ 21
   batchSize      := 193
@@ -116,12 +104,12 @@ theorem FRIConfig.earlyStop_ok (c : FRIConfig) (hc : c = sp1CoreFRI) :
   norm_num [show ((List.replicate 21 2).foldl (· * ·) 1 : N) = 2097152 from by decide]
 
 /-! `queryErr = (1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
-example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by native_decide
-example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4)  0)  = 103 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4) 20)  = 122 := by native_decide
+example : secBits (sp1CoreFRI.queryErr   (UDR Field.koalaBear4))     = 100 := by native_decide
+example : secBits (sp1CoreFRI.batchingErr (UDR Field.koalaBear4))    = 104 := by native_decide
+example : secBits (sp1CoreFRI.commitErr  (UDR Field.koalaBear4)  0)  = 103 := by native_decide
+example : secBits (sp1CoreFRI.commitErr  (UDR Field.koalaBear4) 20)  = 122 := by native_decide
 
-/-! ## Jagged proof sizes
+/-! ## FRI proof sizes
 
 Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
 
@@ -178,3 +166,5 @@ def sp1ShrinkLookup : LookupCfg where
 theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
 theorem sp1_compress_lookup_bits : secBits sp1CompressLookup.errUB = 107 := by native_decide
 theorem sp1_shrink_lookup_bits : secBits sp1ShrinkLookup.errUB = 109 := by native_decide
+
+end Soundcalc

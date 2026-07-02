@@ -1,5 +1,6 @@
 import Mathlib
 import Soundcalc.SecBits
+import Soundcalc.Field
 
 namespace Soundcalc
 
@@ -47,10 +48,6 @@ structure Regime where
   errPowers      : Rate → (dim : ℕ) → (batch : ℕ) → ℚ
   errMultilinear : Rate → (dim : ℕ) → (batch : ℕ) → ℚ
 
-/-- Parameters of the finite field over which the code is defined. -/
-structure FieldParams where
-  card : ℕ
-
 /-!
 ## Unique Decoding Regime (UDR)
 
@@ -76,7 +73,7 @@ The classical decoder corrects up to *half* the minimum distance:
 /-- The Unique Decoding Regime instance.
     We destructure `⟨ρ, _⟩ : Rate` in each field to extract the value `ρ : ℚ`;
     the proof component is not needed in the formula but is enforced by the type. -/
-def UDR (F : FieldParams) : Regime where
+def UDR (F : Field.FieldParams) : Regime where
   θ              := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2
   listSize       := fun _      _   => 1
   errLinear      := fun ⟨ρ, _⟩ d   => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)

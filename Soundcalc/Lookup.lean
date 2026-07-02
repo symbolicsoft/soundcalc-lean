@@ -1,10 +1,6 @@
-import Mathlib
-import Soundcalc.Field
-import Soundcalc.SecBits
+import Soundcalc.Regime
 import Soundcalc.Common.Log
 
-open Soundcalc
-open Soundcalc.Field
 open Soundcalc.Common.Log
 
 /-!
@@ -25,7 +21,7 @@ open Soundcalc.Common.Log
 namespace Soundcalc.Lookup
 
 structure LookupCfg where
-  field           : FieldParams
+  field           : Field.FieldParams
   rowsT           : ℕ -- Rows of "big" table `T`
   rowsL           : ℕ -- Rows of "small" table `L` (looked up inside `T`)
   numColumnsS     : ℕ -- Number of columns of `T` and `L` (`S=1` for single column case)
@@ -44,7 +40,7 @@ structure LookupCfg where
     Logarithms are upper-bounded as per `log2UB`, ensuring a bounded
     and verifiable over-approximation of the error.
 -/
-def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
+def gkrErrorUB (F : Field.FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   let n := log2UB alphabetSize 64
   let m := log2UB numLookupsM 64
   let nm := n + m

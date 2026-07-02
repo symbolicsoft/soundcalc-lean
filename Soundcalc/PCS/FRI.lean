@@ -1,6 +1,5 @@
 import Mathlib
-import Soundcalc.Regime        -- brings in FieldParams, Rate, Regime, UDR, koalaBear4
-                               -- and transitively SecBits (secBits)
+import Soundcalc.Regime        -- brings in Rate, Regime, UDR (and Field transitively)
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits
 import Soundcalc.Field          -- certified koalaBear4.elementSizeBits (= 124)
 
@@ -26,7 +25,7 @@ abbrev Q := Rat
 /-! ## FRI configuration -/
 
 structure FRIConfig where
-  field          : FieldParams
+  field          : Field.FieldParams
   ρ              : Rate          -- rate, constrained to (0,1) by the Rate subtype
   denseLen       : N             -- = 2^21 for SP1 core
   batchSize      : N             -- = 193
@@ -98,4 +97,3 @@ example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 124 (2^22) (List.repli
 -- shrink: 524 KiB (expected) / 882 KiB (worst case)
 example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 524  := by native_decide
 example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 882  := by native_decide
-

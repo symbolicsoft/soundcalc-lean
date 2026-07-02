@@ -25,7 +25,7 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 
 /-- Parameters for a jagged circuit instance. -/
 structure JaggedCfg where
-  field          : FieldParams
+  field          : Field.FieldParams
   denseLen       : N    -- e.g. 2^21 (FRI dimension d)
   batchSize      : N    -- e.g. 193  (contributes ⌈log₂ b⌉ to ℓ)
   traceWidth     : N    -- e.g. 3741
@@ -98,5 +98,29 @@ def getJaggedProofSizeBits
   getFRIProofSizeBits
       hashSizeBits fieldSizeBits batchSize numQueries domainSize foldingFactors rate expected +
   getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
+
+/-! ## Jagged proof sizes
+
+Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
+
+| circuit  | denseTraceLen | ρ    | domainSize        | batchSize | numQueries | foldRounds |
+|----------|---------------|------|-------------------|-----------|------------|------------|
+| core     | 2^21          | 1/4  | 2^21/(1/4) = 2^23 | 193       | 124        | 21 × 2     |
+| compress | 2^20          | 1/4  | 2^20/(1/4) = 2^22 | 128       | 124        | 20 × 2     |
+| shrink   | 2^18          | 1/8  | 2^18/(1/8) = 2^21 | 128       | 94         | 18 × 2     |
+
+`hashSizeBits = 248` for all three.
+Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
+-/
+
+-- core: 918 KiB (expected) / 1479 KiB (worst case)
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 918  := by native_decide
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) false / KIB = 1479 := by native_decide
+-- compress: 735 KiB (expected) / 1267 KiB (worst case)
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) true  / KIB = 735  := by native_decide
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) false / KIB = 1267 := by native_decide
+-- shrink: 529 KiB (expected) / 887 KiB (worst case)
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 529  := by native_decide
+example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 887  := by native_decide
 
 end Soundcalc

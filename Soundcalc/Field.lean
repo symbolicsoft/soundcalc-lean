@@ -53,6 +53,8 @@ def FieldParams.baseElementSizeBits (F : FieldParams) : ℕ := Nat.clog 2 F.p
 `extension_field_element_size_bits = base * field_extension_degree`). -/
 def FieldParams.elementSizeBits (F : FieldParams) : ℕ := F.baseElementSizeBits * F.e
 
+/-! ## KoalaBear -/
+
 /-- KoalaBear, `p = 2^31 - 2^24 + 1`; SP1 uses its degree-4 extension. -/
 def koalaBear4 : FieldParams where
   p               := 2 ^ 31 - 2 ^ 24 + 1
@@ -62,7 +64,7 @@ def koalaBear4 : FieldParams where
   epos            := by decide
   twoAdicity_spec := by decide
 
-/-! ## S2 exit criteria (all kernel-checked, no `sorry`, no `native_decide`) -/
+/-! ### KoalaBear exit criteria (all kernel-checked, no `sorry`, no `native_decide`) -/
 
 /-- `|F|` matches the Python `field.F` for SP1 core. -/
 example : koalaBear4.card = (2 ^ 31 - 2 ^ 24 + 1) ^ 4 := by
@@ -74,17 +76,50 @@ both ways via the characterization lemmas, then `omega`. -/
 theorem koalaBear4_baseBits : koalaBear4.baseElementSizeBits = 31 := by
   show Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) = 31
   have hle : Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow]
-    norm_num
-    norm_num
+    rw [Nat.clog_le_iff_le_pow]; norm_num; norm_num
   have hlt : 30 < Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt]
-    norm_num
-    norm_num
+    rw [Nat.lt_clog_iff_pow_lt]; norm_num; norm_num
   omega
 
 /-- An extension-field element of KoalaBear⁴ is 124 bits (`31 · 4`). -/
 theorem koalaBear4_elementBits : koalaBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, koalaBear4_baseBits]; rfl
+
+/-! ## Mersenne31 -/
+
+/-- Mersenne31, `p = 2^31 - 1`; Airbender uses its degree-4 extension.
+    `twoAdicity = 1` because `v₂(p - 1) = v₂(2^31 - 2) = 1`. -/
+def m31_4 : FieldParams where
+  p               := 2 ^ 31 - 1
+  e               := 4
+  twoAdicity      := 1
+  prime           := by norm_num
+  epos            := by decide
+  twoAdicity_spec := by decide
+
+/-! ### Mersenne31 exit criteria
+
+`m31_4` elaborates with no `sorry`; card, bit size, and — critically — the
+Johnson-bound field-size branch are pinned.  The last example matters:
+`soundcalc/proxgaps/johnson_bound.py` branches on `field.F > 2**150`, and
+`(2^31 - 1)^4 ≈ 2^124 < 2^150` forces Airbender into the
+`η = max(ρ/20, √ρ/100)` branch used throughout A1. -/
+
+example : m31_4.card = (2 ^ 31 - 1) ^ 4 := by
+  unfold FieldParams.card m31_4; norm_num
+
+theorem m31_4_baseBits : m31_4.baseElementSizeBits = 31 := by
+  show Nat.clog 2 (2 ^ 31 - 1) = 31
+  have hle : Nat.clog 2 (2 ^ 31 - 1) ≤ 31 := by
+    rw [Nat.clog_le_iff_le_pow]; norm_num; norm_num
+  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 1) := by
+    rw [Nat.lt_clog_iff_pow_lt]; norm_num; norm_num
+  omega
+
+example : m31_4.elementSizeBits = 124 := by
+  rw [FieldParams.elementSizeBits, m31_4_baseBits]; rfl
+
+example : (m31_4.card : ℚ) < 2 ^ 150 := by
+  unfold FieldParams.card m31_4; norm_num
 
 end Soundcalc

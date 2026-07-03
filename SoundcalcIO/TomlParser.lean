@@ -2,29 +2,19 @@ import Lake.Toml.Load
 import Lake.Toml.Data.Value
 import Lean.Parser.Types
 
+import Soundcalc
+
 open Lake.Toml Lean Parser
+open Soundcalc
 
 namespace SoundcalcIO.TomlParser
 
-/-!
-  # `SoundcalcIO.TomlParser` —  (roadmap S7; partial)
-    A parsing tool that generates `SP1.lean` from `SP1.toml`.
-    The `.lean` file wraps together all the structures defined in companion
-    files (`JaggedCfg`, `LookupCfg`, `FRIConfig`), enabling a formal arithmetic
-    verification of the `sp1.md` report of  `soundcalc` by means of cell-wise
-    evaluations.
-
-    usage: `lean exe tomlparser`
-
-  *TODOs.* While the structure of the current parser is general, its instantiation
-  is tailored to SP1 only. Extensions to other zkEVMs will be addressed as they
-  are introduced within the roadmap.
--/
-
 /-
   Auxiliary methods to parse `.toml` files robustly.
-  If a field is missing, is incomplete, or it does not match the
-  expected type within the `.toml`, the Parser errors out.
+  Current strategy: if a field is missing, is incomplete, or it
+  does not match the expected type within the `.toml`, the Parser
+  errors out. If a field is optional, a separate `get*` combinator
+  returns a default value instead.
 -/
 
 def orExit {T : Type} (e : Except String T) : IO T :=
@@ -90,17 +80,6 @@ private def getTable (tbl : Table) (key : String) : Except String (RBDict Name V
   | none                => .error s!"key '{key}' not found"
 
 /-- More parsing auxiliary methods. -/
-
-/-
-  Removes all `^` symbols while lower-casing the first letter of a string.
-  Main use: parsing field names (e.g., `KoalaBear^4` -> `koalaBear4`).
--/
-private def cleanFieldName (s: String) : String :=
-  let s := s.replace "^" ""
-  match s.toList with
-  | []      => ""
-  | c :: cs => String.ofList (c.toLower :: cs)
-
 /-
   **IMPORTANT**
   The TOML file contains exact rationals represented as floats.
@@ -108,7 +87,8 @@ private def cleanFieldName (s: String) : String :=
   are preserved. We do that by:
 
   - Converting the float to a string, stripping trailing zeroes;
-  - Mapping the resulting string to an exact rational.
+  - Mapping the resulting string to an exact rational, which is
+    also a *rate* (i.e., 0 < ρ < 1).
 
   *NOTE* This strategy assumes that meaningful float values can always be
   expressed as exact rationals, and that the map is relatively contained
@@ -117,12 +97,11 @@ private def cleanFieldName (s: String) : String :=
   In the general case, we would give up the accuracy of reasoning
   in terms of exact rationals instead.
 -/
-private def mapFloatstrToRat : List (String × Rat) := [
-  ("1",      1/1),
-  ("0.5",    1/2),
-  ("0.25",   1/4),
-  ("0.125",  1/8),
-  ("0.0625", 1/16),
+private def mapFloatstrToRate : List (String × Rate) := [
+  ("0.5",    ⟨1/2, by norm_num⟩),
+  ("0.25",   ⟨1/4, by norm_num⟩),
+  ("0.125",  ⟨1/8, by norm_num⟩),
+  ("0.0625", ⟨1/16, by norm_num⟩),
 ]
 
 private def stripTrailingZeros (s : String) : String :=
@@ -134,185 +113,57 @@ private def stripTrailingZeros (s : String) : String :=
   else
     s
 
-private def floatToRat (map : List (String × Rat)) (f : Float) : Except String Rat :=
+private def floatToRate (map : List (String × Rate)) (f : Float) : Except String Rate :=
   let key := stripTrailingZeros f.toString
   match map.lookup key with
-  | some r => .ok r
-  | none   => .error s!"no entry for '{f}' (normalized to '{key}')"
+  | some rate => .ok rate
+  | none      => .error s!"no entry for '{f}' (normalized to '{key}')"
 
 /-
-  Header string declaring the imports of `SP1.lean`.
-  *TODO* Polishing namespaces.
+  Maps strings to supported `FieldParams`.
 -/
+private def mapStrToFieldParams : List (String × FieldParams) := [
+  ("KoalaBear^4", koalaBear4),
+]
 
-private def getSP1ImportStr : String :=
-    s!"/- Automatically generated from `TomlParser.lean` and `SP1.toml`. -/\n" ++
-    s!"\n" ++
-    s!"import Mathlib\n" ++
-    s!"import Soundcalc\n" ++
-    s!"import Soundcalc.Field\n" ++
-    s!"import Soundcalc.Lookup\n" ++
-    s!"\n" ++
-    s!"open Soundcalc\n" ++
-    s!"open Soundcalc.Lookup\n" ++
-    s!"open Soundcalc.Field\n" ++
-    s!"\n"
+private def strToFieldParams (map : List (String × FieldParams)) (s : String) : Except String FieldParams :=
+  match map.lookup s with
+  | some fp => .ok fp
+  | none    => .error s!"no FieldParams defined for '{s}')"
 
-/-
-  The values below are for now manually parsed from `soundcalc`'s `sp1.md`
-  (https://github.com/ethereum/soundcalc/blob/main/reports/sp1.md).
-  *TODO*: Lots of polishing; possibly, automatic parsing from the `.md`.
--/
-
-private def getSP1CoreReportStr : String :=
-  "/- Sanity check against `sp1.md`'s reported values.-/" ++
-  "\n" ++
-  "example : secBits (SP1_core_lookup_lookup.errUB) = 100 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits (SP1_core_FRI.batchingErr (UDR koalaBear4)) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 0) = 103 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 9) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 10) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 11) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 12) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 13) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 14) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 15) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 16) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 17) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 18) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 1) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 19) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 20) = 122 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 2) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 3) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 4) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 5) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 6) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 7) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 8) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits SP1_core_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_core_jagged.zerocheckErr = 112 := by native_decide\n" ++
-  "\n"
-
-private def getSP1CompressReportStr : String :=
-  "/- Sanity check against `sp1.md`'s reported values.-/" ++
-  "\n" ++
-  "example : secBits (SP1_compress_lookup_lookup.errUB) = 107 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits (SP1_compress_FRI.batchingErr (UDR koalaBear4)) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 0) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 9) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 10) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 11) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 12) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 13) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 14) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 15) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 16) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 17) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 18) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 1) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 19) = 122 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 2) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 3) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 4) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 5) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 6) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 7) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 8) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits SP1_compress_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_compress_jagged.zerocheckErr = 115 := by native_decide\n" ++
-  "\n"
-
-private def getSP1ShrinkReportStr : String :=
-  "/- Sanity check against `sp1.md`'s reported values.-/" ++
-  "\n" ++
-  "example : secBits (SP1_shrink_lookup_lookup.errUB) = 109 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits (SP1_shrink_FRI.batchingErr (UDR koalaBear4)) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 0) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 9) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 10) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 11) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 12) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 13) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 14) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 15) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 16) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 17) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 1) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 2) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 3) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 4) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 5) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 6) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 7) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 8) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
-  "\n" ++
-  "example : secBits SP1_shrink_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by native_decide\n" ++
-  "\n"
-
-private def appBanner : String :=
-  s!"tomlparser - a parsing tool that parses a zkEVM configuration in .toml\n" ++
-  s!"into an equivalent .lean file verifiable by Soundcalc.\n" ++
-  s!"\n" ++
-  s!"usage: lake exe tomlparser\n" ++
-  s!"|-> default inputs: ./SoundcalcIO/ZkVM/SP1.toml ./SoundcalcIO/ZkVM/SP1.lean\n" ++
-  s!"\n" ++
-  s!"extended usage: lake exe tomlparser <in-toml-path> <out-lean-path>\n" ++
-  s!"|-> supported circuits: SP1.toml\n"
-
-/- *TODO*: generalize to other zkEVMs, circuits, and related fields to parse. -/
-def main (args: List String): IO Unit := do
-  IO.println appBanner
-  if args.length == 1 then
-    IO.eprintln "invalid inputs"; IO.Process.exit 1
-
-  /- Default: `SP1.toml`, `SP1.lean` relative to the project root path. -/
-  let sp1TomlFile := args.getD 0 "./SoundcalcIO/ZkVM/SP1.toml"
-  let sp1LeanFile := args.getD 1 "./SoundcalcIO/ZkVM/SP1.lean"
-
-  let inToml ← IO.FS.readFile sp1TomlFile
-  let ictx : InputContext := mkInputContext inToml sp1LeanFile
+def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
+  let inToml ← IO.FS.readFile inTomlFile
+  let ictx : InputContext := mkInputContext inToml inTomlFile
   let .ok tbl ← (loadToml ictx).toIO' | IO.eprintln "Parse failed"; IO.Process.exit 1
 
-  /- Incremental contents of `SP1.lean`.
-     We overwrite the file only if the parsing succeeds. -/
-  let mut outStr := ""
-  outStr := outStr ++ getSP1ImportStr
-
   /- Parsing [zkevm]-/
-  let zkevm_tab ← orExit (getTable tbl "zkevm")
+  let zkvm_tab ← orExit (getTable tbl "zkevm")
 
-  let zkevm_name ← orExit (getString zkevm_tab "name")
-  let zkevm_protocol_family ← orExit (getString zkevm_tab "protocol_family")
-  let zkevm_field ← orExit (getString zkevm_tab "field")
-  let zkevm_field := cleanFieldName zkevm_field -- 1st letter lowercase; no '^'
-  let zkevm_version ← orExit (getString zkevm_tab "version")
-  let zkevm_hash_size_bits ← orExit (getNat zkevm_tab "hash_size_bits")
+  let zkvm_name ← orExit (getString zkvm_tab "name")
+  let zkvm_protocol_family ← orExit (getString zkvm_tab "protocol_family")
+  let zkvm_field ← orExit (getString zkvm_tab "field")
+  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
+  let zkvm_version ← orExit (getString zkvm_tab "version")
+  let zkvm_hash_size_bits ← orExit (getNat zkvm_tab "hash_size_bits")
 
-  let zkevm_circs ← orExit (getArray tbl "circuits")
+  let zkvm_circs ← orExit (getArray tbl "circuits")
 
-  /- We loop over all the [[circuits]] -/
-  for circ in zkevm_circs do
+  /- We incrementally build the list of Jagged circuits contained in SP1 -/
+  let mut circuit_list : List JaggedCfg := []
+
+  /- We parse all the [[circuits]] -/
+  for circ in zkvm_circs do
     match circ with
     | .table' _ circ_tab =>
       /- Parsing all the fields found within SP1 -/
       let circ_name ← orExit (getString circ_tab "name")
-      let circ_udr_only ← orExit (getBool circ_tab "udr_only")
-      let circ_blowup_factor ← orExit (getNat circ_tab "blowup_factor")
+      let circ_udr_only ← orExit (getBool circ_tab "udr_only")          -- unused for SP1
+      let circ_blowup_factor ← orExit (getNat circ_tab "blowup_factor") -- unused for SP1
       /- We interpret the float as an exact rational according
          to the `mapFloatstrToRat` map. Note: if the float is
          malformed, the conversion fails. -/
       let circ_rho ← orExit (getFloat circ_tab "rho")
-      let circ_rho ← orExit (floatToRat mapFloatstrToRat circ_rho)
+      let circ_rho ← orExit (floatToRate mapFloatstrToRate circ_rho)
       let circ_trace_length ← orExit (getNat circ_tab "trace_length")
       let circ_trace_columns ← orExit (getNat circ_tab "trace_columns")
       let circ_dense_length ← orExit (getNat circ_tab "dense_length")
@@ -321,38 +172,14 @@ def main (args: List String): IO Unit := do
       let circ_air_max_degree ← orExit (getNat circ_tab "air_max_degree")
       let circ_opening_points ← orExit (getNat circ_tab "opening_points")
       let circ_power_batching ← orExit (getBool circ_tab "power_batching")
-      let circ_pmultilinear_batching ← orExit (getBool circ_tab "multilinear_batching")
-      let circ_multilinear_zerocheck ← orExit (getBool circ_tab "multilinear_zerocheck")
+      let circ_multilinear_batching ← orExit (getBool circ_tab "multilinear_batching")
+      let circ_multilinear_zerocheck ← orExit (getBool circ_tab "multilinear_zerocheck") -- unused in SP1
       let circ_num_queries ← orExit (getNat circ_tab "num_queries")
-      /- We interpret the list as a list of Naturals. -/
+      /- We interpret the folding factors as a list of Naturals. -/
       let circ_fri_folding_factors ← orExit (getListNat circ_tab "fri_folding_factors")
       let circ_fri_early_stop_degree ← orExit (getNat circ_tab "fri_early_stop_degree")
       let circ_grinding_batching_phase ← orExit (getNat circ_tab "grinding_batching_phase")
       let circ_grinding_query_phase ← orExit (getNat circ_tab "grinding_query_phase")
-
-      outStr := outStr ++
-      s!"/- {zkevm_name}: {circ_name} -/\n" ++
-      s!"\n" ++
-      s!"def {zkevm_name}_{circ_name}_jagged : JaggedCfg where\n" ++
-      s!"  field           := {zkevm_field}\n" ++
-      s!"  denseLen        := {circ_dense_length}\n" ++
-      s!"  batchSize       := {circ_dense_batch}\n" ++
-      s!"  traceWidth      := {circ_trace_columns}\n" ++
-      s!"  traceLength     := {circ_trace_length}\n" ++
-      s!"  numConstraints  := {circ_num_constraints}\n" ++
-      s!"  airMaxDegree    := {circ_air_max_degree}\n" ++
-      s!"\n" ++
-      s!"def {zkevm_name}_{circ_name}_FRI : FRIConfig where\n" ++
-      s!"  field           := {zkevm_field}\n" ++
-      s!"  ρ               := ⟨{circ_rho}, by norm_num⟩\n" ++
-      s!"  denseLen        := {circ_dense_length}\n" ++
-      s!"  batchSize       := {circ_dense_batch}\n" ++
-      s!"  numQueries      := {circ_num_queries}\n" ++
-      s!"  foldingFactors  := {circ_fri_folding_factors}\n" ++
-      s!"  earlyStopDeg    := {circ_fri_early_stop_degree}\n" ++
-      s!"  grindQuery      := {circ_grinding_query_phase}\n" ++
-      s!"  grindBatch      := {circ_grinding_batching_phase}\n" ++
-      s!"\n"
 
       /-
         We loop over all the [[circuit.lookups]]
@@ -360,12 +187,13 @@ def main (args: List String): IO Unit := do
         If lookups is defined not as an array, we still error out.
       -/
       let circ_lookups ← orExit (getArrayOrNone circ_tab "lookups")
+      let mut lookup_list : List LookupCfg := []
 
       for lookup in circ_lookups do
         match lookup with
         | .table' _ lookup_tab =>
           let lookup_name ← orExit (getString lookup_tab "name")
-          let lookup_logup_type ← orExit (getString lookup_tab "logup_type")
+          let lookup_logup_type ← orExit (getString lookup_tab "logup_type") -- unused for us; cfr. Lookup.lean
           let lookup_rows_L ← orExit (getNat lookup_tab "rows_L")
           let lookup_rows_T ← orExit (getNat lookup_tab "rows_T")
           let lookup_num_columns_S ← orExit (getNat lookup_tab "num_columns_S")
@@ -373,34 +201,57 @@ def main (args: List String): IO Unit := do
           let lookup_grinding_bits_lookup ← orExit (getNat lookup_tab "grinding_bits_lookup")
           let lookup_multilinear_fingerprint ← orExit (getBool lookup_tab "multilinear_fingerprint")
 
-          outStr := outStr ++
-          s!"def {zkevm_name}_{circ_name}_{lookup_name}_lookup : LookupCfg where\n" ++
-          s!"  field           := {zkevm_field}\n" ++
-          s!"  rowsT           := {lookup_rows_T}\n" ++
-          s!"  rowsL           := {lookup_rows_L}\n" ++
-          s!"  numColumnsS     := {lookup_num_columns_S}\n" ++
-          s!"  numLookupsM     := {lookup_num_lookups_M}\n" ++
-          s!"  grindBitsLookup := {lookup_grinding_bits_lookup}\n" ++
-          s!"\n"
+          let lookupcfg: LookupCfg := {
+            name            := lookup_name
+            field           := zkvm_field
+            rowsL           := lookup_rows_L
+            rowsT           := lookup_rows_T
+            numColumnsS     := lookup_num_columns_S
+            numLookupsM     := lookup_num_lookups_M
+            grindBitsLookup := lookup_grinding_bits_lookup
+            isMultilinear   := lookup_multilinear_fingerprint
+          }
+          lookup_list := lookup_list.concat lookupcfg
         |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
 
-      /- For now, we only support circuits relevant to `sp1.md`. -/
-      match circ_name with
-        | "core" => outStr := outStr ++ getSP1CoreReportStr
-        | "compress" => outStr := outStr ++ getSP1CompressReportStr
-        | "shrink" => outStr := outStr ++ getSP1ShrinkReportStr
-        | _ => IO.eprintln "Unsupported circuit"; IO.Process.exit 1
+      let friconfig: FRIConfig := {
+        hashBits          := zkvm_hash_size_bits
+        ρ                 := circ_rho
+        traceLen          := circ_trace_length
+        field             := zkvm_field
+        denseLen          := circ_dense_length
+        batchSize         := circ_dense_batch
+        powerBatch        := circ_power_batching
+        multilinBatch     := circ_multilinear_batching
+        numQueries        := circ_num_queries
+        foldingFactors    := circ_fri_folding_factors
+        earlyStopDeg      := circ_fri_early_stop_degree
+        grindQuery        := circ_grinding_query_phase
+        grindBatch        := circ_grinding_batching_phase
+      }
+
+      let jaggedcfg: JaggedCfg := {
+        name              := circ_name
+        field             := zkvm_field
+        proofSystName     := "Jagged"
+        densePCS          := friconfig
+        traceLength       := circ_trace_length
+        traceWidth        := circ_trace_columns
+        numConstraints    := circ_num_constraints
+        airMaxDegree      := circ_air_max_degree
+        lookups           := lookup_list
+      }
+      circuit_list := circuit_list.concat jaggedcfg
     | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
 
-  IO.FS.writeFile sp1LeanFile outStr
-  IO.println s!"Successfully parsed {sp1TomlFile} to {sp1LeanFile}!"
-  IO.Process.exit 0
+  let zkvmcfg: ZkVMCfg := {
+    name         := zkvm_name
+    protoFamily  := zkvm_protocol_family
+    field        := zkvm_field
+    version      := zkvm_version
+    hashSizeBits := zkvm_hash_size_bits
+    circuits     := circuit_list
+  }
+  pure (zkvmcfg)
 
 end SoundcalcIO.TomlParser
-
-/-
-  We preserve the namespace while redeclaring the main.
-  This enables the following:
-  `lean exe tomlparser`
--/
-def main := SoundcalcIO.TomlParser.main

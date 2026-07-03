@@ -2,42 +2,52 @@
 
 import Mathlib
 import Soundcalc
-import Soundcalc.Field
-import Soundcalc.Lookup
 
 open Soundcalc
 
-/- SP1: core -/
+/- ZkVM `SP1` | Circuit `core` | Lookup `lookup` -/
 
-def SP1_core_jagged : JaggedCfg where
+def SP1_core_lookup_lookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
-  denseLen        := 2097152
-  batchSize       := 193
-  traceWidth      := 3741
-  traceLength     := 4194304
-  numConstraints  := 3412
-  airMaxDegree    := 3
+  rowsL           := 4194304
+  rowsT           := 0
+  numColumnsS     := 107
+  numLookupsM     := 1911
+  grindBitsLookup := 12
+  isMultilinear   := true
+
+/- ZkVM `SP1` | Circuit `core` -/
 
 def SP1_core_FRI : FRIConfig where
-  field           := koalaBear4
+  hashBits        := 248
   ρ               := ⟨1/4, by norm_num⟩
+  traceLen        := 4194304
+  field           := koalaBear4
   denseLen        := 2097152
   batchSize       := 193
+  powerBatch      := false
+  multilinBatch   := true
   numQueries      := 124
   foldingFactors  := [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
   earlyStopDeg    := 4
   grindQuery      := 16
   grindBatch      := 5
 
-def SP1_core_lookup_lookup : LookupCfg where
+def SP1_core_jagged : JaggedCfg where
+  name            := "core"
   field           := koalaBear4
-  rowsT           := 0
-  rowsL           := 4194304
-  numColumnsS     := 107
-  numLookupsM     := 1911
-  grindBitsLookup := 12
+  proofSystName   := "Jagged"
+  densePCS        := SP1_core_FRI
+  traceLength     := 4194304
+  traceWidth      := 3741
+  numConstraints  := 3412
+  airMaxDegree    := 3
+  lookups         := [SP1_core_lookup_lookup]
 
 /- Sanity check against `sp1.md`'s reported values.-/
+example : secBits (SP1_core_jagged.totalErr) = 100 := by native_decide
+
 example : secBits (SP1_core_lookup_lookup.errUB) = 100 := by native_decide
 
 example : secBits (SP1_core_FRI.batchingErr (UDR koalaBear4)) = 104 := by native_decide
@@ -67,37 +77,49 @@ example : secBits (SP1_core_FRI.queryErr (UDR koalaBear4)) = 100 := by native_de
 example : secBits SP1_core_jagged.reduceErr = 116 := by native_decide
 example : secBits SP1_core_jagged.zerocheckErr = 112 := by native_decide
 
-/- SP1: compress -/
+/- ZkVM `SP1` | Circuit `compress` | Lookup `lookup` -/
 
-def SP1_compress_jagged : JaggedCfg where
+def SP1_compress_lookup_lookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
-  denseLen        := 1048576
-  batchSize       := 128
-  traceWidth      := 326
-  traceLength     := 2097152
-  numConstraints  := 204
-  airMaxDegree    := 3
+  rowsL           := 2097152
+  rowsT           := 0
+  numColumnsS     := 6
+  numLookupsM     := 53
+  grindBitsLookup := 12
+  isMultilinear   := true
+
+/- ZkVM `SP1` | Circuit `compress` -/
 
 def SP1_compress_FRI : FRIConfig where
-  field           := koalaBear4
+  hashBits        := 248
   ρ               := ⟨1/4, by norm_num⟩
+  traceLen        := 2097152
+  field           := koalaBear4
   denseLen        := 1048576
   batchSize       := 128
+  powerBatch      := false
+  multilinBatch   := true
   numQueries      := 124
   foldingFactors  := [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
   earlyStopDeg    := 4
   grindQuery      := 16
   grindBatch      := 5
 
-def SP1_compress_lookup_lookup : LookupCfg where
+def SP1_compress_jagged : JaggedCfg where
+  name            := "compress"
   field           := koalaBear4
-  rowsT           := 0
-  rowsL           := 2097152
-  numColumnsS     := 6
-  numLookupsM     := 53
-  grindBitsLookup := 12
+  proofSystName   := "Jagged"
+  densePCS        := SP1_compress_FRI
+  traceLength     := 2097152
+  traceWidth      := 326
+  numConstraints  := 204
+  airMaxDegree    := 3
+  lookups         := [SP1_compress_lookup_lookup]
 
 /- Sanity check against `sp1.md`'s reported values.-/
+example : secBits (SP1_compress_jagged.totalErr) = 100 := by native_decide
+
 example : secBits (SP1_compress_lookup_lookup.errUB) = 107 := by native_decide
 
 example : secBits (SP1_compress_FRI.batchingErr (UDR koalaBear4)) = 105 := by native_decide
@@ -126,37 +148,49 @@ example : secBits (SP1_compress_FRI.queryErr (UDR koalaBear4)) = 100 := by nativ
 example : secBits SP1_compress_jagged.reduceErr = 116 := by native_decide
 example : secBits SP1_compress_jagged.zerocheckErr = 115 := by native_decide
 
-/- SP1: shrink -/
+/- ZkVM `SP1` | Circuit `shrink` | Lookup `lookup` -/
 
-def SP1_shrink_jagged : JaggedCfg where
+def SP1_shrink_lookup_lookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
-  denseLen        := 262144
-  batchSize       := 128
-  traceWidth      := 326
-  traceLength     := 524288
-  numConstraints  := 204
-  airMaxDegree    := 3
+  rowsL           := 524288
+  rowsT           := 0
+  numColumnsS     := 6
+  numLookupsM     := 53
+  grindBitsLookup := 12
+  isMultilinear   := true
+
+/- ZkVM `SP1` | Circuit `shrink` -/
 
 def SP1_shrink_FRI : FRIConfig where
-  field           := koalaBear4
+  hashBits        := 248
   ρ               := ⟨1/8, by norm_num⟩
+  traceLen        := 524288
+  field           := koalaBear4
   denseLen        := 262144
   batchSize       := 128
+  powerBatch      := false
+  multilinBatch   := true
   numQueries      := 94
   foldingFactors  := [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
   earlyStopDeg    := 8
   grindQuery      := 22
   grindBatch      := 5
 
-def SP1_shrink_lookup_lookup : LookupCfg where
+def SP1_shrink_jagged : JaggedCfg where
+  name            := "shrink"
   field           := koalaBear4
-  rowsT           := 0
-  rowsL           := 524288
-  numColumnsS     := 6
-  numLookupsM     := 53
-  grindBitsLookup := 12
+  proofSystName   := "Jagged"
+  densePCS        := SP1_shrink_FRI
+  traceLength     := 524288
+  traceWidth      := 326
+  numConstraints  := 204
+  airMaxDegree    := 3
+  lookups         := [SP1_shrink_lookup_lookup]
 
 /- Sanity check against `sp1.md`'s reported values.-/
+example : secBits (SP1_shrink_jagged.totalErr) = 100 := by native_decide
+
 example : secBits (SP1_shrink_lookup_lookup.errUB) = 109 := by native_decide
 
 example : secBits (SP1_shrink_FRI.batchingErr (UDR koalaBear4)) = 106 := by native_decide

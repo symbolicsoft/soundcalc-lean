@@ -1,5 +1,4 @@
 import Mathlib
-import Soundcalc.SecBits
 import Soundcalc.Field
 
 namespace Soundcalc

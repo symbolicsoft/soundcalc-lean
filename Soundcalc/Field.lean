@@ -32,6 +32,7 @@ namespace Soundcalc
 
 /-- A finite field `F = 𝔽_{p^e}`, carrying *proofs* of its invariants. -/
 structure FieldParams where
+  name           : String     -- # New field
   p              : ℕ
   e              : ℕ
   twoAdicity     : ℕ
@@ -55,6 +56,7 @@ def FieldParams.elementSizeBits (F : FieldParams) : ℕ := F.baseElementSizeBits
 
 /-- KoalaBear, `p = 2^31 - 2^24 + 1`; SP1 uses its degree-4 extension. -/
 def koalaBear4 : FieldParams where
+  name            := "koalaBear4"
   p               := 2 ^ 31 - 2 ^ 24 + 1
   e               := 4
   twoAdicity      := 24

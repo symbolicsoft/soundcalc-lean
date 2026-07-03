@@ -1,4 +1,4 @@
-import Soundcalc.Regime
+import Soundcalc.Field
 import Soundcalc.Common.Log
 
 /-!
@@ -10,24 +10,31 @@ import Soundcalc.Common.Log
 -/
 
 /-
-* *TODO*: The current structure only captures the multivariate setting, as SP1
-  only considers lookup errors of this type. Including support for the univariate
-  setting comes later in the roadmap. Explicit TODO markers have been added
-  throughout this file for this purpose.
+* *TODO*: The current formalization only captures the multivariate setting, as SP1
+  only considers lookup errors of this type. While the structure now supports
+  the univariate setting, a complete formalization comes later in the roadmap.
+  Explicit TODO markers have been added throughout this file for this purpose.
 -/
 
 namespace Soundcalc
 
 structure LookupCfg where
+  name            : String        -- # New field
   field           : FieldParams
   rowsT           : ℕ -- Rows of "big" table `T`
   rowsL           : ℕ -- Rows of "small" table `L` (looked up inside `T`)
-  numColumnsS     : ℕ -- Number of columns of `T` and `L` (`S=1` for single column case)
-  numLookupsM     : ℕ -- Number of lookups performed on `T`
-  grindBitsLookup : ℕ -- PoW grinding (expressed in bits of security)
-  /- *TODO*: Include support for the univariate case -/
-  /- *TODO*: Add support for soundcalc's reduction_error
-    (optional field) not used within SP1. -/
+  numColumnsS     : ℕ     := 1    -- # New default
+                                  -- Number of columns of `T` and `L` (`S=1` for single column case)
+  numLookupsM     : ℕ     := 1    -- # New default
+                                  -- Number of lookups performed on `T`
+  grindBitsLookup : ℕ     := 0    -- # New default
+                                  -- PoW grinding (expressed in bits of security)
+  /- Boolean switch supporting univariate/multivariate lookups.
+     We compress the `logup_type` field here: default multilinear.
+    *TODO* No semantics yet; will affect `columnAggregFactor`-/
+  isMultilinear   : Bool  := true -- # New field/default
+  /- (optional field) Auxiliary soundness error; unused within SP1. -/
+  reductionErr    : Float := 0.0  -- # New field/default
 
 /-- Computes an upper bound of the soundness error for the GKR protocol as:
       `(1/2) * (n + m) * (3 * (n + m) + 1) / |F|`

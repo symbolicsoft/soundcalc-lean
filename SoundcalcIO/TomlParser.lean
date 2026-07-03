@@ -28,6 +28,13 @@ private def getString (tbl : Table) (key : String) : Except String String :=
   | some _              => .error s!"key '{key}' exists but is not a string"
   | none                => .error s!"key '{key}' not found"
 
+private def getLogUpBoolFromStr (tbl : Table) (key : String) : Except String Bool :=
+  let s := getString tbl key
+  match s with
+  | .ok "univariate"   => .ok false
+  | .ok "multivariate" => .ok true
+  | _ => .error s!"key '{key}' is an invalid LogUp string."
+
 private def getNat (tbl : Table) (key : String) : Except String Nat :=
   match tbl.find? (.mkSimple key) with
   | some (.integer _ i) => if i ≥ 0 then .ok i.toNat
@@ -41,6 +48,12 @@ private def getBool (tbl : Table) (key : String) : Except String Bool :=
   | some _              => .error s!"key '{key}' exists but is not a boolean"
   | none                => .error s!"key '{key}' not found"
 
+private def getBoolOrNone (tbl : Table) (key : String) : Except String (Option Bool) :=
+  match tbl.find? (.mkSimple key) with
+  | some (.boolean _ b) => .ok b
+  | some _              => .error s!"key '{key}' exists but is not a boolean"
+  | none                => .ok none
+
 private def getFloat (tbl : Table) (key : String) : Except String Float :=
   match tbl.find? (.mkSimple key) with
   | some (.float _ f)   => .ok f
@@ -53,11 +66,11 @@ private def getArray (tbl : Table) (key : String) : Except String (Array Value) 
   | some _              => .error s!"key '{key}' exists but is not an Array"
   | none                => .error s!"key '{key}' not found"
 
-private def getArrayOrNone (tbl : Table) (key : String) : Except String (Array Value) :=
+private def getArrayOrNone (tbl : Table) (key : String) : Except String (Option (Array Value)) :=
   match tbl.find? (.mkSimple key) with
   | some (.array _ a)   => .ok a
   | some _              => .error s!"key '{key}' exists but is not an Array"
-  | none                => .ok #[]
+  | none                => .ok none
 
 private def getList (tbl : Table) (key : String) : Except String (List Value) :=
   match tbl.find? (.mkSimple key) with
@@ -157,8 +170,8 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
     | .table' _ circ_tab =>
       /- Parsing all the fields found within SP1 -/
       let circ_name ← orExit (getString circ_tab "name")
-      let circ_udr_only ← orExit (getBool circ_tab "udr_only")          -- unused for SP1
-      let circ_blowup_factor ← orExit (getNat circ_tab "blowup_factor") -- unused for SP1
+      let circ_udr_only ← orExit (getBool circ_tab "udr_only")
+      let circ_blowup_factor ← orExit (getNat circ_tab "blowup_factor")
       /- We interpret the float as an exact rational according
          to the `mapFloatstrToRat` map. Note: if the float is
          malformed, the conversion fails. -/
@@ -173,7 +186,7 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
       let circ_opening_points ← orExit (getNat circ_tab "opening_points")
       let circ_power_batching ← orExit (getBool circ_tab "power_batching")
       let circ_multilinear_batching ← orExit (getBool circ_tab "multilinear_batching")
-      let circ_multilinear_zerocheck ← orExit (getBool circ_tab "multilinear_zerocheck") -- unused in SP1
+      let circ_multilinear_zerocheck ← orExit (getBool circ_tab "multilinear_zerocheck")
       let circ_num_queries ← orExit (getNat circ_tab "num_queries")
       /- We interpret the folding factors as a list of Naturals. -/
       let circ_fri_folding_factors ← orExit (getListNat circ_tab "fri_folding_factors")
@@ -186,24 +199,35 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         If no lookups are defined, we return an empty array instead of an error.
         If lookups is defined not as an array, we still error out.
       -/
-      let circ_lookups ← orExit (getArrayOrNone circ_tab "lookups")
+      let circ_lookups_opt ← orExit (getArrayOrNone circ_tab "lookups")
+      let circ_lookups := circ_lookups_opt.getD #[]
       let mut lookup_list : List LookupCfg := []
 
       for lookup in circ_lookups do
         match lookup with
         | .table' _ lookup_tab =>
           let lookup_name ← orExit (getString lookup_tab "name")
-          let lookup_logup_type ← orExit (getString lookup_tab "logup_type") -- unused for us; cfr. Lookup.lean
+          /- `false = univariate`; `true = multivariate` -/
+          let lookup_logup_type ← orExit (getLogUpBoolFromStr lookup_tab "logup_type")
           let lookup_rows_L ← orExit (getNat lookup_tab "rows_L")
           let lookup_rows_T ← orExit (getNat lookup_tab "rows_T")
           let lookup_num_columns_S ← orExit (getNat lookup_tab "num_columns_S")
           let lookup_num_lookups_M ← orExit (getNat lookup_tab "num_lookups_M")
           let lookup_grinding_bits_lookup ← orExit (getNat lookup_tab "grinding_bits_lookup")
-          let lookup_multilinear_fingerprint ← orExit (getBool lookup_tab "multilinear_fingerprint")
+
+          /- Mirrors the __post_init__ of
+             https://github.com/ethereum/soundcalc/blob/main/soundcalc/lookups/logup.py#L45:
+             if `lookup_multilinear_fingerprint_opt` is missing, it matches the
+             boolean associated with `logup_type`:
+             (`"multivariate"` -> `multilinear_fingerprint=true`;
+              `"univariate"`   -> `multilinear_fingerprint=false`) -/
+          let lookup_multilinear_fingerprint_opt ← orExit (getBoolOrNone lookup_tab "multilinear_fingerprint")
+          let lookup_multilinear_fingerprint := lookup_multilinear_fingerprint_opt.getD lookup_logup_type
 
           let lookupcfg: LookupCfg := {
             name            := lookup_name
             field           := zkvm_field
+            isLogUpMultivar := lookup_logup_type
             rowsL           := lookup_rows_L
             rowsT           := lookup_rows_T
             numColumnsS     := lookup_num_columns_S

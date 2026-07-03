@@ -1,4 +1,4 @@
-/- Automatically generated from `TomlParser.lean` and `SP1.toml`. -/
+/- Automatically generated from `LeanEmitter.lean` and `SP1.toml`. -/
 
 import Mathlib
 import Soundcalc
@@ -10,6 +10,7 @@ open Soundcalc
 def SP1_core_lookup_lookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsL           := 4194304
   rowsT           := 0
   numColumnsS     := 107
@@ -82,6 +83,7 @@ example : secBits SP1_core_jagged.zerocheckErr = 112 := by native_decide
 def SP1_compress_lookup_lookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsL           := 2097152
   rowsT           := 0
   numColumnsS     := 6
@@ -153,6 +155,7 @@ example : secBits SP1_compress_jagged.zerocheckErr = 115 := by native_decide
 def SP1_shrink_lookup_lookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsL           := 524288
   rowsT           := 0
   numColumnsS     := 6

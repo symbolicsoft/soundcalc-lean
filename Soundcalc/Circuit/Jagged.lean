@@ -27,19 +27,16 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 
 /-- Parameters for a jagged circuit instance. -/
 structure JaggedCfg where
-  name           : String               -- # New field
+  name           : String
   field          : FieldParams
-  proofSystName  : String               -- # New field
+  proofSystName  : String
   /- The three fields below expand the `JaggedPCS` structure. -/
-  densePCS       : FRIConfig            -- # New field
+  densePCS       : FRIConfig
   traceLength    : N    -- e.g. 2^22 (one gotcha: use trace length, not FRI dimension)
   traceWidth     : N    -- e.g. 3741
-  /- densePCS also includes the previously-explicit fields below -/
-  -- denseLen    : N                    -- # Removed field; e.g. 2^21 (FRI dimension d)
-  -- batchSize   : N                    -- # Removed field; e.g. 193  (contributes ⌈log₂ b⌉ to ℓ)
   numConstraints : N    -- e.g. 3412
   airMaxDegree   : N    -- e.g. 3
-  lookups        : List LookupCfg := [] -- # New field/Default
+  lookups        : List LookupCfg := []
 
 /-- Reduction soundness error.
 

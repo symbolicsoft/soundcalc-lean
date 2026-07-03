@@ -26,7 +26,7 @@ namespace SoundcalcIO.LeanEmitter
   *TODO* Polishing namespaces.
 -/
 private def getSP1ImportStr : String :=
-    s!"/- Automatically generated from `TomlParser.lean` and `SP1.toml`. -/\n" ++
+    s!"/- Automatically generated from `LeanEmitter.lean` and `SP1.toml`. -/\n" ++
     s!"\n" ++
     s!"import Mathlib\n" ++
     s!"import Soundcalc\n" ++
@@ -138,15 +138,28 @@ private def getSP1ShrinkReportStr : String :=
   "example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by native_decide\n" ++
   "\n"
 
+
 private def appBanner : String :=
-  s!"tomlparser - a parsing tool that parses a zkEVM configuration in .toml\n" ++
+  s!"leanemitter - a parsing tool that parses a zkEVM configuration in .toml\n" ++
   s!"into an equivalent .lean file verifiable by Soundcalc.\n" ++
   s!"\n" ++
-  s!"usage: lake exe tomlparser\n" ++
+  s!"usage: lake exe leanemitter\n" ++
   s!"|-> default inputs: ./SoundcalcIO/ZkVM/SP1.toml ./SoundcalcIO/ZkVM/SP1.lean\n" ++
   s!"\n" ++
-  s!"extended usage: lake exe tomlparser <in-toml-path> <out-lean-path>\n" ++
+  s!"extended usage: lake exe leanemitter <in-toml-path> <out-lean-path>\n" ++
   s!"|-> supported circuits: SP1.toml\n"
+
+/-
+  Maps supported `FieldParams` to their matching variable name.
+-/
+private def mapFieldParamsToVarname : List (FieldParams × String) := [
+  (koalaBear4, "koalaBear4"),
+]
+
+private def fieldParamsToVarname (map : List (FieldParams × String)) (fp : FieldParams) : Except String String :=
+  match map.lookup fp with
+  | some s => .ok s
+  | none   => .error s!"unsupported FieldParams"
 
 /- *TODO*: generalize to other zkEVMs, circuits, and related fields to parse. -/
 def main (args: List String): IO Unit := do
@@ -182,12 +195,23 @@ def main (args: List String): IO Unit := do
 
     for lookupcfg in jaggedcfg.lookups do
       let lookupcfg_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_{lookupcfg.name}_lookup"
+
+      /- We retrieve the variable name associated with the field
+        specified within `lookupcfg.field` from the map
+        `mapFieldParamsToVarname`. -/
+      let lookupcfg_field_leanvar ← orExit (
+        fieldParamsToVarname
+        mapFieldParamsToVarname
+        lookupcfg.field
+      )
+
       outStr := outStr ++
         s!"/- ZkVM `{zkvmcfg.name}` | Circuit `{jaggedcfg.name}` | Lookup `{lookupcfg.name}` -/\n" ++
         s!"\n" ++
         s!"def {lookupcfg_lean_var} : LookupCfg where\n" ++
         s!"  name            := \"{lookupcfg.name}\"\n" ++
-        s!"  field           := {jaggedcfg.densePCS.field.name}\n" ++
+        s!"  field           := {lookupcfg_field_leanvar}\n" ++
+        s!"  isLogUpMultivar := {lookupcfg.isLogUpMultivar}\n" ++
         s!"  rowsL           := {lookupcfg.rowsL}\n" ++
         s!"  rowsT           := {lookupcfg.rowsT}\n" ++
         s!"  numColumnsS     := {lookupcfg.numColumnsS}\n" ++
@@ -201,6 +225,15 @@ def main (args: List String): IO Unit := do
 
     let friconfig_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_FRI"
 
+    /- We retrieve the variable name associated with the field
+    specified within `jaggedcfg.densePCS.field` from the map
+    `mapFieldParamsToVarname`. -/
+    let friconfig_field_leanvar ← orExit (
+      fieldParamsToVarname
+      mapFieldParamsToVarname
+      jaggedcfg.densePCS.field
+    )
+
     outStr := outStr ++
       s!"/- ZkVM `{zkvmcfg.name}` | Circuit `{jaggedcfg.name}` -/\n" ++
       s!"\n" ++
@@ -208,7 +241,7 @@ def main (args: List String): IO Unit := do
       s!"  hashBits        := {zkvmcfg.hashSizeBits}\n" ++
       s!"  ρ               := ⟨{jaggedcfg.densePCS.ρ}, by norm_num⟩\n" ++
       s!"  traceLen        := {jaggedcfg.densePCS.traceLen}\n" ++
-      s!"  field           := {jaggedcfg.densePCS.field.name}\n" ++
+      s!"  field           := {friconfig_field_leanvar}\n" ++
       s!"  denseLen        := {jaggedcfg.densePCS.denseLen}\n" ++
       s!"  batchSize       := {jaggedcfg.densePCS.batchSize}\n" ++
       s!"  powerBatch      := {jaggedcfg.densePCS.powerBatch}\n" ++
@@ -222,10 +255,19 @@ def main (args: List String): IO Unit := do
 
     let jaggedcfg_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_jagged"
 
+    /- We retrieve the variable name associated with the field
+    specified within `jaggedcfg.field` from the map
+    `mapFieldParamsToVarname`. -/
+    let jaggedcfg_field_leanvar ← orExit (
+      fieldParamsToVarname
+      mapFieldParamsToVarname
+      jaggedcfg.field
+    )
+
     outStr := outStr ++
     s!"def {jaggedcfg_lean_var} : JaggedCfg where\n" ++
       s!"  name            := \"{jaggedcfg.name}\"\n" ++
-      s!"  field           := {jaggedcfg.densePCS.field.name}\n" ++
+      s!"  field           := {jaggedcfg_field_leanvar}\n" ++
       s!"  proofSystName   := \"{jaggedcfg.proofSystName}\"\n" ++
       s!"  densePCS        := {friconfig_lean_var}\n" ++
       s!"  traceLength     := {jaggedcfg.traceLength}\n" ++

@@ -54,14 +54,14 @@ example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 2
 `denseLen` is the FRI dimension `d`; `n = d/ρ = 2^23`. The trace length
 (`2^22`, used by zerocheck) is a *separate* quantity. -/
 def sp1CoreFRI : FRIConfig where
-  hashBits       := 248       -- new val
+  hashBits       := 248
   field          := koalaBear4
   ρ              := ⟨1 / 4, by norm_num⟩
-  traceLen       := 2 ^ 22    -- new val
+  traceLen       := 2 ^ 22
   denseLen       := 2 ^ 21
   batchSize      := 193
-  powerBatch     := false     -- new val
-  multilinBatch  := true      -- new val
+  powerBatch     := false
+  multilinBatch  := true
   numQueries     := 124
   foldingFactors := List.replicate 21 2
   earlyStopDeg   := 4
@@ -117,32 +117,35 @@ Parsed from https://github.com/ethereum/soundcalc/blob/main/soundcalc/zkvms/sp1/
 def sp1CoreLookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 4194304    -- 2 ^ 22
   numColumnsS     := 107
   numLookupsM     := 1911
   grindBitsLookup := 12
-  isMultilinear   := true       -- new field
+  isMultilinear   := true
 
 def sp1CompressLookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 2097152    -- 2 ^ 21
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true       -- new field
+  isMultilinear   := true
 
 def sp1ShrinkLookup : LookupCfg where
   name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 524288     -- 2 ^ 19
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true       -- new field
+  isMultilinear   := true
 
 /-! S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits. -/
 theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide

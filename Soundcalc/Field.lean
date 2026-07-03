@@ -32,7 +32,6 @@ namespace Soundcalc
 
 /-- A finite field `F = 𝔽_{p^e}`, carrying *proofs* of its invariants. -/
 structure FieldParams where
-  name           : String     -- # New field
   p              : ℕ
   e              : ℕ
   twoAdicity     : ℕ
@@ -42,6 +41,10 @@ structure FieldParams where
   (the second conjunct is maximality, since divisibility by powers of two is
   downward-closed). Matches soundcalc's `two_adicity`. -/
   twoAdicity_spec : 2 ^ twoAdicity ∣ p - 1 ∧ ¬ 2 ^ (twoAdicity + 1) ∣ p - 1
+
+/- Introducing exact equality for `FieldParams` structures.
+   The comparison is operated on a per-ℕ field basis. -/
+deriving instance BEq for FieldParams
 
 /-- `|F| = p ^ e`, an exact natural number — never a float. -/
 def FieldParams.card (F : FieldParams) : ℕ := F.p ^ F.e
@@ -56,7 +59,6 @@ def FieldParams.elementSizeBits (F : FieldParams) : ℕ := F.baseElementSizeBits
 
 /-- KoalaBear, `p = 2^31 - 2^24 + 1`; SP1 uses its degree-4 extension. -/
 def koalaBear4 : FieldParams where
-  name            := "koalaBear4"
   p               := 2 ^ 31 - 2 ^ 24 + 1
   e               := 4
   twoAdicity      := 24

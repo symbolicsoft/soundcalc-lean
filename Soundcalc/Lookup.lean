@@ -19,22 +19,23 @@ import Soundcalc.Common.Log
 namespace Soundcalc
 
 structure LookupCfg where
-  name            : String        -- # New field
+  name            : String
   field           : FieldParams
-  rowsT           : ℕ -- Rows of "big" table `T`
-  rowsL           : ℕ -- Rows of "small" table `L` (looked up inside `T`)
-  numColumnsS     : ℕ     := 1    -- # New default
-                                  -- Number of columns of `T` and `L` (`S=1` for single column case)
-  numLookupsM     : ℕ     := 1    -- # New default
-                                  -- Number of lookups performed on `T`
-  grindBitsLookup : ℕ     := 0    -- # New default
-                                  -- PoW grinding (expressed in bits of security)
+  isLogUpMultivar : Bool           -- Maps the `LogUpType` enum (`univariate` or `multivariate`)
+  rowsT           : ℕ              -- Rows of "big" table `T`
+  rowsL           : ℕ              -- Rows of "small" table `L` (looked up inside `T`)
+  numColumnsS     : ℕ     := 1     -- Number of columns of `T` and `L` (`S=1` for single column case)
+  numLookupsM     : ℕ     := 1     -- Number of lookups performed on `T`
+  grindBitsLookup : ℕ     := 0     -- PoW grinding (expressed in bits of security)
   /- Boolean switch supporting univariate/multivariate lookups.
-     We compress the `logup_type` field here: default multilinear.
     *TODO* No semantics yet; will affect `columnAggregFactor`-/
-  isMultilinear   : Bool  := true -- # New field/default
+  isMultilinear   : Bool  := false
   /- (optional field) Auxiliary soundness error; unused within SP1. -/
-  reductionErr    : Float := 0.0  -- # New field/default
+  reductionErr    : Float := 0.0
+
+  /- *TODO*: whenever `isLogUpMultivar` is true, `isMultilinear` must
+     also be. The calling protocol must ensure structures are well-formed.
+     This replaces soundcalc's __post_init__; comes later on in our roadmap. -/
 
 /-- Computes an upper bound of the soundness error for the GKR protocol as:
       `(1/2) * (n + m) * (3 * (n + m) + 1) / |F|`

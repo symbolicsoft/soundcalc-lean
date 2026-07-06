@@ -6,4 +6,5 @@ import Soundcalc.Field
 import Soundcalc.Lookup
 import Soundcalc.Common.Utils
 import Soundcalc.Common.Log
+import Soundcalc.ZkVM
 import Soundcalc.ZkVM.SP1

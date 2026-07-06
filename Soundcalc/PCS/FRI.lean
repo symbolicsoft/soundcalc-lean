@@ -25,15 +25,21 @@ abbrev Q := Rat
 /-! ## FRI configuration -/
 
 structure FRIConfig where
-  field          : FieldParams
+  hashBits       : N
   ρ              : Rate          -- rate, constrained to (0,1) by the Rate subtype
+  traceLen       : N
+  field          : FieldParams
   denseLen       : N             -- = 2^21 for SP1 core
   batchSize      : N             -- = 193
+  powerBatch     : Bool
+  multilinBatch  : Bool
   numQueries     : N             -- = 124
   foldingFactors : List N        -- = [2,2,...] (21 entries)
   earlyStopDeg   : N             -- = 4
   grindQuery     : N             -- = 16
-  grindBatch     : N             -- = 5
+  grindBatch     : N             := 0
+  grindCommit    : N             := 0
+  gapToRadius    : Option Float  := none
 
 def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch

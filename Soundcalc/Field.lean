@@ -42,6 +42,10 @@ structure FieldParams where
   downward-closed). Matches soundcalc's `two_adicity`. -/
   twoAdicity_spec : 2 ^ twoAdicity ∣ p - 1 ∧ ¬ 2 ^ (twoAdicity + 1) ∣ p - 1
 
+/- Introducing exact equality for `FieldParams` structures.
+   The comparison is operated on a per-ℕ field basis. -/
+deriving instance BEq for FieldParams
+
 /-- `|F| = p ^ e`, an exact natural number — never a float. -/
 def FieldParams.card (F : FieldParams) : ℕ := F.p ^ F.e
 

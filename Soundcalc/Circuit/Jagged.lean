@@ -1,6 +1,8 @@
 import Mathlib
-import Soundcalc.Regime
 import Soundcalc.PCS.FRI
+import Soundcalc.Lookup
+
+open Soundcalc
 
 namespace Soundcalc
 
@@ -25,20 +27,23 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 
 /-- Parameters for a jagged circuit instance. -/
 structure JaggedCfg where
+  name           : String
   field          : FieldParams
-  denseLen       : N    -- e.g. 2^21 (FRI dimension d)
-  batchSize      : N    -- e.g. 193  (contributes ⌈log₂ b⌉ to ℓ)
-  traceWidth     : N    -- e.g. 3741
+  proofSystName  : String
+  /- The three fields below expand the `JaggedPCS` structure. -/
+  densePCS       : FRIConfig
   traceLength    : N    -- e.g. 2^22 (one gotcha: use trace length, not FRI dimension)
+  traceWidth     : N    -- e.g. 3741
   numConstraints : N    -- e.g. 3412
   airMaxDegree   : N    -- e.g. 3
+  lookups        : List LookupCfg := []
 
 /-- Reduction soundness error.
 
 `ℓ = ⌈log₂ denseLen⌉ + ⌈log₂ batchSize⌉`; the formula counts variables checked
 in two rounds of the jagged sumcheck (width term + linear and quadratic bookkeeping). -/
 def JaggedCfg.reduceErr (c : JaggedCfg) : Q :=
-  let l := Nat.clog 2 c.denseLen + Nat.clog 2 c.batchSize  -- 21 + 8 = 29
+  let l := Nat.clog 2 c.densePCS.denseLen + Nat.clog 2 c.densePCS.batchSize  -- 21 + 8 = 29
   ((Nat.clog 2 c.traceWidth : Q) + 2 * l + 2 * (2 * l + 2)) / (c.field.card : Q)
 
 /-- Zerocheck soundness error.
@@ -48,6 +53,32 @@ over `⌈log₂ H⌉` variables. -/
 def JaggedCfg.zerocheckErr (c : JaggedCfg) : Q :=
   ((c.numConstraints : Q) + (c.airMaxDegree + 2) * Nat.clog 2 c.traceLength)
   / (c.field.card : Q)
+
+
+/--
+  Enumerates all the soundness errors of a Jagged circuit.
+-/
+def JaggedCfg.listErrs (c: JaggedCfg) : List ℚ := do
+  let mut l : List ℚ := []
+  l := c.reduceErr :: l
+  l := c.zerocheckErr :: l
+  let fcfg := c.densePCS
+  l := (fcfg.batchingErr (UDR fcfg.field)) :: l
+  for i in List.range fcfg.foldingFactors.length do
+    l := (fcfg.commitErr (UDR fcfg.field) i) :: l
+  l := (fcfg.queryErr (UDR fcfg.field)) :: l
+  for lcfg in c.lookups do
+    l := lcfg.errUB :: l
+  l
+
+/--
+  Total soundness error of a Jagged circuit.
+  Computed as the maximum of all the soundness errors.
+-/
+def JaggedCfg.totalErr (c : JaggedCfg) : ℚ :=
+  match (listErrs c).maximum with
+  | some m => m
+  | none   => 0
 
 /-! ## Jagged reduction proof size
 

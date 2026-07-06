@@ -1,4 +1,5 @@
 import Soundcalc.Circuit.Jagged
+import Soundcalc.SecBits
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
 import Soundcalc.Field
@@ -48,43 +49,19 @@ example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 2
   norm_num [secBits, koalaBear4, FieldParams.card]
   native_decide
 
-/-! ## Jagged -/
-
-/-!
-Parameters from `circuits/jagged.py`:
-* `denseLen = 2^21`, `batchSize = 193` → `ℓ = 21 + 8 = 29`
-* `traceWidth = 3741`, `numConstraints = 3412`, `airMaxDegree = 3`
-* `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
--/
-def sp1Core : JaggedCfg where
-  field          := koalaBear4
-  denseLen       := 2 ^ 21
-  batchSize      := 193
-  traceWidth     := 3741
-  traceLength    := 2 ^ 22
-  numConstraints := 3412
-  airMaxDegree   := 3
-
-/-!
-Exit criteria: `secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
-
-Derivation sketch:
-* `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
-* numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
--/
-example : secBits sp1Core.reduceErr = 116 := by native_decide
-example : secBits sp1Core.zerocheckErr = 112 := by native_decide
-
 /-! ## FRI
 
 `denseLen` is the FRI dimension `d`; `n = d/ρ = 2^23`. The trace length
-(`2^22`, used by zerocheck) is a *separate* quantity and deliberately
-does **not** appear in `FRIConfig`. -/
+(`2^22`, used by zerocheck) is a *separate* quantity. -/
 def sp1CoreFRI : FRIConfig where
+  hashBits       := 248
   field          := koalaBear4
   ρ              := ⟨1 / 4, by norm_num⟩
+  traceLen       := 2 ^ 22
   denseLen       := 2 ^ 21
   batchSize      := 193
+  powerBatch     := false
+  multilinBatch  := true
   numQueries     := 124
   foldingFactors := List.replicate 21 2
   earlyStopDeg   := 4
@@ -138,32 +115,70 @@ Parsed from https://github.com/ethereum/soundcalc/blob/main/soundcalc/zkvms/sp1/
 -/
 
 def sp1CoreLookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 4194304    -- 2 ^ 22
   numColumnsS     := 107
   numLookupsM     := 1911
   grindBitsLookup := 12
+  isMultilinear   := true
 
 def sp1CompressLookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 2097152    -- 2 ^ 21
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
+  isMultilinear   := true
 
 def sp1ShrinkLookup : LookupCfg where
+  name            := "lookup"
   field           := koalaBear4
+  isLogUpMultivar := true
   rowsT           := 0
   rowsL           := 524288     -- 2 ^ 19
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
+  isMultilinear   := true
 
 /-! S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits. -/
 theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
 theorem sp1_compress_lookup_bits : secBits sp1CompressLookup.errUB = 107 := by native_decide
 theorem sp1_shrink_lookup_bits : secBits sp1ShrinkLookup.errUB = 109 := by native_decide
+
+/-! ## Jagged -/
+
+/-!
+Parameters from `circuits/jagged.py`:
+* `denseLen = 2^21`, `batchSize = 193` → `ℓ = 21 + 8 = 29`
+* `traceWidth = 3741`, `numConstraints = 3412`, `airMaxDegree = 3`
+* `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
+-/
+def sp1Core : JaggedCfg where
+  name           := "core"
+  field          := koalaBear4
+  proofSystName  := "Jagged"
+  densePCS       := sp1CoreFRI
+  traceWidth     := 3741
+  traceLength    := 2 ^ 22
+  numConstraints := 3412
+  airMaxDegree   := 3
+  lookups        := [sp1CoreLookup]
+
+/-!
+Exit criteria: `secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
+
+Derivation sketch:
+* `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
+* numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
+-/
+example : secBits sp1Core.reduceErr = 116 := by native_decide
+example : secBits sp1Core.zerocheckErr = 112 := by native_decide
 
 end Soundcalc

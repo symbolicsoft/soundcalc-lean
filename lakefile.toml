@@ -13,5 +13,5 @@ name = "Soundcalc"
 name = "SoundcalcIO"
 
 [[lean_exe]]
-name = "tomlparser"
-root = "SoundcalcIO.TomlParser"
+name = "leanemitter"
+root = "SoundcalcIO.LeanEmitter"

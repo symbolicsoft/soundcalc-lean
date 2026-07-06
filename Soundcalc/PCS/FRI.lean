@@ -43,15 +43,20 @@ structure FRIConfig where
   earlyStopDeg   : N             -- = 4
   grindQuery     : N             -- = 16
   grindBatch     : N             := 0
-  grindCommit    : N             := 0
+  grindCommit    : N             := 0        -- = 5 for Airbender; 0 keeps SP1 configs valid
   gapToRadius    : Option Float  := none
 
 def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
 
+/-- Powers-batching error: uses `errPowers` (Airbender's `power_batching = true` path)
+    then applies the batching grind. -/
+def FRIConfig.batchingErrPowers (c : FRIConfig) (R : Regime) : Q :=
+  R.errPowers c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
+
 def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
   let acc := (c.foldingFactors.take (i + 1)).foldl (· * ·) 1
-  R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1)
+  R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1) / 2 ^ c.grindCommit
 
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   (1 - R.θ c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery

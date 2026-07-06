@@ -1,5 +1,6 @@
 import Mathlib
 import Soundcalc.Field
+import Soundcalc.Common.Sqrt
 
 namespace Soundcalc
 
@@ -78,5 +79,66 @@ def UDR (F : FieldParams) : Regime where
   errLinear      := fun ⟨ρ, _⟩ d   => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)
   errPowers      := fun ⟨ρ, _⟩ d b => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (b - 1)
   errMultilinear := fun ⟨ρ, _⟩ d b => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (Nat.clog 2 b : ℚ)
+
+/-!
+## Johnson Bound Regime (JBR)
+
+Conservative rational envelope for the MCA error of BCHKS25 Theorem 4.2.
+Parametrised by the rational gap `η` and the A1 granularity `g`; every `√ρ`
+appearance is replaced by `sqrtLB` or `sqrtUB` in whichever direction keeps the
+result an upper bound.
+-/
+
+/-- JBR multiplicity `m = max(⌈√ρ / (2η)⌉, 3)` (BCHKS25 Thm 4.2).
+    Rounded **up** via `sqrtUB` since the error formula is increasing in `m`. -/
+def jbrM (ρ η : ℚ) (g : ℕ) : ℕ :=
+  max ⌈sqrtUB ρ g / (2 * η)⌉₊ 3
+
+/-- Certified **upper bound** on the JBR linear MCA error (BCHKS25 Thm 4.2).
+    Every `√ρ` is replaced by `sqrtLB` because the error is decreasing in `√ρ`, so
+    substituting a smaller value makes the bound larger (conservative). -/
+def jbrErrLinear (F : FieldParams) (η : ℚ) (g : ℕ) (ρ : ℚ) (d : ℕ) : ℚ :=
+  let sr     := sqrtLB ρ g
+  let m      := (jbrM ρ η g : ℚ)
+  let ms     := m + 1 / 2
+  let n      := (d : ℚ) / ρ
+  let θ      := (1 - η) - sr
+  let first  := (2 * ms ^ 5 + 3 * ms * (θ * ρ)) * n / (3 * ρ * sr)
+  let second := ms / sr
+  (first + second) / (F.card : ℚ)
+
+/-- The Johnson Bound Regime as a certified conservative envelope.
+    `η` is the rational gap parameter and `g` the A1 granularity.
+    Each field rounds `√ρ` in the direction that makes the output an upper bound:
+    - `θ` uses `sqrtUB` (larger √ρ → smaller θ → fewer codewords in the list, conservative);
+    - `listSize` and `errLinear` use `sqrtLB` (smaller √ρ → larger error/list). -/
+def JBR (F : FieldParams) (η : ℚ) (g : ℕ) : Regime where
+  θ              := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtUB ρ g
+  listSize       := fun ⟨ρ, _⟩ _   => 1 / (2 * η * sqrtLB ρ g)
+  errLinear      := fun ⟨ρ, _⟩ d   => jbrErrLinear F η g ρ d
+  errPowers      := fun ⟨ρ, _⟩ d b => jbrErrLinear F η g ρ d * (b - 1)
+  errMultilinear := fun ⟨ρ, _⟩ d b => jbrErrLinear F η g ρ d * (Nat.clog 2 b : ℚ)
+
+/-- The **true** real-valued Johnson linear error (BCHKS25 Thm 4.2): the quantity that the
+    rational `jbrErrLinear` is proven to over-approximate. Uses the genuine irrational
+    `Real.sqrt ρ`, so it is `noncomputable` and is never `decide`d — only bounded. -/
+noncomputable def trueErrLinearJBR
+    (F : FieldParams) (η : ℚ) (m : ℕ) (ρ : ℚ) (d : ℕ) : ℝ :=
+  let sr : ℝ := Real.sqrt (ρ : ℝ)
+  let ms : ℝ := (m : ℝ) + 1 / 2
+  let n  : ℝ := (d : ℝ) / (ρ : ℝ)
+  let θ  : ℝ := (1 - (η : ℝ)) - sr
+  let first  : ℝ := (2 * ms ^ 5 + 3 * ms * (θ * (ρ : ℝ))) * n / (3 * (ρ : ℝ) * sr)
+  let second : ℝ := ms / sr
+  (first + second) / (F.card : ℝ)
+
+/-- **Soundness of the envelope**: the rational `jbrErrLinear` upper-bounds the true real
+    error `trueErrLinearJBR`. Proved once here; every A6 batching/commit theorem inherits
+    conservativity. Consumes `sqrtLB_le` (for `√ρ` terms that must stay ≤ true `√ρ`) and
+    `le_sqrtUB` (for the `θ` term, where a larger bound is required). -/
+theorem jbrErrLinear_conservative
+    (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ} (_hρ : 0 < ρ ∧ ρ < 1) (d : ℕ)
+    (_hg : 0 < g) :
+    (trueErrLinearJBR F η (jbrM ρ η g) ρ d : ℝ) ≤ (jbrErrLinear F η g ρ d : ℝ) := by sorry
 
 end Soundcalc

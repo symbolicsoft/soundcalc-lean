@@ -6,9 +6,6 @@ open Soundcalc
 
 namespace Soundcalc
 
-private abbrev N := Nat
-private abbrev Q := Rat
-
 /-!
 # Jagged circuit error bounds
 
@@ -103,16 +100,16 @@ from the Python:
 
 Both use degree 2. -/
 
-def sumcheckSizeBits (degree numVars fieldBits : N) : N :=
+private def sumcheckSizeBits (degree numVars fieldBits : N) : N :=
   (numVars * (degree + 2) + 2) * fieldBits
 
-def getJaggedReductionSizeBits (denseTraceLen batchSize fieldBits : N) : N :=
+private def getJaggedReductionSizeBits (denseTraceLen batchSize fieldBits : N) : N :=
   let logTrace := Nat.clog 2 denseTraceLen + Nat.clog 2 batchSize
   sumcheckSizeBits 2 logTrace fieldBits + sumcheckSizeBits 2 (2 * logTrace + 2) fieldBits
 
 /-! ## Full Jagged proof size
 
-`getJaggedProofSizeBits` = `getFRIProofSizeBits` + `getJaggedReductionSizeBits`.
+`getJaggedProofSizeBits` = `proofSizePCS` + `getJaggedReductionSizeBits`.
 
 This matches `JaggedPCS.get_proof_size_bits` / `get_expected_proof_size_bits` in the
 soundcalc Python, which is what the SP1 report numbers are computed from.
@@ -121,37 +118,21 @@ Note: lookups are *not* included in the soundcalc proof-size estimate (they appe
 the security-level table); `getJaggedProofSizeBits` therefore matches the report exactly
 without any lookup term. -/
 
-def getJaggedProofSizeBits
-    (hashSizeBits fieldSizeBits batchSize numQueries denseTraceLen domainSize : N)
-    (foldingFactors : List N)
-    (rate : ℚ)
-    (expected : Bool) : N :=
-  getFRIProofSizeBits
-      hashSizeBits fieldSizeBits batchSize numQueries domainSize foldingFactors rate expected +
-  getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
+private def getJaggedProofSizeBits (c: JaggedCfg) (expected: Bool) : ℕ :=
+  let fieldSizeBits := c.field.elementSizeBits
+  let batchSize := c.densePCS.batchSize
+  let denseTraceLen := c.densePCS.denseLen
 
-/-! ## Jagged proof sizes
+  let proofSizePCS :=
+    if expected then c.densePCS.proofSizeExp
+    else c.densePCS.proofSizeWorst
 
-Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
+  proofSizePCS + getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
 
-| circuit  | denseTraceLen | ρ    | domainSize        | batchSize | numQueries | foldRounds |
-|----------|---------------|------|-------------------|-----------|------------|------------|
-| core     | 2^21          | 1/4  | 2^21/(1/4) = 2^23 | 193       | 124        | 21 × 2     |
-| compress | 2^20          | 1/4  | 2^20/(1/4) = 2^22 | 128       | 124        | 20 × 2     |
-| shrink   | 2^18          | 1/8  | 2^18/(1/8) = 2^21 | 128       | 94         | 18 × 2     |
+def JaggedCfg.proofSizeExp (c: JaggedCfg) : ℕ :=
+  getJaggedProofSizeBits c true
 
-`hashSizeBits = 248` for all three.
-Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
--/
-
--- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 918  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) false / KIB = 1479 := by native_decide
--- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) true  / KIB = 735  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) false / KIB = 1267 := by native_decide
--- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 529  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 887  := by native_decide
+def JaggedCfg.proofSizeWorst (c: JaggedCfg) : ℕ :=
+  getJaggedProofSizeBits c false
 
 end Soundcalc

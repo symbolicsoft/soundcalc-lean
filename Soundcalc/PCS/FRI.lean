@@ -1,15 +1,19 @@
 import Mathlib
 import Soundcalc.Regime        -- brings in Rate, Regime, UDR (and Field transitively)
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits
-import Soundcalc.Field          -- certified koalaBear4.elementSizeBits (= 124)
+import Soundcalc.Field         -- certified koalaBear4.elementSizeBits (= 124)
 
 open Soundcalc
+
+namespace Soundcalc
 
 /-!
 # FRI soundness configuration
 
 Generic structures and error formulas: `FRIConfig`, `FRIConfig.batchingErr`,
-`FRIConfig.commitErr`, `FRIConfig.queryErr`, and `getFRIProofSizeBits`.
+`FRIConfig.commitErr`, `FRIConfig.queryErr`.
+Proof sizes are computed from `getFRIProofSizeBits`, with `FRIConfig.proofSizeExp`
+and `FRIConfig.proofSizeWorst` being the calling API.
 SP1-specific instances and exit criteria live in `Soundcalc.ZkVM.SP1`.
 Jagged-layer proof size helpers (`sumcheckSizeBits`, `getJaggedReductionSizeBits`,
 `getJaggedProofSizeBits`) live in `Soundcalc.Circuit.Jagged`.
@@ -51,6 +55,21 @@ def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   (1 - R.θ c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
 
+/--
+  Domain size, after low-degree extension
+
+  **TODO**: formal semantic refinement later.
+
+  `.toNat` is justified, as the input to `round`
+  is always positive for relevant configs, given that:
+  - `c.traceLen` is a `Nat > 0`;
+  - `c.ρ` is of type `Rate` (0 < ρ < 1, ρ ∈ ℚ).
+  Moreover, for relevant configs no rounding occurs
+  at all (`ρ ∈ {1/2, 1/4, 1/8}`)
+-/
+def FRIConfig.D (c: FRIConfig) : ℕ :=
+  (round ((c.denseLen : ℚ) / (c.ρ : ℚ))).toNat
+
 /-! ## FRI proof size -/
 
 /-- Proof size (or expected proof size) of a BCS-transformed FRI interaction in bits.
@@ -62,11 +81,16 @@ def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
       leaf so `tupleSize = foldingFactor` and `numLeafs = n / foldingFactor`.
     * Final round: the low-degree polynomial sent in the clear
       (`rate * n_final * fieldSizeBits` bits). -/
-def getFRIProofSizeBits
-    (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
-    (foldingFactors : List N)
-    (rate : ℚ)
-    (expected : Bool) : N :=
+
+private def getFRIProofSizeBits (c: FRIConfig) (expected: Bool) : ℕ :=
+  let hashSizeBits := c.hashBits
+  let fieldSizeBits := c.field.elementSizeBits
+  let batchSize := c.batchSize
+  let numQueries := c.numQueries
+  let domainSize := c.D
+  let foldingFactors := c.foldingFactors
+  let rate := (c.ρ : ℚ) -- casting the rate to a rational to access `.num`/`.den`
+
   let initBits :=
     hashSizeBits +
     getSizeOfMerkleMultiProofBits
@@ -84,22 +108,10 @@ def getFRIProofSizeBits
   -- rate * finalN * fieldSizeBits, keeping arithmetic in ℕ via num/den
   totalBits + rate.num.toNat * finalN * fieldSizeBits / rate.den
 
-/-! ## Proof size exit criteria
+def FRIConfig.proofSizeExp (c: FRIConfig) : ℕ :=
+  getFRIProofSizeBits c true
 
-`koalaBear4FieldBits` is the number of bits to represent one element of KoalaBear⁴
-(`4 · ⌈log₂ p⌉`).  Rather than recompute it with a private `⌈log₂⌉`, we reuse the
-*certified* field-element size from `Soundcalc.Field`, where `koalaBear4_elementBits`
-proves `elementSizeBits = 124`. -/
+def FRIConfig.proofSizeWorst (c: FRIConfig) : ℕ :=
+  getFRIProofSizeBits c false
 
-def koalaBear4FieldBits : N := koalaBear4.elementSizeBits
-
--- FRI-only sizes (getFRIProofSizeBits, matching the Python get_FRI_proof_size_bits):
--- core: 913 KiB (expected) / 1474 KiB (worst case)
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 193 124 (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 913  := by native_decide
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 193 124 (2^23) (List.replicate 21 2) (1/4 : ℚ) false / KIB = 1474 := by native_decide
--- compress: 730 KiB (expected) / 1261 KiB (worst case)
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 124 (2^22) (List.replicate 20 2) (1/4 : ℚ) true  / KIB = 730  := by native_decide
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 124 (2^22) (List.replicate 20 2) (1/4 : ℚ) false / KIB = 1261 := by native_decide
--- shrink: 524 KiB (expected) / 882 KiB (worst case)
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 524  := by native_decide
-example : getFRIProofSizeBits 248 koalaBear4FieldBits 128 94  (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 882  := by native_decide
+end Soundcalc

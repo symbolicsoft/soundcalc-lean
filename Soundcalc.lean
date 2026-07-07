@@ -9,3 +9,4 @@ import Soundcalc.Common.Utils
 import Soundcalc.Common.Log
 import Soundcalc.ZkVM
 import Soundcalc.ZkVM.SP1
+import Soundcalc.ZkVM.Airbender

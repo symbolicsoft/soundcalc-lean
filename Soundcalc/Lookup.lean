@@ -27,15 +27,11 @@ structure LookupCfg where
   numColumnsS     : ℕ     := 1     -- Number of columns of `T` and `L` (`S=1` for single column case)
   numLookupsM     : ℕ     := 1     -- Number of lookups performed on `T`
   grindBitsLookup : ℕ     := 0     -- PoW grinding (expressed in bits of security)
-  /- Boolean switch supporting univariate/multivariate lookups.
-    *TODO* No semantics yet; will affect `columnAggregFactor`-/
+  /-- `true` = multivariate (SP1-style, `R = log₂ S`, GKR term included);
+      `false` = univariate  (Airbender logup, `R = S`, no GKR term). -/
   isMultilinear   : Bool  := false
   /- (optional field) Auxiliary soundness error; unused within SP1. -/
   reductionErr    : Float := 0.0
-
-  /- *TODO*: whenever `isLogUpMultivar` is true, `isMultilinear` must
-     also be. The calling protocol must ensure structures are well-formed.
-     This replaces soundcalc's __post_init__; comes later on in our roadmap. -/
 
 /-- Computes an upper bound of the soundness error for the GKR protocol as:
       `(1/2) * (n + m) * (3 * (n + m) + 1) / |F|`
@@ -53,34 +49,22 @@ def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   (1/2 * nm * (3 * nm + 1) / F.card)
 
 /-- Returns `R`, the soundness multiplier induced by column aggregation.
-
-    For multivariate aggregation `R = log2(S)`, with the single-column case
-    normalized to `R = 1`.
-    For univariate aggregation `R = S`. *TODO* This is not implemented yet.
+/--
+  Data export from https://github.com/ethereum/soundcalc/blob/809896fb8d3aba4fd8f657c781601e3ef2b968dd/soundcalc/zkvms/airbender/airbender.toml#L69
+  and https://github.com/ethereum/soundcalc/blob/main/reports/airbender.md
 -/
-def columnAggregFactor (S : ℕ) : ℚ :=
-  max (log2UB S 64) 1
 
-def LookupCfg.errUB (c: LookupCfg) : ℚ :=
-    /-
-    Calculates the base lookup soundness using the unified lookup model:
-        `K * H * R / F`
-    where `H = rows_L + rows_T` and `R` is the column aggregation factor.
-    -/
-  let F         := c.field
+    - Multivariate (`multilinear = true`):  `R = max(⌈log₂ S⌉, 1)` (SP1 path).
+    - Univariate   (`multilinear = false`): `R = S`                 (Airbender logup path). -/
+def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
+  if multilinear then max (log2UB S 64) 1 else (S : ℚ)
+
+def LookupCfg.errUB (c : LookupCfg) : ℚ :=
   let H         := c.rowsL + c.rowsT
-  let S         := c.numColumnsS
-  let K         := c.numLookupsM
-  let R         := columnAggregFactor S
-  let baseError := ((K * H : ℚ) * R) / F.card
-  /-
-    For multivariate lookups, we additionally account for the GKR
-    soundness term and any configured reduction error.
-    *TODO* In the univariate case, the error below should *not* be added.
-  -/
-  let gkrError  := gkrErrorUB F H K
-  -- *TODO*: Include optional soundness error
-  -- We account for the grinding at the very end
+  let R         := columnAggregFactor c.numColumnsS c.isMultilinear
+  let baseError := ((c.numLookupsM * H : ℚ) * R) / c.field.card
+  -- Univariate logup has no GKR reduction step, so the GKR error is zero.
+  let gkrError  := if c.isMultilinear then gkrErrorUB c.field H c.numLookupsM else 0
   (baseError + gkrError) / 2 ^ c.grindBitsLookup
 
 end Soundcalc

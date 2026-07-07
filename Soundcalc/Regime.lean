@@ -132,13 +132,186 @@ noncomputable def trueErrLinearJBR
   let second : ℝ := ms / sr
   (first + second) / (F.card : ℝ)
 
-/-- **Soundness of the envelope**: the rational `jbrErrLinear` upper-bounds the true real
-    error `trueErrLinearJBR`. Proved once here; every A6 batching/commit theorem inherits
-    conservativity. Consumes `sqrtLB_le` (for `√ρ` terms that must stay ≤ true `√ρ`) and
-    `le_sqrtUB` (for the `θ` term, where a larger bound is required). -/
+/--
+Core monotonicity lemma for the JBR linear-error expression.
+
+Fix all parameters except the square-root term. If `0 < L <= S`, then replacing
+`S` by the smaller value `L` makes the JBR expression larger. In plain terms:
+the error bound is decreasing in the square-root parameter, provided `η <= 1`
+and the relevant coefficients are nonnegative.
+-/
+private lemma jbrCore_mono
+    {M R D E L S : ℝ}
+    (hR : 0 < R)
+    (hD : 0 ≤ D)
+    (hM : 0 ≤ M)
+    (hE : E ≤ 1)
+    (hL : 0 < L)
+    (hS : 0 < S)
+    (hLS : L ≤ S) :
+    ((2 * M ^ 5 + 3 * M * (((1 - E) - S) * R)) * (D / R) / (3 * R * S) + M / S)
+      ≤
+    ((2 * M ^ 5 + 3 * M * (((1 - E) - L) * R)) * (D / R) / (3 * R * L) + M / L) := by
+  let A : ℝ :=
+    D * (2 * M ^ 5 + 3 * M * ((1 - E) * R)) / (3 * R ^ 2) + M
+
+  have hRne : R ≠ 0 := ne_of_gt hR
+  have hLne : L ≠ 0 := ne_of_gt hL
+  have hSne : S ≠ 0 := ne_of_gt hS
+
+  have h1E : 0 ≤ 1 - E := by
+    linarith
+
+  have hterm :
+      0 ≤ 2 * M ^ 5 + 3 * M * ((1 - E) * R) := by
+    have hpow : 0 ≤ M ^ 5 := pow_nonneg hM 5
+    have hprod : 0 ≤ M * ((1 - E) * R) := by
+      exact mul_nonneg hM (mul_nonneg h1E (le_of_lt hR))
+    nlinarith
+
+  have hden_nonneg : 0 ≤ 3 * R ^ 2 := by
+    exact mul_nonneg (by norm_num) (sq_nonneg R)
+
+  have hA_nonneg : 0 ≤ A := by
+    dsimp [A]
+    exact add_nonneg
+      (div_nonneg (mul_nonneg hD hterm) hden_nonneg)
+      hM
+
+  have hinv : 1 / S ≤ 1 / L := by
+    exact one_div_le_one_div_of_le hL hLS
+
+  have hmono : A * (1 / S) ≤ A * (1 / L) := by
+    exact mul_le_mul_of_nonneg_left hinv hA_nonneg
+
+  have hS_rewrite :
+      ((2 * M ^ 5 + 3 * M * (((1 - E) - S) * R)) * (D / R) / (3 * R * S) + M / S)
+        =
+      A * (1 / S) - M * D / R := by
+    dsimp [A]
+    field_simp [hRne, hSne]
+    ring
+
+  have hL_rewrite :
+      ((2 * M ^ 5 + 3 * M * (((1 - E) - L) * R)) * (D / R) / (3 * R * L) + M / L)
+        =
+      A * (1 / L) - M * D / R := by
+    dsimp [A]
+    field_simp [hRne, hLne]
+    ring
+
+  calc
+    ((2 * M ^ 5 + 3 * M * (((1 - E) - S) * R)) * (D / R) / (3 * R * S) + M / S)
+        = A * (1 / S) - M * D / R := hS_rewrite
+    _ ≤ A * (1 / L) - M * D / R := by
+        exact sub_le_sub_right hmono (M * D / R)
+    _ =
+      ((2 * M ^ 5 + 3 * M * (((1 - E) - L) * R)) * (D / R) / (3 * R * L) + M / L) := by
+        exact hL_rewrite.symm
+
+
+/--
+The rational JBR linear-error formula upper-bounds the true real-valued formula.
+
+The true formula uses the exact value `sqrt ρ`, while `jbrErrLinear` replaces it
+by the rational lower approximation `sqrtLB ρ g`. Since `sqrtLB ρ g <= sqrt ρ`
+and the JBR expression is decreasing in this square-root parameter, this
+replacement gives a conservative upper bound.
+
+The hypothesis `hsr` ensures that the lower approximation is positive, so the
+division by `sqrtLB ρ g` is meaningful.
+-/
 theorem jbrErrLinear_conservative
-    (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ} (_hρ : 0 < ρ ∧ ρ < 1) (d : ℕ)
-    (_hg : 0 < g) :
-    (trueErrLinearJBR F η (jbrM ρ η g) ρ d : ℝ) ≤ (jbrErrLinear F η g ρ d : ℝ) := by sorry
+    (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
+    (hρ : 0 < ρ ∧ ρ < 1) (d : ℕ)
+    (hg : 0 < g)
+    (hη : η ≤ 1)
+    (hsr : 0 < sqrtLB ρ g) :
+    (trueErrLinearJBR F η (jbrM ρ η g) ρ d : ℝ)
+      ≤ (jbrErrLinear F η g ρ d : ℝ) := by
+  have hρR_pos : (0 : ℝ) < (ρ : ℝ) := by
+    exact_mod_cast hρ.1
+
+  have hρR_nonneg : (0 : ℝ) ≤ (ρ : ℝ) := le_of_lt hρR_pos
+
+  have hηR : (η : ℝ) ≤ 1 := by
+    exact_mod_cast hη
+
+  have hL_pos : (0 : ℝ) < (sqrtLB ρ g : ℝ) := by
+    exact_mod_cast hsr
+
+  have hS_pos : (0 : ℝ) < Real.sqrt (ρ : ℝ) := by
+    exact Real.sqrt_pos.mpr hρR_pos
+
+  have hLB :
+      (sqrtLB ρ g : ℝ) ≤ Real.sqrt (ρ : ℝ) := by
+    exact sqrtLB_le (ρ := ρ) (le_of_lt hρ.1) (g := g) hg
+
+  have hd_nonneg : (0 : ℝ) ≤ (d : ℝ) := by
+    exact_mod_cast Nat.zero_le d
+
+  have hm_nonneg : (0 : ℝ) ≤ (jbrM ρ η g : ℝ) := by
+    exact_mod_cast Nat.zero_le (jbrM ρ η g)
+
+  have hms_nonneg :
+      (0 : ℝ) ≤ (jbrM ρ η g : ℝ) + 1 / 2 := by
+    exact add_nonneg hm_nonneg (by norm_num)
+
+  have hcardNat : 0 < F.card := by
+    unfold FieldParams.card
+    exact Nat.pow_pos (a := F.p) (n := F.e) (Nat.Prime.pos F.prime)
+
+  have hcardR : (0 : ℝ) < (F.card : ℝ) := by
+    exact_mod_cast hcardNat
+
+  have hcore :
+      ((2 * ((jbrM ρ η g : ℝ) + 1 / 2) ^ 5
+          + 3 * ((jbrM ρ η g : ℝ) + 1 / 2)
+              * ((((1 : ℝ) - (η : ℝ)) - Real.sqrt (ρ : ℝ)) * (ρ : ℝ)))
+          * ((d : ℝ) / (ρ : ℝ))
+          / (3 * (ρ : ℝ) * Real.sqrt (ρ : ℝ))
+        + ((jbrM ρ η g : ℝ) + 1 / 2) / Real.sqrt (ρ : ℝ))
+      ≤
+      ((2 * ((jbrM ρ η g : ℝ) + 1 / 2) ^ 5
+          + 3 * ((jbrM ρ η g : ℝ) + 1 / 2)
+              * ((((1 : ℝ) - (η : ℝ)) - (sqrtLB ρ g : ℝ)) * (ρ : ℝ)))
+          * ((d : ℝ) / (ρ : ℝ))
+          / (3 * (ρ : ℝ) * (sqrtLB ρ g : ℝ))
+        + ((jbrM ρ η g : ℝ) + 1 / 2) / (sqrtLB ρ g : ℝ)) := by
+    exact jbrCore_mono
+      (M := (jbrM ρ η g : ℝ) + 1 / 2)
+      (R := (ρ : ℝ))
+      (D := (d : ℝ))
+      (E := (η : ℝ))
+      (L := (sqrtLB ρ g : ℝ))
+      (S := Real.sqrt (ρ : ℝ))
+      hρR_pos
+      hd_nonneg
+      hms_nonneg
+      hηR
+      hL_pos
+      hS_pos
+      hLB
+
+  have hdiv :
+      ((2 * ((jbrM ρ η g : ℝ) + 1 / 2) ^ 5
+          + 3 * ((jbrM ρ η g : ℝ) + 1 / 2)
+              * ((((1 : ℝ) - (η : ℝ)) - Real.sqrt (ρ : ℝ)) * (ρ : ℝ)))
+          * ((d : ℝ) / (ρ : ℝ))
+          / (3 * (ρ : ℝ) * Real.sqrt (ρ : ℝ))
+        + ((jbrM ρ η g : ℝ) + 1 / 2) / Real.sqrt (ρ : ℝ))
+        / (F.card : ℝ)
+      ≤
+      ((2 * ((jbrM ρ η g : ℝ) + 1 / 2) ^ 5
+          + 3 * ((jbrM ρ η g : ℝ) + 1 / 2)
+              * ((((1 : ℝ) - (η : ℝ)) - (sqrtLB ρ g : ℝ)) * (ρ : ℝ)))
+          * ((d : ℝ) / (ρ : ℝ))
+          / (3 * (ρ : ℝ) * (sqrtLB ρ g : ℝ))
+        + ((jbrM ρ η g : ℝ) + 1 / 2) / (sqrtLB ρ g : ℝ))
+        / (F.card : ℝ) := by
+    exact div_le_div_of_nonneg_right hcore (le_of_lt hcardR)
+
+  simpa [trueErrLinearJBR, jbrErrLinear] using hdiv
+
 
 end Soundcalc

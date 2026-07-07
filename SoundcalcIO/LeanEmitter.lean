@@ -12,7 +12,8 @@ namespace SoundcalcIO.LeanEmitter
     The `.lean` file wraps together all the structures defined in companion
     files (`JaggedCfg`, `LookupCfg`, `FRIConfig`), enabling formal arithmetic
     verification of the `sp1.md` report of `soundcalc` by means of cell-wise
-    evaluations.
+    evaluations of the security bits table, as well as reported proof sizes
+    (both worst-case and expected).
 
     usage: `lean exe leanemitter`
 
@@ -42,6 +43,8 @@ private def getSP1ImportStr : String :=
 
 private def getSP1CoreReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
+  "\n" ++
+  "/- **Security bits table** -/\n" ++
   "example : secBits (SP1_core_jagged.totalErr) = 100 := by native_decide\n" ++
   "\n" ++
   "example : secBits (SP1_core_lookup_lookup.errUB) = 100 := by native_decide\n" ++
@@ -72,10 +75,19 @@ private def getSP1CoreReportStr : String :=
   "\n" ++
   "example : secBits SP1_core_jagged.reduceErr = 116 := by native_decide\n" ++
   "example : secBits SP1_core_jagged.zerocheckErr = 112 := by native_decide\n" ++
+  "\n" ++
+  "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
+  "example : sp1CoreFRI.proofSizeExp          / KIB = 913  := by native_decide\n" ++
+  "example : sp1CoreFRI.proofSizeWorst        / KIB = 1474 := by native_decide\n" ++
+  "\n" ++
+  "example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide\n" ++
+  "example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide\n" ++
   "\n"
 
 private def getSP1CompressReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
+  "\n" ++
+  "/- **Security bits table** -/\n" ++
   "example : secBits (SP1_compress_jagged.totalErr) = 100 := by native_decide\n" ++
   "\n" ++
   "example : secBits (SP1_compress_lookup_lookup.errUB) = 107 := by native_decide\n" ++
@@ -105,10 +117,20 @@ private def getSP1CompressReportStr : String :=
   "\n" ++
   "example : secBits SP1_compress_jagged.reduceErr = 116 := by native_decide\n" ++
   "example : secBits SP1_compress_jagged.zerocheckErr = 115 := by native_decide\n" ++
+  "\n" ++
+  "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
+  "example : sp1CompressFRI.proofSizeExp      / KIB = 730  := by native_decide\n" ++
+  "example : sp1CompressFRI.proofSizeWorst    / KIB = 1261 := by native_decide\n" ++
+  "\n" ++
+  "example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide\n" ++
+  "example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide\n" ++
   "\n"
+
 
 private def getSP1ShrinkReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
+  "\n" ++
+  "/- **Security bits table** -/\n" ++
   "example : secBits (SP1_shrink_jagged.totalErr) = 100 := by native_decide\n" ++
   "\n" ++
   "example : secBits (SP1_shrink_lookup_lookup.errUB) = 109 := by native_decide\n" ++
@@ -136,7 +158,24 @@ private def getSP1ShrinkReportStr : String :=
   "\n" ++
   "example : secBits SP1_shrink_jagged.reduceErr = 116 := by native_decide\n" ++
   "example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by native_decide\n" ++
+  "\n" ++
+  "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
+  "example : sp1ShrinkFRI.proofSizeExp        / KIB = 524  := by native_decide\n" ++
+  "example : sp1ShrinkFRI.proofSizeWorst      / KIB = 882  := by native_decide\n" ++
+  "\n" ++
+  "example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide\n" ++
+  "example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide\n" ++
   "\n"
+
+/--
+  Contains theorems tying together the hand-written configs in
+  `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `SP1.toml`. -/
+private def consistencyProofs : String :=
+  "/- Theorems tying together the hand-written configs in\n" ++
+  "   `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `SP1.toml`.-/\n" ++
+  "example : SP1_core_jagged = sp1CoreJagged := by rfl\n" ++
+  "example : SP1_compress_jagged = sp1CompressJagged := by rfl\n" ++
+  "example : SP1_shrink_jagged = sp1ShrinkJagged := by rfl"
 
 
 private def appBanner : String :=
@@ -289,6 +328,8 @@ def main (args: List String): IO Unit := do
     | "compress" => outStr := outStr ++ getSP1CompressReportStr
     | "shrink" => outStr := outStr ++ getSP1ShrinkReportStr
     | _ => IO.eprintln "Unsupported circuit"; IO.Process.exit 1
+
+  outStr := outStr ++ consistencyProofs
 
   IO.FS.writeFile sp1LeanFile outStr
   IO.println s!"Successfully parsed {sp1TomlFile} to {sp1LeanFile}!"

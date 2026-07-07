@@ -51,7 +51,8 @@ example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 2
 
 /-! ## FRI
 
-`denseLen` is the FRI dimension `d`; `n = d/ρ = 2^23`. The trace length
+`denseLen` is used to evaluate the FRI domain size `D` as
+`FRIConfig.D = denseLen/ρ = 2^23`. The trace length
 (`2^22`, used by zerocheck) is a *separate* quantity. -/
 def sp1CoreFRI : FRIConfig where
   hashBits       := 248
@@ -99,15 +100,48 @@ Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
 Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
 -/
 
--- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) true  / KIB = 918  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 193 124 (2^21) (2^23) (List.replicate 21 2) (1/4 : ℚ) false / KIB = 1479 := by native_decide
--- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) true  / KIB = 735  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 124 (2^20) (2^22) (List.replicate 20 2) (1/4 : ℚ) false / KIB = 1267 := by native_decide
--- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) true  / KIB = 529  := by native_decide
-example : getJaggedProofSizeBits 248 koalaBear4FieldBits 128 94  (2^18) (2^21) (List.replicate 18 2) (1/8 : ℚ) false / KIB = 887  := by native_decide
+/-! ## FRI proof size exit criteria -/
+
+def sp1CompressFRI : FRIConfig where
+  hashBits        := 248
+  ρ               := ⟨1/4, by norm_num⟩
+  traceLen        := 2097152
+  field           := koalaBear4
+  denseLen        := 1048576
+  batchSize       := 128
+  powerBatch      := false
+  multilinBatch   := true
+  numQueries      := 124
+  foldingFactors  := List.replicate 20 2
+  earlyStopDeg    := 4
+  grindQuery      := 16
+  grindBatch      := 5
+
+def sp1ShrinkFRI : FRIConfig where
+  hashBits        := 248
+  ρ               := ⟨1/8, by norm_num⟩
+  traceLen        := 524288
+  field           := koalaBear4
+  denseLen        := 262144
+  batchSize       := 128
+  powerBatch      := false
+  multilinBatch   := true
+  numQueries      := 94
+  foldingFactors  := List.replicate 18 2
+  earlyStopDeg    := 8
+  grindQuery      := 22
+  grindBatch      := 5
+
+-- FRI-only sizes (matching the Python get_FRI_proof_size_bits):
+-- core: 913 KiB (expected) / 1474 KiB (worst case)
+example : sp1CoreFRI.proofSizeExp       / KIB = 913  := by native_decide
+example : sp1CoreFRI.proofSizeWorst     / KIB = 1474 := by native_decide
+-- compress: 730 KiB (expected) / 1261 KiB (worst case)
+example : sp1CompressFRI.proofSizeExp   / KIB = 730  := by native_decide
+example : sp1CompressFRI.proofSizeWorst / KIB = 1261 := by native_decide
+-- shrink: 524 KiB (expected) / 882 KiB (worst case)
+example : sp1ShrinkFRI.proofSizeExp     / KIB = 524  := by native_decide
+example : sp1ShrinkFRI.proofSizeWorst   / KIB = 882  := by native_decide
 
 /-! ## Lookup
 
@@ -160,7 +194,7 @@ Parameters from `circuits/jagged.py`:
 * `traceWidth = 3741`, `numConstraints = 3412`, `airMaxDegree = 3`
 * `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
 -/
-def sp1Core : JaggedCfg where
+def sp1CoreJagged : JaggedCfg where
   name           := "core"
   field          := koalaBear4
   proofSystName  := "Jagged"
@@ -178,7 +212,53 @@ Derivation sketch:
 * `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
 * numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
 -/
-example : secBits sp1Core.reduceErr = 116 := by native_decide
-example : secBits sp1Core.zerocheckErr = 112 := by native_decide
+example : secBits sp1CoreJagged.reduceErr = 116 := by native_decide
+example : secBits sp1CoreJagged.zerocheckErr = 112 := by native_decide
+
+/-! ## Jagged proof sizes
+
+Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
+
+| circuit  | denseTraceLen | ρ    | domainSize        | batchSize | numQueries | foldRounds |
+|----------|---------------|------|-------------------|-----------|------------|------------|
+| core     | 2^21          | 1/4  | 2^21/(1/4) = 2^23 | 193       | 124        | 21 × 2     |
+| compress | 2^20          | 1/4  | 2^20/(1/4) = 2^22 | 128       | 124        | 20 × 2     |
+| shrink   | 2^18          | 1/8  | 2^18/(1/8) = 2^21 | 128       | 94         | 18 × 2     |
+
+`hashSizeBits = 248` for all three.
+Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
+-/
+
+def sp1CompressJagged : JaggedCfg where
+  name            := "compress"
+  field           := koalaBear4
+  proofSystName   := "Jagged"
+  densePCS        := sp1CompressFRI
+  traceLength     := 2097152
+  traceWidth      := 326
+  numConstraints  := 204
+  airMaxDegree    := 3
+  lookups         := [sp1CompressLookup]
+
+def sp1ShrinkJagged : JaggedCfg where
+  name            := "shrink"
+  field           := koalaBear4
+  proofSystName   := "Jagged"
+  densePCS        := sp1ShrinkFRI
+  traceLength     := 524288
+  traceWidth      := 326
+  numConstraints  := 204
+  airMaxDegree    := 3
+  lookups         := [sp1ShrinkLookup]
+
+-- core: 918 KiB (expected) / 1479 KiB (worst case)
+example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide
+example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide
+-- compress: 735 KiB (expected) / 1267 KiB (worst case)
+example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide
+example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
+-- shrink: 529 KiB (expected) / 887 KiB (worst case)
+example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
+example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
 end Soundcalc

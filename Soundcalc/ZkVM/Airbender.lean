@@ -36,7 +36,7 @@ namespace Soundcalc
 /-! ## Configuration literals (generated from `airbender.toml`) -/
 
 def airbenderFRI : FRIConfig where
-  hashBits       := 248
+  hashBits       := 256
   field          := mersenne31_4
   ρ              := ⟨1/2, by norm_num, by norm_num⟩
   traceLen       := 2^24

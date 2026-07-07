@@ -1,11 +1,9 @@
 import Mathlib
+import Soundcalc.SecBits
 import Soundcalc.Regime
 import Soundcalc.PCS.FRI
 
 namespace Soundcalc
-
-private abbrev N := Nat
-private abbrev Q := Rat
 
 /-!
 # DEEP-ALI circuit error bounds

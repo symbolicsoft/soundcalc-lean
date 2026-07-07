@@ -61,8 +61,8 @@ def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   **TODO**: formal semantic refinement later.
 
   `.toNat` is justified, as the input to `round`
-  is always positive for relevant configs, given that:
-  - `c.traceLen` is a `Nat > 0`;
+  is always positive, given that:
+  - `c.denseLen` is a `Nat > 0`;
   - `c.ρ` is of type `Rate` (0 < ρ < 1, ρ ∈ ℚ).
   Moreover, for relevant configs no rounding occurs
   at all (`ρ ∈ {1/2, 1/4, 1/8}`)

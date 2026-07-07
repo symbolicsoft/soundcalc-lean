@@ -51,7 +51,7 @@ example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 2
 
 /-! ## FRI
 
-`denseLen` is used to evaluate the FRI dimension `D` as
+`denseLen` is used to evaluate the FRI domain size `D` as
 `FRIConfig.D = denseLen/ρ = 2^23`. The trace length
 (`2^22`, used by zerocheck) is a *separate* quantity. -/
 def sp1CoreFRI : FRIConfig where
@@ -194,7 +194,7 @@ Parameters from `circuits/jagged.py`:
 * `traceWidth = 3741`, `numConstraints = 3412`, `airMaxDegree = 3`
 * `traceLength = 2^22` (the "length gotcha": trace rows, not FRI domain size)
 -/
-def sp1Core : JaggedCfg where
+def sp1CoreJagged : JaggedCfg where
   name           := "core"
   field          := koalaBear4
   proofSystName  := "Jagged"
@@ -212,8 +212,8 @@ Derivation sketch:
 * `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
 * numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
 -/
-example : secBits sp1Core.reduceErr = 116 := by native_decide
-example : secBits sp1Core.zerocheckErr = 112 := by native_decide
+example : secBits sp1CoreJagged.reduceErr = 116 := by native_decide
+example : secBits sp1CoreJagged.zerocheckErr = 112 := by native_decide
 
 /-! ## Jagged proof sizes
 
@@ -229,7 +229,7 @@ Parameters per circuit (from `soundcalc/zkvms/sp1/sp1.toml`):
 Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
 -/
 
-def sp1Compress : JaggedCfg where
+def sp1CompressJagged : JaggedCfg where
   name            := "compress"
   field           := koalaBear4
   proofSystName   := "Jagged"
@@ -240,7 +240,7 @@ def sp1Compress : JaggedCfg where
   airMaxDegree    := 3
   lookups         := [sp1CompressLookup]
 
-def sp1Shrink : JaggedCfg where
+def sp1ShrinkJagged : JaggedCfg where
   name            := "shrink"
   field           := koalaBear4
   proofSystName   := "Jagged"
@@ -252,13 +252,13 @@ def sp1Shrink : JaggedCfg where
   lookups         := [sp1ShrinkLookup]
 
 -- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : sp1Core.proofSizeExp       / KIB = 918  := by native_decide
-example : sp1Core.proofSizeWorst     / KIB = 1479 := by native_decide
+example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide
+example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide
 -- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : sp1Compress.proofSizeExp   / KIB = 735  := by native_decide
-example : sp1Compress.proofSizeWorst / KIB = 1267 := by native_decide
+example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide
+example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : sp1Shrink.proofSizeExp     / KIB = 529  := by native_decide
-example : sp1Shrink.proofSizeWorst   / KIB = 887  := by native_decide
+example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
+example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
 end Soundcalc

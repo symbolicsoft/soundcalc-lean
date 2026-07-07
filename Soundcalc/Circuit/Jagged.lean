@@ -119,7 +119,7 @@ the security-level table); `getJaggedProofSizeBits` therefore matches the report
 without any lookup term. -/
 
 private def getJaggedProofSizeBits (c: JaggedCfg) (expected: Bool) : ℕ :=
-  let fieldSizeBits := c.field.elementSizeBits
+  let fieldSizeBits := c.densePCS.field.elementSizeBits
   let batchSize := c.densePCS.batchSize
   let denseTraceLen := c.densePCS.denseLen
 

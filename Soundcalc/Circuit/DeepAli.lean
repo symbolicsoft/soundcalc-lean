@@ -56,7 +56,7 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
   let num : Q := (c.airMaxDegree : Q) * (H + (c.maxCombo : Q) - 1) + (H - 1)
   Lp * num / ((c.field.card : Q) - H - D) / 2 ^ c.grindDeep
 
-/-- Multi-point side condition (`fri.py`/`deep_ali.py` runtime assert): the decode
+/-- Multi-point side condition (`fri.py`/`deep_ali.py: 164` runtime assert): the decode
     window `(1 − θ) · D` strictly exceeds the trace-plus-combo length `H + m_max`.
     Checked separately for each regime because `θ_JBR ≠ θ_UDR`; a config that
     satisfied UDR but violated the JBR window would be an unsound silent skip. -/
@@ -64,7 +64,7 @@ theorem DeepAliCfg.multiPoint_ok (c : DeepAliCfg) (R : Regime)
     (hc : c = airbenderDeepAli)
     (hR : R = UDR c.field ∨ R = JBR c.field (1/40) (2^40)) :
     ((c.traceLength : Q) + (c.maxCombo : Q)) <
-      (1 - R.θ c.ρ c.traceLength) * ((c.traceLength : Q) / (c.ρ : Q)) := by
+      (1 - R.θUB c.ρ c.traceLength) * ((c.traceLength : Q) / (c.ρ : Q)) := by
   subst hc
   rcases hR with rfl | rfl <;> native_decide
 

@@ -59,7 +59,7 @@ def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
   R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1) / 2 ^ c.grindCommit
 
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
-  (1 - R.θ c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
+  (1 - R.θLB c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
 
 /--
   Domain size, after low-degree extension

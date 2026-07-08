@@ -42,7 +42,12 @@ rational number representing an error probability or list size.
 | `errMultilinear`  | soundness error for a batch of multilinear (sumcheck) rounds       |
 -/
 structure Regime where
-  θ              : Rate → (dim : ℕ) → ℚ
+  /-- Rational lower bound on the (possibly irrational) true θ;
+      equals θ exactly when θ is rational (e.g. UDR). -/
+  θLB            : Rate → (dim : ℕ) → ℚ
+  /-- Rational upper bound on the (possibly irrational) true θ;
+      equals θ exactly when θ is rational (e.g. UDR). -/
+  θUB            : Rate → (dim : ℕ) → ℚ
   listSize       : Rate → (dim : ℕ) → ℚ
   errLinear      : Rate → (dim : ℕ) → ℚ
   errPowers      : Rate → (dim : ℕ) → (batch : ℕ) → ℚ
@@ -74,7 +79,8 @@ The classical decoder corrects up to *half* the minimum distance:
     We destructure `⟨ρ, _⟩ : Rate` in each field to extract the value `ρ : ℚ`;
     the proof component is not needed in the formula but is enforced by the type. -/
 def UDR (F : FieldParams) : Regime where
-  θ              := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2
+  θLB            := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2   -- exact; both bounds coincide
+  θUB            := fun ⟨ρ, _⟩ _   => (1 - ρ) / 2
   listSize       := fun _      _   => 1
   errLinear      := fun ⟨ρ, _⟩ d   => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ)
   errPowers      := fun ⟨ρ, _⟩ d b => ((1 - ρ) / 2 * (d / ρ) + 1) / (F.card : ℚ) * (b - 1)
@@ -113,7 +119,8 @@ def jbrErrLinear (F : FieldParams) (η : ℚ) (g : ℕ) (ρ : ℚ) (d : ℕ) : �
     - `θ` uses `sqrtUB` (larger √ρ → smaller θ → fewer codewords in the list, conservative);
     - `listSize` and `errLinear` use `sqrtLB` (smaller √ρ → larger error/list). -/
 def JBR (F : FieldParams) (η : ℚ) (g : ℕ) : Regime where
-  θ              := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtUB ρ g
+  θLB            := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtUB ρ g   -- sqrtUB ≥ √ρ ⟹ θLB ≤ θ_true
+  θUB            := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtLB ρ g   -- sqrtLB ≤ √ρ ⟹ θUB ≥ θ_true
   listSize       := fun ⟨ρ, _⟩ _   => 1 / (2 * η * sqrtLB ρ g)
   errLinear      := fun ⟨ρ, _⟩ d   => jbrErrLinear F η g ρ d
   errPowers      := fun ⟨ρ, _⟩ d b => jbrErrLinear F η g ρ d * (b - 1)

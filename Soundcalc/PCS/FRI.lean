@@ -2,6 +2,7 @@ import Mathlib
 import Soundcalc.Regime        -- brings in Rate, Regime, UDR (and Field transitively)
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits
 import Soundcalc.Field         -- certified koalaBear4.elementSizeBits (= 124)
+import Soundcalc.Common.Log
 
 open Soundcalc
 
@@ -61,14 +62,41 @@ def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   **TODO**: formal semantic refinement later.
 
   `.toNat` is justified, as the input to `round`
-  is always positive, given that:
-  - `c.denseLen` is a `Nat > 0`;
+  is always nonnegative, given that:
+  - `c.denseLen` is a `Nat`;
   - `c.ρ` is of type `Rate` (0 < ρ < 1, ρ ∈ ℚ).
   Moreover, for relevant configs no rounding occurs
   at all (`ρ ∈ {1/2, 1/4, 1/8}`)
 -/
 def FRIConfig.D (c: FRIConfig) : ℕ :=
   (round ((c.denseLen : ℚ) / (c.ρ : ℚ))).toNat
+
+/--
+  Log of the dense length, computed in the Python `soundcalc` as:
+  `int(round(log2(trace_length)))`
+  Note: as remarked in `ZkVM/SP1.lean`, the Python `soundcalc` refers
+  to `trace_length` as the *dense* trace length! (our `denseLen`).
+  This is confirmed by the renderer.
+
+  **TODO**: semantic refinement later.
+
+  `.toNat` is justified, as `log2UB` is always
+  a natural number for relevant configs, given that:
+  - `c.denseLen` is a `Nat > 0` (and not just a `Nat`).
+-/
+def FRIConfig.h (c: FRIConfig) : N :=
+  (round (log2UB c.denseLen 64)).toNat
+
+/--
+  Number of folding rounds.
+  **TODO**: semantic refinement later.
+  Python's runtime assert is currently
+  modelled as a per-configuration theorem
+  `FRIConfig.earlyStop_ok`.
+  (e.g., in SP1 core of `ZkVM/SP1.Lean`)
+-/
+def FRIConfig.rounds (c: FRIConfig) : N :=
+  c.foldingFactors.length
 
 /-! ## FRI proof size -/
 

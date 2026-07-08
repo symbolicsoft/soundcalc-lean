@@ -1,8 +1,9 @@
 import Soundcalc
 import SoundcalcIO.TomlParser
+import SoundcalcIO.Common
 
 open Soundcalc
-open SoundcalcIO.TomlParser
+open SoundcalcIO
 
 namespace SoundcalcIO.LeanEmitter
 
@@ -24,7 +25,6 @@ namespace SoundcalcIO.LeanEmitter
 
 /--
   Header string declaring the imports of `SP1.lean`.
-  *TODO* Polishing namespaces.
 -/
 private def getSP1ImportStr : String :=
     s!"/- Automatically generated from `LeanEmitter.lean` and `SP1.toml`. -/\n" ++

@@ -1,13 +1,15 @@
 import Lake.Toml.Load
 import Lake.Toml.Data.Value
 import Lean.Parser.Types
+import SoundcalcIO.Common
 
 import Soundcalc
 
 open Lake.Toml Lean Parser
 open Soundcalc
+open SoundcalcIO
 
-namespace SoundcalcIO.TomlParser
+namespace SoundcalcIO
 
 /-
   Auxiliary methods to parse `.toml` files robustly.
@@ -16,11 +18,6 @@ namespace SoundcalcIO.TomlParser
   errors out. If a field is optional, a separate `get*` combinator
   returns a default value instead.
 -/
-
-def orExit {T : Type} (e : Except String T) : IO T :=
-  match e with
-  | .ok v    => return v
-  | .error m => do IO.eprintln s!"error: {m}"; IO.Process.exit 1
 
 private def getString (tbl : Table) (key : String) : Except String String :=
   match tbl.find? (.mkSimple key) with
@@ -92,58 +89,26 @@ private def getTable (tbl : Table) (key : String) : Except String (RBDict Name V
   | some _              => .error s!"key '{key}' exists but is not a Table"
   | none                => .error s!"key '{key}' not found"
 
-/-- More parsing auxiliary methods. -/
-/-
-  **IMPORTANT**
-  The TOML file contains exact rationals represented as floats.
-  With the following approach, we ensure the semantics of exact rationals
-  are preserved. We do that by:
+/- More parsing auxiliary methods. -/
 
-  - Converting the float to a string, stripping trailing zeroes;
-  - Mapping the resulting string to an exact rational, which is
-    also a *rate* (i.e., 0 < ρ < 1).
-
-  *NOTE* This strategy assumes that meaningful float values can always be
-  expressed as exact rationals, and that the map is relatively contained
-  (as it is the case for the rate parameter ρ in SP1).
-
-  In the general case, we would give up the accuracy of reasoning
-  in terms of exact rationals instead.
--/
-private def mapFloatstrToRate : List (String × Rate) := [
-  ("0.5",    ⟨1/2, by norm_num⟩),
-  ("0.25",   ⟨1/4, by norm_num⟩),
-  ("0.125",  ⟨1/8, by norm_num⟩),
-  ("0.0625", ⟨1/16, by norm_num⟩),
-]
-
-private def stripTrailingZeros (s : String) : String :=
-  -- only strip after a decimal point
-  if s.contains '.' then
-    let stripped := (s.dropEndWhile (· == '0')).toString
-    -- avoid leaving a bare "1." with no fractional digits
-    (stripped.dropEndWhile (· == '.')).toString
-  else
-    s
-
-private def floatToRate (map : List (String × Rate)) (f : Float) : Except String Rate :=
-  let key := stripTrailingZeros f.toString
-  match map.lookup key with
-  | some rate => .ok rate
-  | none      => .error s!"no entry for '{f}' (normalized to '{key}')"
-
-/-
-  Maps strings to supported `FieldParams`.
+/--
+  Map of supported `String` -> `FieldParams`.
 -/
 private def mapStrToFieldParams : List (String × FieldParams) := [
   ("KoalaBear^4", koalaBear4),
 ]
 
+/--
+  Maps strings to supported `FieldParams`.
+-/
 private def strToFieldParams (map : List (String × FieldParams)) (s : String) : Except String FieldParams :=
   match map.lookup s with
   | some fp => .ok fp
   | none    => .error s!"no FieldParams defined for '{s}')"
 
+/--
+  Parses a `.toml` file into a `ZkVMCfg` structure.
+-/
 def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
   let inToml ← IO.FS.readFile inTomlFile
   let ictx : InputContext := mkInputContext inToml inTomlFile
@@ -176,7 +141,7 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
          to the `mapFloatstrToRat` map. Note: if the float is
          malformed, the conversion fails. -/
       let circ_rho ← orExit (getFloat circ_tab "rho")
-      let circ_rho ← orExit (floatToRate mapFloatstrToRate circ_rho)
+      let circ_rho ← orExit (floatToRate mapFloatToRate circ_rho)
       let circ_trace_length ← orExit (getNat circ_tab "trace_length")
       let circ_trace_columns ← orExit (getNat circ_tab "trace_columns")
       let circ_dense_length ← orExit (getNat circ_tab "dense_length")
@@ -278,4 +243,4 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
   }
   pure (zkvmcfg)
 
-end SoundcalcIO.TomlParser
+end SoundcalcIO

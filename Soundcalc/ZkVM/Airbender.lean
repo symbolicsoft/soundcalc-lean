@@ -56,6 +56,42 @@ def airbenderFRI : FRIConfig where
 abbrev airbenderUDR : Regime := UDR mersenne31_4
 abbrev airbenderJBR : Regime := JBR mersenne31_4 (1/40) (2^40)
 
+/-! ## DEEP-ALI configuration (tied to FRI by construction) -/
+
+/-- Airbender DEEP-ALI configuration.  `field`, `ρ`, and `traceLength` are taken
+    directly from `airbenderFRI` so they cannot diverge from the FRI config. -/
+def airbenderDeepAli : DeepAliCfg where
+  field          := airbenderFRI.field
+  ρ              := airbenderFRI.ρ
+  traceLength    := airbenderFRI.denseLen
+  numConstraints := 928
+  airMaxDegree   := 2
+  maxCombo       := 2
+  grindDeep      := 12
+
+-- Consistency: provable by rfl since the fields are defined as equal.
+example : airbenderDeepAli.field       = airbenderFRI.field    := rfl
+example : airbenderDeepAli.ρ           = airbenderFRI.ρ        := rfl
+example : airbenderDeepAli.traceLength = airbenderFRI.denseLen := rfl
+
+/-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
+    Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
+    true window — if the guard passes here it passes with the exact θ. -/
+theorem DeepAliCfg.multiPoint_ok (c : DeepAliCfg) (R : Regime)
+    (hc : c = airbenderDeepAli)
+    (hR : R = UDR c.field ∨ R = JBR c.field (1/40) (2^40)) :
+    ((c.traceLength : Q) + (c.maxCombo : Q)) <
+      (1 - R.θUB c.ρ c.traceLength) * ((c.traceLength : Q) / (c.ρ : Q)) := by
+  subst hc
+  rcases hR with rfl | rfl <;> native_decide
+
+/-! ## A4 exit criteria -/
+
+example : secBits (airbenderDeepAli.aliErr airbenderUDR) = 114 := by native_decide
+example : secBits (airbenderDeepAli.deepErr airbenderUDR) = 110 := by native_decide
+example : secBits (airbenderDeepAli.aliErr airbenderJBR) = 109 := by native_decide
+example : secBits (airbenderDeepAli.deepErr airbenderJBR) = 105 := by native_decide
+
 /-! ## Lookup configurations (univariate logup, regime-independent) -/
 
 def airbenderGenericLookup : LookupCfg where
@@ -139,6 +175,6 @@ theorem ab_jbr_total : secBits (totalErr airbenderJBR) = 67 := by native_decide
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
-example : jbrM (1/2) (1/40) (2^40) = 15              := by native_decide
+example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
 
 end Soundcalc

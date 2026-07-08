@@ -35,6 +35,12 @@ private def floatToFloatstr (f : Float) : String :=
     s
 
 /--
+  Derives a circuit markdown link from a circuit name.
+-/
+private def circLinkFromName (name: String) : String :=
+  "(#" ++ name.toLower.replace " " "-" ++ ")"
+
+/--
   Mirrors Python's `get_report_parameter_lines` of Jagged circuits.
   **TODO** Generalize to other circuits.
 -/
@@ -184,8 +190,10 @@ private def parseOverviewStats (zkvmcfg: ZkVMCfg) : IO String := do
 
     /- Parsing helpers. -/
     let minSecBits := secBits worstSecBitsCirc.totalErr
-    let worstSecBitsCircFmt := s!"[{worstSecBitsCirc.name}](#{worstSecBitsCirc.name})"
-    let lastCircFmt := s!"[{lastCirc.name}](#{lastCirc.name})"
+    let worstSecBitsLink := s!"{circLinkFromName worstSecBitsCirc.name}"
+    let worstSecBitsCircFmt := s!"[{worstSecBitsCirc.name}]{worstSecBitsLink}"
+    let lastCircLink := s!"{circLinkFromName lastCirc.name}"
+    let lastCircFmt := s!"[{lastCirc.name}]{lastCircLink}"
 
     outStr := outStr ++
       s!"| Metric | Value | Relevant circuit | Notes |\n" ++
@@ -246,16 +254,19 @@ def main (args: List String): IO Unit := do
       s!"\n"
 
     for circ in zkvmcfg.circuits do
+      let circLink := circLinkFromName circ.name
       outStr := outStr ++
-      s!"- [{circ.name}](#{circ.name})\n"
-
+      s!"- [{circ.name}]{circLink}\n"
 
   if zkvmcfg.circuits.length > 0 then do
     for circ in zkvmcfg.circuits do
-      outStr := outStr ++
-      s!"\n" ++
-      s!"## {circ.name}\n" ++
-      s!"\n"
+
+      /- We add a ## header only if more than a circuit is specified. -/
+      if zkvmcfg.circuits.length > 1 then do
+        outStr := outStr ++
+        s!"\n" ++
+        s!"## {circ.name}\n" ++
+        s!"\n"
 
       /- Circuit parameters portion -/
       let circParams ← parseCircuitParams circ
@@ -276,8 +287,12 @@ def main (args: List String): IO Unit := do
       let securityTable ← parseSecurityLevels circ
 
       outStr := outStr ++
-      s!"{securityTable}" ++
-      s!"\n"
+      s!"{securityTable}"
+
+      /- We append a trailing space only if more than a circuit is available.
+         Reproduces soundcalc's behaviour. -/
+      if zkvmcfg.circuits.length > 1 then
+        outStr := outStr ++ "\n"
     else do
       outStr := outStr ++
       s!"No circuits available.\n"

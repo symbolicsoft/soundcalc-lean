@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v7
+            
+            # If the Lean cache already exists from a previous 
+            # successful CI run, restore it. Same as ArkLib.
+            - name: Restore Lean cache
+              uses: actions/cache/restore@v6
+              id: lake-cache
+              with:
+                path: ./.lake
+                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json') }}
+                restore-keys: |
+                  ${{ runner.os }}-lean-ci-
+            
+            # Set up Lean and expand individual
+            # operations manually (build, cache, ...)
+            - name: Set up Lean environment
+              uses: leanprover/lean-action@v1.5.0
+              with:
+                auto-config: false
+                build: false
+                test: false
+                lint: false
+                use-github-cache: false
+                use-mathlib-cache: false
+
+            - name: Fetch dependency cache
+              run: lake exe cache get
+
+            # Build against the committed golden `SP1.lean`
+            # generated from `leanemitter`.
+            - name: Build with committed golden SP1.lean
+              run: lake build
+            
+            # Regenerate `SP1.lean` (default exe param) 
+            - name: Regenerate SP1.lean
+              run: |
+                lake exe leanemitter
+
+            # Output `SP1.md` (default exe param) 
+            - name: Output SP1.md
+              run: |
+                lake exe mdrenderer
+            
+            # Recheck whether the build still goes through
+            # with the regenerated `SP1.lean`.
+            - name: Build with regenerated SP1.lean
+              run: lake build
+
+            # Check whether the output `SP1.md` matches
+            # the `sp1.md` produced by the original `soundcalc`.
+            - name: Check output SP1.md against golden sp1.md
+              run: |
+                if cmp -s SoundcalcIO/ZkVM/SP1.md SoundcalcIO/ZkVM/Ref/sp1.md; then
+                  echo "SP1 report regenerated correctly!"
+                else
+                  echo "Incorrect SP1 report regeneration."
+                  exit 1
+                fi
+            # Cache a successful build, unless a cache already exists.
+            # Same pattern as ArkLib.
+            - name: Save Lean cache
+              if: success() && steps.lake-cache.outputs.cache-hit != 'true'
+              uses: actions/cache/save@v6
+              with:
+                path: ./.lake
+                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json') }}

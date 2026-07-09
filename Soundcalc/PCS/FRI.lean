@@ -45,6 +45,9 @@ structure FRIConfig where
   grindBatch     : N             := 0
   grindCommit    : N             := 0        -- = 5 for Airbender; 0 keeps SP1 configs valid
   gapToRadius    : Option Float  := none
+  /-- After all folds, the residual domain size equals `earlyStopDeg`. -/
+  h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
+                   = (earlyStopDeg : Q) := by native_decide
 
 def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch

@@ -69,17 +69,6 @@ def sp1CoreFRI : FRIConfig where
   grindQuery     := 16
   grindBatch     := 5
 
-/-! Early-stop side condition: `(denseLen / ρ) / ∏ foldingFactors = earlyStopDeg`.
-
-The explicit `ℚ` coercions mirror the spec: `(c.ρ : Q)` extracts the value
-from the `Rate` subtype. -/
-theorem FRIConfig.earlyStop_ok (c : FRIConfig) (hc : c = sp1CoreFRI) :
-    ((c.denseLen : Q) / (c.ρ : Q)) / ((c.foldingFactors.foldl (· * ·) 1 : N) : Q)
-      = (c.earlyStopDeg : Q) := by
-  subst hc
-  simp only [sp1CoreFRI]
-  norm_num [show ((List.replicate 21 2).foldl (· * ·) 1 : N) = 2097152 from by decide]
-
 /-! `queryErr = (1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
 example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by native_decide
 example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by native_decide

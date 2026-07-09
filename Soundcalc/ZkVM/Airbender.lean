@@ -93,7 +93,6 @@ example : secBits (airbenderDeepAli.aliErr airbenderJBR) = 109 := by native_deci
 example : secBits (airbenderDeepAli.deepErr airbenderJBR) = 105 := by native_decide
 
 /-! ## Lookup configurations (univariate logup, regime-independent) -/
-
 def airbenderGenericLookup : LookupCfg where
   name := "genericLookup"; field := mersenne31_4; isLogUpMultivar := false
   rowsT := 16777215; rowsL := 16777215; numColumnsS := 4; numLookupsM := 208
@@ -117,60 +116,40 @@ def airbenderDecoder : LookupCfg where
 /-! ## Cell error collection -/
 
 /-- All per-cell errors for regime `R`:
-    batching, 5 commit rounds, query, ALI, DEEP, 4 lookups (regime-independent). -/
-def rounds (R : Regime) : List ℚ := [
-  airbenderFRI.batchingErrPowers R,
-  airbenderFRI.commitErr R 0,
-  airbenderFRI.commitErr R 1,
-  airbenderFRI.commitErr R 2,
-  airbenderFRI.commitErr R 3,
-  airbenderFRI.commitErr R 4,
-  airbenderFRI.queryErr R,
-  airbenderDeepAli.aliErr R,
-  airbenderDeepAli.deepErr R,
-  airbenderGenericLookup.errUB,
-  airbenderRangeCheck16.errUB,
-  airbenderRangeCheck19.errUB,
-  airbenderDecoder.errUB
-]
+    batching, one commit cell per fold, query, ALI, DEEP, 4 lookups (regime-independent). -/
+def airbenderRounds (R : Regime) : List ℚ :=
+  [airbenderFRI.batchingErrPowers R] ++
+  (List.range airbenderFRI.foldingFactors.length).map (airbenderFRI.commitErr R) ++
+  [airbenderFRI.queryErr R,
+   airbenderDeepAli.aliErr R,
+   airbenderDeepAli.deepErr R,
+   airbenderGenericLookup.errUB,
+   airbenderRangeCheck16.errUB,
+   airbenderRangeCheck19.errUB,
+   airbenderDecoder.errUB]
 
 /-- Worst-case (maximum) error across all Airbender cells.
-    `secBits (totalErr R) = ((rounds R).map secBits).minimum` by `secBits_min'`. -/
-def totalErr (R : Regime) : ℚ := (rounds R).foldr max 0
+    `secBits (airbenderTotalErr R) = ((airbenderRounds R).map secBits).minimum` by `secBits_min'`. -/
+def airbenderTotalErr (R : Regime) : ℚ := (airbenderRounds R).foldr max 0
 
-/-! ### UDR row (exact rationals — same flavour as every SP1 theorem) -/
+/-! ### Per-cell security bits — one theorem per regime row
 
-theorem ab_udr_batching : secBits (airbenderFRI.batchingErrPowers airbenderUDR) = 90  := by native_decide
-theorem ab_udr_commit1  : secBits (airbenderFRI.commitErr airbenderUDR 0)        = 106 := by native_decide
-theorem ab_udr_commit5  : secBits (airbenderFRI.commitErr airbenderUDR 4)        = 121 := by native_decide
-theorem ab_udr_query    : secBits (airbenderFRI.queryErr airbenderUDR)            = 64  := by native_decide
-theorem ab_udr_ali      : secBits (airbenderDeepAli.aliErr airbenderUDR)          = 114 := by native_decide
-theorem ab_udr_deep     : secBits (airbenderDeepAli.deepErr airbenderUDR)         = 110 := by native_decide
--- commit rounds 1–3 give 110/114/118 by the same proof pattern (omitted for brevity)
+Entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.
+Covers all 13 cells including JBR commit rounds 1–3 (previously unchecked). -/
 
-/-! ### JBR row (certified enclosures — `secBits` of a proven rational upper bound) -/
+theorem ab_udr_row : (airbenderRounds airbenderUDR).map secBits =
+    [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100] := by native_decide
 
-theorem ab_jbr_batching : secBits (airbenderFRI.batchingErrPowers airbenderJBR) = 68  := by native_decide
-theorem ab_jbr_commit1  : secBits (airbenderFRI.commitErr airbenderJBR 0)        = 83  := by native_decide
-theorem ab_jbr_commit5  : secBits (airbenderFRI.commitErr airbenderJBR 4)        = 98  := by native_decide
-theorem ab_jbr_query    : secBits (airbenderFRI.queryErr airbenderJBR)            = 67  := by native_decide
-theorem ab_jbr_ali      : secBits (airbenderDeepAli.aliErr airbenderJBR)          = 109 := by native_decide
-theorem ab_jbr_deep     : secBits (airbenderDeepAli.deepErr airbenderJBR)         = 105 := by native_decide
-
-/-! ### Lookups (regime-independent, pure rational — provable by `decide`) -/
-
-theorem ab_lookup_generic : secBits airbenderGenericLookup.errUB = 94  := by native_decide
-theorem ab_lookup_rc16    : secBits airbenderRangeCheck16.errUB  = 99  := by native_decide
-theorem ab_lookup_rc19    : secBits airbenderRangeCheck19.errUB  = 98  := by native_decide
-theorem ab_lookup_decoder : secBits airbenderDecoder.errUB       = 100 := by native_decide
+theorem ab_jbr_row : (airbenderRounds airbenderJBR).map secBits =
+    [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100] := by native_decide
 
 /-! ### Totals — min over the row, via `secBits_min'` (pure order theory, no cryptography)
 
 The JBR total (67) exceeds the UDR total (64) because the query cell dominates and
 JBR's query bound is tighter: Johnson's larger decode window cuts the query error. -/
 
-theorem ab_udr_total : secBits (totalErr airbenderUDR) = 64 := by native_decide
-theorem ab_jbr_total : secBits (totalErr airbenderJBR) = 67 := by native_decide
+theorem ab_udr_total : secBits (airbenderTotalErr airbenderUDR) = 64 := by native_decide
+theorem ab_jbr_total : secBits (airbenderTotalErr airbenderJBR) = 67 := by native_decide
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 

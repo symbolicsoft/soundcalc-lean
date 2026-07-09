@@ -43,18 +43,26 @@ structure FRIConfig where
   earlyStopDeg   : N             -- = 4
   grindQuery     : N             -- = 16
   grindBatch     : N             := 0
-  grindCommit    : N             := 0
+  grindCommit    : N             := 0        -- = 5 for Airbender; 0 keeps SP1 configs valid
   gapToRadius    : Option Float  := none
+  /-- After all folds, the residual domain size equals `earlyStopDeg`. -/
+  h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
+                   = (earlyStopDeg : Q) := by native_decide
 
 def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
 
+/-- Powers-batching error: uses `errPowers` (Airbender's `power_batching = true` path)
+    then applies the batching grind. -/
+def FRIConfig.batchingErrPowers (c : FRIConfig) (R : Regime) : Q :=
+  R.errPowers c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
+
 def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
   let acc := (c.foldingFactors.take (i + 1)).foldl (· * ·) 1
-  R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1)
+  R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1) / 2 ^ c.grindCommit
 
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
-  (1 - R.θ c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
+  (1 - R.θLB c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery
 
 /--
   Domain size, after low-degree extension
@@ -109,16 +117,8 @@ def FRIConfig.rounds (c: FRIConfig) : N :=
       leaf so `tupleSize = foldingFactor` and `numLeafs = n / foldingFactor`.
     * Final round: the low-degree polynomial sent in the clear
       (`rate * n_final * fieldSizeBits` bits). -/
-
-private def getFRIProofSizeBits (c: FRIConfig) (expected: Bool) : ℕ :=
-  let hashSizeBits := c.hashBits
-  let fieldSizeBits := c.field.elementSizeBits
-  let batchSize := c.batchSize
-  let numQueries := c.numQueries
-  let domainSize := c.D
-  let foldingFactors := c.foldingFactors
-  let rate := (c.ρ : ℚ) -- casting the rate to a rational to access `.num`/`.den`
-
+def getFRIProofSizeBits (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
+    (foldingFactors : List N) (rate : Q) (expected : Bool) : N :=
   let initBits :=
     hashSizeBits +
     getSizeOfMerkleMultiProofBits
@@ -136,10 +136,21 @@ private def getFRIProofSizeBits (c: FRIConfig) (expected: Bool) : ℕ :=
   -- rate * finalN * fieldSizeBits, keeping arithmetic in ℕ via num/den
   totalBits + rate.num.toNat * finalN * fieldSizeBits / rate.den
 
-def FRIConfig.proofSizeExp (c: FRIConfig) : ℕ :=
-  getFRIProofSizeBits c true
+def FRIConfig.proofSizeExp (c : FRIConfig) : N :=
+  getFRIProofSizeBits c.hashBits c.field.elementSizeBits c.batchSize c.numQueries
+    c.D c.foldingFactors (c.ρ : Q) true
 
-def FRIConfig.proofSizeWorst (c: FRIConfig) : ℕ :=
-  getFRIProofSizeBits c false
+def FRIConfig.proofSizeWorst (c : FRIConfig) : N :=
+  getFRIProofSizeBits c.hashBits c.field.elementSizeBits c.batchSize c.numQueries
+    c.D c.foldingFactors (c.ρ : Q) false
+
+def mersenne31_4FieldBits : N := mersenne31_4.elementSizeBits  -- = 124 (A0)
+
+-- Airbender: 1836 KiB (expected) / 1951 KiB (worst case).
+-- domainSize D = 2^24 / (1/2) = 2^25 ; hashSizeBits = 256 ; batchSize = 1225 ; queries = 87.
+example : getFRIProofSizeBits 256 mersenne31_4FieldBits 1225 87 (2^25)
+    [16,16,16,8,8] (1/2 : Q) true / KIB = 1836 := by native_decide
+example : getFRIProofSizeBits 256 mersenne31_4FieldBits 1225 87 (2^25)
+    [16,16,16,8,8] (1/2 : Q) false / KIB = 1951 := by native_decide
 
 end Soundcalc

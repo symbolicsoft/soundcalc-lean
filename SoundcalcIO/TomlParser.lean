@@ -186,9 +186,6 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
              boolean associated with `logup_type`:
              (`"multivariate"` -> `multilinear_fingerprint=true`;
               `"univariate"`   -> `multilinear_fingerprint=false`) -/
-          let lookup_multilinear_fingerprint_opt ← orExit (getBoolOrNone lookup_tab "multilinear_fingerprint")
-          let lookup_multilinear_fingerprint := lookup_multilinear_fingerprint_opt.getD lookup_logup_type
-
           let lookupcfg: LookupCfg := {
             name            := lookup_name
             field           := zkvm_field
@@ -198,11 +195,18 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
             numColumnsS     := lookup_num_columns_S
             numLookupsM     := lookup_num_lookups_M
             grindBitsLookup := lookup_grinding_bits_lookup
-            isMultilinear   := lookup_multilinear_fingerprint
           }
           lookup_list := lookup_list.concat lookupcfg
         |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
 
+      let fri_lhs : Q := (circ_dense_length : Q) / (circ_rho : Q) /
+                         ((circ_fri_folding_factors.foldl (· * ·) 1 : N) : Q)
+      let fri_rhs : Q := circ_fri_early_stop_degree
+      let h_lifted : PLift (fri_lhs = fri_rhs) ←
+        match decEq fri_lhs fri_rhs with
+        | .isTrue h  => pure (PLift.up h : PLift (fri_lhs = fri_rhs))
+        | .isFalse _ => do IO.eprintln "FRI early-stop check failed: denseLen/ρ/∏folds ≠ earlyStopDeg"
+                           IO.Process.exit 1
       let friconfig: FRIConfig := {
         hashBits          := zkvm_hash_size_bits
         ρ                 := circ_rho
@@ -215,6 +219,7 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         numQueries        := circ_num_queries
         foldingFactors    := circ_fri_folding_factors
         earlyStopDeg      := circ_fri_early_stop_degree
+        h_earlyStop       := PLift.down (α := fri_lhs = fri_rhs) h_lifted
         grindQuery        := circ_grinding_query_phase
         grindBatch        := circ_grinding_batching_phase
       }

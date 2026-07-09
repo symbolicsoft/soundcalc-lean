@@ -256,7 +256,6 @@ def main (args: List String): IO Unit := do
         s!"  numColumnsS     := {lookupcfg.numColumnsS}\n" ++
         s!"  numLookupsM     := {lookupcfg.numLookupsM}\n" ++
         s!"  grindBitsLookup := {lookupcfg.grindBitsLookup}\n" ++
-        s!"  isMultilinear   := {lookupcfg.isMultilinear}\n" ++
         s!"\n"
 
       /- Collecting `LookupCfg` Lean variables in a list. -/

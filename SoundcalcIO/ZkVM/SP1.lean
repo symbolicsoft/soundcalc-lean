@@ -16,7 +16,6 @@ def SP1_core_lookup_lookup : LookupCfg where
   numColumnsS     := 107
   numLookupsM     := 1911
   grindBitsLookup := 12
-  isMultilinear   := true
 
 /- ZkVM `SP1` | Circuit `core` -/
 
@@ -98,7 +97,6 @@ def SP1_compress_lookup_lookup : LookupCfg where
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true
 
 /- ZkVM `SP1` | Circuit `compress` -/
 
@@ -179,7 +177,6 @@ def SP1_shrink_lookup_lookup : LookupCfg where
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true
 
 /- ZkVM `SP1` | Circuit `shrink` -/
 

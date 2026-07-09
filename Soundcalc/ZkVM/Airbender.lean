@@ -97,22 +97,22 @@ example : secBits (airbenderDeepAli.deepErr airbenderJBR) = 105 := by native_dec
 def airbenderGenericLookup : LookupCfg where
   name := "genericLookup"; field := mersenne31_4; isLogUpMultivar := false
   rowsT := 16777215; rowsL := 16777215; numColumnsS := 4; numLookupsM := 208
-  grindBitsLookup := 5; isMultilinear := false
+  grindBitsLookup := 5
 
 def airbenderRangeCheck16 : LookupCfg where
   name := "rangeCheck16"; field := mersenne31_4; isLogUpMultivar := false
   rowsT := 65536; rowsL := 16777215; numColumnsS := 1; numLookupsM := 34
-  grindBitsLookup := 5; isMultilinear := false
+  grindBitsLookup := 5
 
 def airbenderRangeCheck19 : LookupCfg where
   name := "rangeCheck19"; field := mersenne31_4; isLogUpMultivar := false
   rowsT := 524288; rowsL := 16777215; numColumnsS := 1; numLookupsM := 86
-  grindBitsLookup := 5; isMultilinear := false
+  grindBitsLookup := 5
 
 def airbenderDecoder : LookupCfg where
   name := "decoder"; field := mersenne31_4; isLogUpMultivar := false
   rowsT := 16777215; rowsL := 16777215; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 5; isMultilinear := false
+  grindBitsLookup := 5
 
 /-! ## Cell error collection -/
 

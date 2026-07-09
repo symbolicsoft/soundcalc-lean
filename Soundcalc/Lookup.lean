@@ -21,17 +21,14 @@ namespace Soundcalc
 structure LookupCfg where
   name            : String
   field           : FieldParams
-  isLogUpMultivar : Bool           -- Maps the `LogUpType` enum (`univariate` or `multivariate`)
+  isLogUpMultivar : Bool           -- false = univariate (e.g., Airbender); true = multivariate (e.g., SP1)
   rowsT           : ℕ              -- Rows of "big" table `T`
   rowsL           : ℕ              -- Rows of "small" table `L` (looked up inside `T`)
   numColumnsS     : ℕ     := 1     -- Number of columns of `T` and `L` (`S=1` for single column case)
   numLookupsM     : ℕ     := 1     -- Number of lookups performed on `T`
   grindBitsLookup : ℕ     := 0     -- PoW grinding (expressed in bits of security)
-  /-- `true` = multivariate (SP1-style, `R = log₂ S`, GKR term included);
-      `false` = univariate  (Airbender logup, `R = S`, no GKR term). -/
-  isMultilinear   : Bool  := false
-  /- (optional field) Auxiliary soundness error; unused within SP1. -/
-  reductionErr    : Float := 0.0
+  /- Auxiliary soundness error added on top of the grind-scaled error (Python: `reduction_err`). -/
+  reductionErr    : ℚ    := 0
 
 /-- Computes an upper bound of the soundness error for the GKR protocol as:
       `(1/2) * (n + m) * (3 * (n + m) + 1) / |F|`
@@ -61,10 +58,10 @@ def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
 
 def LookupCfg.errUB (c : LookupCfg) : ℚ :=
   let H         := c.rowsL + c.rowsT
-  let R         := columnAggregFactor c.numColumnsS c.isMultilinear
+  let R         := columnAggregFactor c.numColumnsS c.isLogUpMultivar
   let baseError := ((c.numLookupsM * H : ℚ) * R) / c.field.card
-  -- Univariate logup has no GKR reduction step, so the GKR error is zero.
-  let gkrError  := if c.isMultilinear then gkrErrorUB c.field H c.numLookupsM else 0
+  -- Multivariate only: GKR reduction term and auxiliary reduction error.
+  let gkrError  := if c.isLogUpMultivar then gkrErrorUB c.field H c.numLookupsM + c.reductionErr else 0
   (baseError + gkrError) / 2 ^ c.grindBitsLookup
 
 end Soundcalc

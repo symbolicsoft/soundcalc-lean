@@ -186,9 +186,6 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
              boolean associated with `logup_type`:
              (`"multivariate"` -> `multilinear_fingerprint=true`;
               `"univariate"`   -> `multilinear_fingerprint=false`) -/
-          let lookup_multilinear_fingerprint_opt ← orExit (getBoolOrNone lookup_tab "multilinear_fingerprint")
-          let lookup_multilinear_fingerprint := lookup_multilinear_fingerprint_opt.getD lookup_logup_type
-
           let lookupcfg: LookupCfg := {
             name            := lookup_name
             field           := zkvm_field
@@ -198,7 +195,6 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
             numColumnsS     := lookup_num_columns_S
             numLookupsM     := lookup_num_lookups_M
             grindBitsLookup := lookup_grinding_bits_lookup
-            isMultilinear   := lookup_multilinear_fingerprint
           }
           lookup_list := lookup_list.concat lookupcfg
         |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1

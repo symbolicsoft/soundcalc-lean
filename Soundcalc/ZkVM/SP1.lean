@@ -157,7 +157,6 @@ def sp1CoreLookup : LookupCfg where
   numColumnsS     := 107
   numLookupsM     := 1911
   grindBitsLookup := 12
-  isMultilinear   := true
 
 def sp1CompressLookup : LookupCfg where
   name            := "lookup"
@@ -168,7 +167,6 @@ def sp1CompressLookup : LookupCfg where
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true
 
 def sp1ShrinkLookup : LookupCfg where
   name            := "lookup"
@@ -179,7 +177,6 @@ def sp1ShrinkLookup : LookupCfg where
   numColumnsS     := 6
   numLookupsM     := 53
   grindBitsLookup := 12
-  isMultilinear   := true
 
 /-! S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits. -/
 theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide

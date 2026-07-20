@@ -247,4 +247,21 @@ example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
 example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
 example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
+/-! ## SP1 (all circuits)
+
+Bundles the three circuit-level configs. Each `JaggedCfg` already enforces its own
+FRI/lookup field consistency (`h_densePCS_field`/`h_lookups_field`); this struct
+additionally enforces that all three circuits agree with each other on `field`. -/
+structure SP1Cfg where
+  core     : JaggedCfg
+  compress : JaggedCfg
+  shrink   : JaggedCfg
+  h_compress_field : compress.field = core.field := by rfl
+  h_shrink_field   : shrink.field   = core.field := by rfl
+
+def sp1 : SP1Cfg where
+  core     := sp1CoreJagged
+  compress := sp1CompressJagged
+  shrink   := sp1ShrinkJagged
+
 end Soundcalc

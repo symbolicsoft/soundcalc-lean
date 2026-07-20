@@ -224,6 +224,11 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         grindBatch        := circ_grinding_batching_phase
       }
 
+      let h_lookups_lifted : PLift (lookup_list.all (·.field == zkvm_field) = true) ←
+        match decEq (lookup_list.all (·.field == zkvm_field)) true with
+        | .isTrue h  => pure (PLift.up h)
+        | .isFalse _ => IO.eprintln "Lookup field mismatch: not all lookups share the circuit's field"; IO.Process.exit 1
+
       let jaggedcfg: JaggedCfg := {
         name              := circ_name
         field             := zkvm_field
@@ -234,6 +239,7 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         numConstraints    := circ_num_constraints
         airMaxDegree      := circ_air_max_degree
         lookups           := lookup_list
+        h_lookups_field   := PLift.down (α := lookup_list.all (·.field == zkvm_field) = true) h_lookups_lifted
       }
       circuit_list := circuit_list.concat jaggedcfg
     | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1

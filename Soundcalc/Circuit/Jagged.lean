@@ -34,6 +34,9 @@ structure JaggedCfg where
   numConstraints : N    -- e.g. 3412
   airMaxDegree   : N    -- e.g. 3
   lookups        : List LookupCfg := []
+  /-- Every sub-protocol must run over the same field as the jagged circuit itself. -/
+  h_densePCS_field : densePCS.field = field := by rfl
+  h_lookups_field  : lookups.all (·.field == field) = true := by decide
 
 /-- Reduction soundness error.
 

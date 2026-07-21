@@ -33,18 +33,8 @@ plain `decide`.
 
 namespace Soundcalc
 
-/-- Bundles Airbender's sub-protocol configs and enforces they're mutually consistent
-    (same guard as `JaggedCfg.h_densePCS_field` / `h_lookups_field`). -/
-structure AirbenderCfg where
-  fri     : FRIConfig
-  deepAli : DeepAliCfg
-  lookups : List LookupCfg
-  h_deepAli_field       : deepAli.field       = fri.field    := by rfl
-  h_deepAli_rho         : deepAli.ρ           = fri.ρ        := by rfl
-  h_deepAli_traceLength : deepAli.traceLength = fri.denseLen := by rfl
-  h_lookups_field       : lookups.all (·.field == fri.field) = true := by decide
-
 /-! ## Configuration literals (generated from `airbender.toml`) -/
+/- domainSize D = 2^24 / (1/2) = 2^25 -/
 
 def airbenderFRI : FRIConfig where
   hashBits       := 256
@@ -61,24 +51,6 @@ def airbenderFRI : FRIConfig where
   grindQuery     := 28
   grindBatch     := 0             -- Airbender does not grind the batching phase
   grindCommit    := 5             -- 5 bits per folding round (grinding_commit_phase)
-
-/-- The two regimes for Airbender. `η = 1/40`, `g = 2^40` are the pinned gap and
-    A1 granularity. -/
-abbrev airbenderUDR : Regime := UDR mersenne31_4
-abbrev airbenderJBR : Regime := JBR mersenne31_4 (1/40) (2^40)
-
-/-! ## DEEP-ALI configuration (tied to FRI by construction) -/
-
-/-- Airbender DEEP-ALI configuration.  `field`, `ρ`, and `traceLength` are taken
-    directly from `airbenderFRI` so they cannot diverge from the FRI config. -/
-def airbenderDeepAli : DeepAliCfg where
-  field          := airbenderFRI.field
-  ρ              := airbenderFRI.ρ
-  traceLength    := airbenderFRI.denseLen
-  numConstraints := 928
-  airMaxDegree   := 2
-  maxCombo       := 2
-  grindDeep      := 12
 
 /-! ## Lookup configurations (univariate logup, regime-independent) -/
 def airbenderGenericLookup : LookupCfg where
@@ -101,57 +73,57 @@ def airbenderDecoder : LookupCfg where
   rowsT := 16777215; rowsL := 16777215; numColumnsS := 10; numLookupsM := 1
   grindBitsLookup := 5
 
-/-- Airbender's bundled config — the single source of truth for every downstream cell
-    theorem. Elaborating this literal is what checks that `airbenderDeepAli` and all
-    four lookups agree with `airbenderFRI.field`. -/
-def airbenderCfg : AirbenderCfg where
-  fri     := airbenderFRI
-  deepAli := airbenderDeepAli
-  lookups := [airbenderGenericLookup, airbenderRangeCheck16, airbenderRangeCheck19, airbenderDecoder]
+
+/-- The two regimes for Airbender. `η = 1/40`, `g = 2^40` are the pinned gap and
+    A1 granularity. -/
+abbrev airbenderUDR : Regime := UDR mersenne31_4
+abbrev airbenderJBR : Regime := JBR mersenne31_4 (1/40) (2^40)
+
+/-! ## DEEP-ALI configuration (tied to FRI by construction) -/
+
+/-- Airbender DEEP-ALI configuration. -/
+def airbenderDeepAli : DeepAliCfg where
+  name           := "Airbender"
+  proofSystName  := "DEEP-ALI"
+  field          := airbenderFRI.field
+  densePCS       := airbenderFRI
+  numConstraints := 928
+  airMaxDegree   := 2
+  maxCombo       := 2
+  grindDeep      := 12
+  lookups        := [airbenderGenericLookup,
+                     airbenderRangeCheck16,
+                     airbenderRangeCheck19,
+                     airbenderDecoder]
 
 /-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
     Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
     true window — if the guard passes here it passes with the exact θ. -/
 theorem DeepAliCfg.multiPoint_ok (c : DeepAliCfg) (R : Regime)
-    (hc : c = airbenderCfg.deepAli)
+    (hc : c = airbenderDeepAli)
     (hR : R = UDR c.field ∨ R = JBR c.field (1/40) (2^40)) :
-    ((c.traceLength : Q) + (c.maxCombo : Q)) <
-      (1 - R.θUB c.ρ c.traceLength) * ((c.traceLength : Q) / (c.ρ : Q)) := by
+    let traceLength := c.densePCS.traceLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+    ((traceLength : Q) + (c.maxCombo : Q)) <
+      (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q)) := by
   subst hc
   rcases hR with rfl | rfl <;> native_decide
 
 /-! ## A4 exit criteria -/
 
-example : secBits (airbenderCfg.deepAli.aliErr airbenderUDR) = 114 := by native_decide
-example : secBits (airbenderCfg.deepAli.deepErr airbenderUDR) = 110 := by native_decide
-example : secBits (airbenderCfg.deepAli.aliErr airbenderJBR) = 109 := by native_decide
-example : secBits (airbenderCfg.deepAli.deepErr airbenderJBR) = 105 := by native_decide
-
-/-! ## Cell error collection -/
-
-/-- All per-cell errors for regime `R`:
-    batching, one commit cell per fold, query, ALI, DEEP, 4 lookups (regime-independent). -/
-def airbenderRounds (R : Regime) : List ℚ :=
-  [airbenderCfg.fri.batchingErrPowers R] ++
-  (List.range airbenderCfg.fri.foldingFactors.length).map (airbenderCfg.fri.commitErr R) ++
-  [airbenderCfg.fri.queryErr R,
-   airbenderCfg.deepAli.aliErr R,
-   airbenderCfg.deepAli.deepErr R] ++
-  airbenderCfg.lookups.map (·.errUB)
-
-/-- Worst-case (maximum) error across all Airbender cells.
-    `secBits (airbenderTotalErr R) = ((airbenderRounds R).map secBits).minimum` by `secBits_min'`. -/
-def airbenderTotalErr (R : Regime) : ℚ := (airbenderRounds R).foldr max 0
+example : secBits (airbenderDeepAli.aliErr airbenderUDR) = 114 := by native_decide
+example : secBits (airbenderDeepAli.deepErr airbenderUDR) = 110 := by native_decide
+example : secBits (airbenderDeepAli.aliErr airbenderJBR) = 109 := by native_decide
+example : secBits (airbenderDeepAli.deepErr airbenderJBR) = 105 := by native_decide
 
 /-! ### Per-cell security bits — one theorem per regime row
 
 Entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.
 Covers all 13 cells including JBR commit rounds 1–3 (previously unchecked). -/
 
-theorem ab_udr_row : (airbenderRounds airbenderUDR).map secBits =
+theorem ab_udr_row : (airbenderDeepAli.listErrs airbenderUDR).map secBits =
     [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100] := by native_decide
 
-theorem ab_jbr_row : (airbenderRounds airbenderJBR).map secBits =
+theorem ab_jbr_row : (airbenderDeepAli.listErrs airbenderJBR).map secBits =
     [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100] := by native_decide
 
 /-! ### Totals — min over the row, via `secBits_min'` (pure order theory, no cryptography)
@@ -159,12 +131,19 @@ theorem ab_jbr_row : (airbenderRounds airbenderJBR).map secBits =
 The JBR total (67) exceeds the UDR total (64) because the query cell dominates and
 JBR's query bound is tighter: Johnson's larger decode window cuts the query error. -/
 
-theorem ab_udr_total : secBits (airbenderTotalErr airbenderUDR) = 64 := by native_decide
-theorem ab_jbr_total : secBits (airbenderTotalErr airbenderJBR) = 67 := by native_decide
+theorem ab_udr_total : secBits (airbenderDeepAli.totalErr airbenderUDR) = 64 := by native_decide
+theorem ab_jbr_total : secBits (airbenderDeepAli.totalErr airbenderJBR) = 67 := by native_decide
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
 example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+
+
+/-! ### Airbender proof sizes -/
+
+-- Airbender: 1836 KiB (expected) / 1951 KiB (worst case).
+example : airbenderDeepAli.proofSizeExp  / KIB = 1836 := by native_decide
+example : airbenderDeepAli.proofSizeWorst / KIB = 1951 := by native_decide
 
 end Soundcalc

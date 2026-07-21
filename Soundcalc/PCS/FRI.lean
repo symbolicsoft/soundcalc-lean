@@ -144,13 +144,4 @@ def FRIConfig.proofSizeWorst (c : FRIConfig) : N :=
   getFRIProofSizeBits c.hashBits c.field.elementSizeBits c.batchSize c.numQueries
     c.D c.foldingFactors (c.ρ : Q) false
 
-def mersenne31_4FieldBits : N := mersenne31_4.elementSizeBits  -- = 124 (A0)
-
--- Airbender: 1836 KiB (expected) / 1951 KiB (worst case).
--- domainSize D = 2^24 / (1/2) = 2^25 ; hashSizeBits = 256 ; batchSize = 1225 ; queries = 87.
-example : getFRIProofSizeBits 256 mersenne31_4FieldBits 1225 87 (2^25)
-    [16,16,16,8,8] (1/2 : Q) true / KIB = 1836 := by native_decide
-example : getFRIProofSizeBits 256 mersenne31_4FieldBits 1225 87 (2^25)
-    [16,16,16,8,8] (1/2 : Q) false / KIB = 1951 := by native_decide
-
 end Soundcalc

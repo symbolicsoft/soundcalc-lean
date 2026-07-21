@@ -60,15 +60,15 @@ def JaggedCfg.zerocheckErr (c : JaggedCfg) : Q :=
 -/
 def JaggedCfg.listErrs (c: JaggedCfg) : List ℚ := do
   let mut l : List ℚ := []
-  l := c.reduceErr :: l
-  l := c.zerocheckErr :: l
+  l := l ++ [c.reduceErr]
+  l := l ++ [c.zerocheckErr]
   let fcfg := c.densePCS
   l := (fcfg.batchingErr (UDR fcfg.field)) :: l
   for i in List.range fcfg.foldingFactors.length do
-    l := (fcfg.commitErr (UDR fcfg.field) i) :: l
+    l := l ++ [fcfg.commitErr (UDR fcfg.field) i]
   l := (fcfg.queryErr (UDR fcfg.field)) :: l
   for lcfg in c.lookups do
-    l := lcfg.errUB :: l
+    l := l ++ [lcfg.errUB]
   l
 
 /--
@@ -76,9 +76,7 @@ def JaggedCfg.listErrs (c: JaggedCfg) : List ℚ := do
   Computed as the maximum of all the soundness errors.
 -/
 def JaggedCfg.totalErr (c : JaggedCfg) : ℚ :=
-  match (listErrs c).maximum with
-  | some m => m
-  | none   => 0
+  (listErrs c).foldr max 0
 
 /-! ## Jagged reduction proof size
 

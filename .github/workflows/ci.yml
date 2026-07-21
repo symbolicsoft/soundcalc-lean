@@ -54,10 +54,11 @@ jobs:
               run: |
                 lake exe mdrenderer
             
-            # Recheck whether the build still goes through
-            # with the regenerated `SP1.lean`.
-            - name: Build with regenerated SP1.lean
-              run: lake build
+            # Check whether the regenerated `SP1.lean` contains
+            # mismatches with the committed golden `SP1.lean`
+            # (exit code > 0 if any changes occur)
+            - name: Check regenerated SP1.lean matches committed golden
+              run: git diff --exit-code
 
             # Check whether the output `SP1.md` matches
             # the `sp1.md` produced by the original `soundcalc`.

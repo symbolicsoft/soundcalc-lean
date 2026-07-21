@@ -244,6 +244,11 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
       circuit_list := circuit_list.concat jaggedcfg
     | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
 
+  let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
+    match decEq (circuit_list.all (·.field == zkvm_field)) true with
+    | .isTrue h  => pure (PLift.up h)
+    | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
+
   let zkvmcfg: ZkVMCfg := {
     name         := zkvm_name
     protoFamily  := zkvm_protocol_family
@@ -251,6 +256,7 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
     version      := zkvm_version
     hashSizeBits := zkvm_hash_size_bits
     circuits     := circuit_list
+    h_circuits_field := PLift.down (α := circuit_list.all (·.field == zkvm_field) = true) h_circuits_lifted
   }
   pure (zkvmcfg)
 

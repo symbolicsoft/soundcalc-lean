@@ -24,5 +24,8 @@ structure ZkVMCfg where
   version      : String
   hashSizeBits : ℕ
   circuits     : List JaggedCfg
+  /-- Every circuit must run over the same field as the zkVM itself
+      (same guard as `JaggedCfg.h_densePCS_field` / `h_lookups_field`). -/
+  h_circuits_field : circuits.all (·.field == field) = true := by decide
 
 end Soundcalc

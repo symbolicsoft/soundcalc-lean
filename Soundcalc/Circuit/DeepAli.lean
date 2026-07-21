@@ -55,6 +55,14 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
   let num : Q := (c.airMaxDegree : Q) * (H + (c.maxCombo : Q) - 1) + (H - 1)
   Lp * num / ((c.field.card : Q) - H - D) / 2 ^ c.grindDeep
 
+/-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
+    Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
+    true window — if the guard passes here it passes with the exact θ. -/
+def DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
+  let traceLength := c.densePCS.traceLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+  ((traceLength : Q) + (c.maxCombo : Q)) <
+    (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q))
+
 
 /-! ## Cell error collection -/
 

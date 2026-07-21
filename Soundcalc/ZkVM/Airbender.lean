@@ -96,16 +96,12 @@ def airbenderDeepAli : DeepAliCfg where
                      airbenderRangeCheck19,
                      airbenderDecoder]
 
-/-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
-    Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
-    true window — if the guard passes here it passes with the exact θ. -/
-theorem DeepAliCfg.multiPoint_ok (c : DeepAliCfg) (R : Regime)
-    (hc : c = airbenderDeepAli)
-    (hR : R = UDR c.field ∨ R = JBR c.field (1/40) (2^40)) :
-    let traceLength := c.densePCS.traceLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
-    ((traceLength : Q) + (c.maxCombo : Q)) <
-      (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q)) := by
-  subst hc
+/-- Airbender satisfies the DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`)
+    in both regimes. -/
+theorem airbenderDeepAli_multiPoint_ok (R : Regime)
+    (hR : R = airbenderUDR ∨ R = airbenderJBR) :
+    airbenderDeepAli.multiPointOk R := by
+  unfold DeepAliCfg.multiPointOk
   rcases hR with rfl | rfl <;> native_decide
 
 /-! ## A4 exit criteria -/

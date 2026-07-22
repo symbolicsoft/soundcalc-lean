@@ -3,6 +3,7 @@ import Soundcalc.SecBits
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
 import Soundcalc.Field
+import Soundcalc.ZkVM
 
 namespace Soundcalc
 
@@ -246,5 +247,20 @@ example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
 example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
 example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
+
+/-! ## SP1 (all circuits)
+
+Bundles all of SP1's circuits into the generic `ZkVMCfg` (`Soundcalc.ZkVM`). Each
+`JaggedCfg` already enforces its own FRI/lookup field consistency
+(`h_densePCS_field`/`h_lookups_field`); `ZkVMCfg.h_circuits_field` additionally
+enforces that every circuit agrees with the zkVM's own `field`. Metadata from
+`soundcalc/zkvms/sp1/sp1.toml`'s `[zkevm]` section. -/
+def sp1 : ZkVMCfg where
+  name         := "SP1"
+  protoFamily  := "JAGGED"
+  field        := koalaBear4
+  version      := "6.1.0"
+  hashSizeBits := 248
+  circuits     := [sp1CoreJagged, sp1CompressJagged, sp1ShrinkJagged]
 
 end Soundcalc

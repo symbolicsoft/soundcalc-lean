@@ -104,42 +104,34 @@ theorem airbenderDeepAli_multiPoint_ok (R : Regime)
   unfold DeepAliCfg.multiPointOk
   rcases hR with rfl | rfl <;> native_decide
 
-/-! ## A4 exit criteria -/
+/-! ## A4–A6 exit criteria (bundled)
 
-example : secBits (airbenderDeepAli.aliErr airbenderUDR) = 114 := by native_decide
-example : secBits (airbenderDeepAli.deepErr airbenderUDR) = 110 := by native_decide
-example : secBits (airbenderDeepAli.aliErr airbenderJBR) = 109 := by native_decide
-example : secBits (airbenderDeepAli.deepErr airbenderJBR) = 105 := by native_decide
-
-/-! ### Per-cell security bits — one theorem per regime row
-
-Entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.
-Covers all 13 cells including JBR commit rounds 1–3 (previously unchecked). -/
-
-theorem ab_udr_row : (airbenderDeepAli.listErrs airbenderUDR).map secBits =
-    [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100] := by native_decide
-
-theorem ab_jbr_row : (airbenderDeepAli.listErrs airbenderJBR).map secBits =
-    [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100] := by native_decide
-
-/-! ### Totals — min over the row, via `secBits_min'` (pure order theory, no cryptography)
+Row entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.
+Covers all 13 cells including JBR commit rounds 1–3 (previously unchecked). Lookup
+cells and proof sizes are regime-independent, hence identical across both calls below.
 
 The JBR total (67) exceeds the UDR total (64) because the query cell dominates and
 JBR's query bound is tighter: Johnson's larger decode window cuts the query error. -/
 
-theorem ab_udr_total : secBits (airbenderDeepAli.totalErr airbenderUDR) = 64 := by native_decide
-theorem ab_jbr_total : secBits (airbenderDeepAli.totalErr airbenderJBR) = 67 := by native_decide
+example : airbenderDeepAli.ExitCriteria airbenderUDR
+    (aliBits := 114) (deepBits := 110)
+    (lookupBits := [94, 99, 98, 100])
+    (rowBits := [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100])
+    (totalBits := 64)
+    (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
+  unfold DeepAliCfg.ExitCriteria; native_decide
+
+example : airbenderDeepAli.ExitCriteria airbenderJBR
+    (aliBits := 109) (deepBits := 105)
+    (lookupBits := [94, 99, 98, 100])
+    (rowBits := [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100])
+    (totalBits := 67)
+    (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
+  unfold DeepAliCfg.ExitCriteria; native_decide
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
 example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
-
-
-/-! ### Airbender proof sizes -/
-
--- Airbender: 1836 KiB (expected) / 1951 KiB (worst case).
-example : airbenderDeepAli.proofSizeExp  / KIB = 1836 := by native_decide
-example : airbenderDeepAli.proofSizeWorst / KIB = 1951 := by native_decide
 
 end Soundcalc

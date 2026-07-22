@@ -103,4 +103,22 @@ def DeepAliCfg.proofSizeExp (c: DeepAliCfg) : ℕ :=
 def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
   getDeepAliProofSizes c false
 
+/-! ## Exit criteria (bundled) -/
+
+/-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the ALI/DEEP cells,
+    the (regime-independent) lookup cells, the full per-cell row, the regime total, and
+    the (regime-independent) proof sizes in KiB. One instance of this `Prop`, discharged
+    by `native_decide`, replaces the scattered per-circuit `example`s previously written
+    by hand for each of Airbender/OpenVM/etc. -/
+def DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
+    (aliBits deepBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
+    (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
+  secBits (c.aliErr R) = aliBits ∧
+  secBits (c.deepErr R) = deepBits ∧
+  (c.lookups.map (·.errUB)).map secBits = lookupBits ∧
+  (c.listErrs R).map secBits = rowBits ∧
+  secBits (c.totalErr R) = totalBits ∧
+  c.proofSizeExp / KIB = proofSizeExpKib ∧
+  c.proofSizeWorst / KIB = proofSizeWorstKib
+
 end Soundcalc

@@ -74,10 +74,10 @@ def airbenderDecoder : LookupCfg where
   grindBitsLookup := 5
 
 
-/-- The two regimes for Airbender. `η = 1/40`, `g = 2^40` are the pinned gap and
-    A1 granularity. -/
+/-- The two regimes for Airbender. `η` comes from `airbenderFRI.eta` (`= 1/40`, certified
+    by `airbenderFRI.h_eta`); `g = 2^40` is the A1 granularity. -/
 abbrev airbenderUDR : Regime := UDR mersenne31_4
-abbrev airbenderJBR : Regime := JBR mersenne31_4 (1/40) (2^40)
+abbrev airbenderJBR : Regime := JBR mersenne31_4 airbenderFRI.eta (2^40)
 
 /-! ## DEEP-ALI configuration (tied to FRI by construction) -/
 
@@ -132,6 +132,6 @@ example : airbenderDeepAli.ExitCriteria airbenderJBR
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
-example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+example : jbrM (1/2) airbenderFRI.eta (2^40) = 15 := by native_decide
 
 end Soundcalc

@@ -2,7 +2,7 @@
 
 A Lean 4 formal companion to [soundcalc](https://github.com/ethereum/soundcalc), the universal soundness calculator for hash-based zkVM proof systems.
 
-soundcalc-lean is meant to replace soundcalc, evaluates the concrete security of FRI-based zkVMs (SP1, Airbender, OpenVM, ZisK, …) by instantiating published soundness bounds with each system's parameters, and publishes the results as Markdown [reports](https://github.com/ethereum/soundcalc/tree/main/reports). It computes with Python floats. soundcalc-lean restates the calculator in Lean 4, so that the same numbers come out of a proof checker instead:
+soundcalc-lean is meant to replace soundcalc, which evaluates the concrete security of FRI-based zkVMs (SP1, Airbender, OpenVM, ZisK, …) by instantiating published soundness bounds with each system's parameters, and publishes the results as Markdown [reports](https://github.com/ethereum/soundcalc/tree/main/reports). It computes with Python floats. soundcalc-lean restates the calculator in Lean 4, so that the same numbers come out of a proof checker instead:
 
 - **Every report cell is a theorem.** Each security level in a report is re-derived as a machine-checked fact about exact rationals — for example, the 100-bit FRI query-phase cell of SP1 core:
 

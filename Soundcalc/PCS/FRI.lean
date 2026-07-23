@@ -48,16 +48,6 @@ structure FRIConfig where
   /-- After all folds, the residual domain size equals `earlyStopDeg`. -/
   h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
                    = (earlyStopDeg : Q) := by native_decide
-  /-- The rational JBR gap used throughout this codebase. BCHKS25's Johnson-bound
-      regime picks the default gap as (`soundcalc/proxgaps/johnson_bound.py`):
-        `η := if field.card > 2^150 then √ρ/100 else max(√ρ/100, ρ/20)`
-      We always pick the simpler, purely-rational `η := ρ/20` (no `√ρ` enclosure
-      needed). `h_eta` certifies this is a legitimate stand-in for the official
-      value in our concrete case: `field.card ≤ 2^150` puts us in the `max(...)`
-      branch, and `1/25 < ρ` makes that max collapse to exactly `ρ/20`
-      (`ρ/20 ≥ √ρ/100 ⟺ 25ρ ≥ 1`, since both sides are positive). -/
-  eta            : Q := (ρ : Q) / 20
-  h_eta          : field.card ≤ 2 ^ 150 ∧ 1 / 25 < (ρ : Q) := by native_decide
 
 def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch

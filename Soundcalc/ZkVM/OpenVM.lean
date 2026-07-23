@@ -87,12 +87,12 @@ def openvmInternalLookup : LookupCfg where
   rowsT := 0; rowsL := 128; numColumnsS := 1; numLookupsM := 1
   grindBitsLookup := 18
 
-/-- The regimes for OpenVM. `η` comes from each circuit's `FRIConfig.eta` (certified
-    by its `h_eta`), which depends on `ρ` — hence one `JBR` abbrev per distinct rate. -/
+/-- The regimes for OpenVM. `η` is the BCHKS25 default gap `max(ρ/20, √ρ/100)`,
+    which depends on `ρ` — hence one `JBR` abbrev per distinct rate. -/
 abbrev openvmUDR : Regime := UDR babyBear4
-abbrev openvmAppJBR : Regime := JBR babyBear4 openvmAppFRI.eta (2^40)
-abbrev openvmLeafJBR : Regime := JBR babyBear4 openvmLeafFRI.eta (2^40)
-abbrev openvmInternalJBR : Regime := JBR babyBear4 openvmInternalFRI.eta (2^40)
+abbrev openvmAppJBR : Regime := JBR babyBear4 (1/40) (2^40)
+abbrev openvmLeafJBR : Regime := JBR babyBear4 (1/40) (2^40)
+abbrev openvmInternalJBR : Regime := JBR babyBear4 (1/80) (2^40)
 
 /-! ## DEEP-ALI configurations (tied to FRI by construction) -/
 /-
@@ -217,8 +217,7 @@ example : openvmInternalDeepAli.ExitCriteria openvmInternalJBR
 
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
 example : sqrtLB (1/4) (2^40) < sqrtUB (1/4) (2^40) := by native_decide
-example : jbrM (1/2) openvmAppFRI.eta (2^40) = 15 := by native_decide
-example : jbrM (1/2) openvmLeafFRI.eta (2^40) = 15 := by native_decide
-example : jbrM (1/4) openvmInternalFRI.eta (2^40) = 21 := by native_decide
+example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+example : jbrM (1/4) (1/80) (2^40) = 21 := by native_decide
 
 end Soundcalc

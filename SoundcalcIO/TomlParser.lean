@@ -207,12 +207,6 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         | .isTrue h  => pure (PLift.up h : PLift (fri_lhs = fri_rhs))
         | .isFalse _ => do IO.eprintln "FRI early-stop check failed: denseLen/ρ/∏folds ≠ earlyStopDeg"
                            IO.Process.exit 1
-      let h_eta_lifted : PLift (zkvm_field.card ≤ 2 ^ 150 ∧ 1 / 25 < (circ_rho : Q)) ←
-        if h : zkvm_field.card ≤ 2 ^ 150 ∧ 1 / 25 < (circ_rho : Q) then
-          pure (PLift.up h)
-        else
-          IO.eprintln "JBR gap guard failed: need field.card ≤ 2^150 and 1/25 < ρ"; IO.Process.exit 1
-
       let friconfig: FRIConfig := {
         hashBits          := zkvm_hash_size_bits
         ρ                 := circ_rho
@@ -226,7 +220,6 @@ def tomlToZkVMCfg (inTomlFile: String) : IO ZkVMCfg := do
         foldingFactors    := circ_fri_folding_factors
         earlyStopDeg      := circ_fri_early_stop_degree
         h_earlyStop       := PLift.down (α := fri_lhs = fri_rhs) h_lifted
-        h_eta             := PLift.down (α := zkvm_field.card ≤ 2 ^ 150 ∧ 1 / 25 < (circ_rho : Q)) h_eta_lifted
         grindQuery        := circ_grinding_query_phase
         grindBatch        := circ_grinding_batching_phase
       }

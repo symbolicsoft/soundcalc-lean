@@ -45,6 +45,7 @@ structure FieldParams where
 /- Introducing exact equality for `FieldParams` structures.
    The comparison is operated on a per-ℕ field basis. -/
 deriving instance BEq for FieldParams
+deriving instance DecidableEq for FieldParams
 
 /-- `|F| = p ^ e`, an exact natural number — never a float. -/
 def FieldParams.card (F : FieldParams) : ℕ := F.p ^ F.e

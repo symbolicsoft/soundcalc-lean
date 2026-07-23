@@ -9,7 +9,7 @@ namespace SoundcalcIO.LeanEmitter
 
 /-!
   # `SoundcalcIO.LeanEmitter` —  (roadmap S7; partial)
-    A parsing tool that generates `SP1.lean` from `SP1.toml`.
+    A parsing tool that generates `SP1.lean` from `sp1.toml`.
     The `.lean` file wraps together all the structures defined in companion
     files (`JaggedCfg`, `LookupCfg`, `FRIConfig`), enabling formal arithmetic
     verification of the `sp1.md` report of `soundcalc` by means of cell-wise
@@ -27,7 +27,7 @@ namespace SoundcalcIO.LeanEmitter
   Header string declaring the imports of `SP1.lean`.
 -/
 private def getSP1ImportStr : String :=
-    s!"/- Automatically generated from `LeanEmitter.lean` and `SP1.toml`. -/\n" ++
+    s!"/- Automatically generated from `LeanEmitter.lean` and `sp1.toml`. -/\n" ++
     s!"\n" ++
     s!"import Mathlib\n" ++
     s!"import Soundcalc\n" ++
@@ -169,10 +169,10 @@ private def getSP1ShrinkReportStr : String :=
 
 /--
   Contains theorems tying together the hand-written configs in
-  `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `SP1.toml`. -/
+  `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `sp1.toml`. -/
 private def consistencyProofs : String :=
   "/- Theorems tying together the hand-written configs in\n" ++
-  "   `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `SP1.toml`.-/\n" ++
+  "   `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `sp1.toml`.-/\n" ++
   "example : SP1_core_jagged = sp1CoreJagged := by rfl\n" ++
   "example : SP1_compress_jagged = sp1CompressJagged := by rfl\n" ++
   "example : SP1_shrink_jagged = sp1ShrinkJagged := by rfl"
@@ -183,10 +183,10 @@ private def appBanner : String :=
   s!"into an equivalent .lean file verifiable by Soundcalc.\n" ++
   s!"\n" ++
   s!"usage: lake exe leanemitter\n" ++
-  s!"|-> default inputs: ./SoundcalcIO/ZkVM/SP1.toml ./SoundcalcIO/ZkVM/SP1.lean\n" ++
+  s!"|-> default inputs: ./SoundcalcIO/ZkVM/Ref/sp1.toml ./SoundcalcIO/ZkVM/SP1.lean\n" ++
   s!"\n" ++
   s!"extended usage: lake exe leanemitter <in-toml-path> <out-lean-path>\n" ++
-  s!"|-> supported circuits: SP1.toml\n"
+  s!"|-> supported zkVMs: sp1.toml\n"
 
 /-
   Maps supported `FieldParams` to their matching variable name.
@@ -206,11 +206,11 @@ def main (args: List String): IO Unit := do
   if args.length == 1 then
     IO.eprintln "invalid inputs"; IO.Process.exit 1
 
-  /- Default: `SP1.toml`, `SP1.lean` relative to the project root path. -/
-  let sp1TomlFile := args.getD 0 "./SoundcalcIO/ZkVM/SP1.toml"
+  /- Default: `sp1.toml`, `SP1.lean` relative to the project root path. -/
+  let sp1TomlFile := args.getD 0 "./SoundcalcIO/ZkVM/Ref/sp1.toml"
   let sp1LeanFile := args.getD 1 "./SoundcalcIO/ZkVM/SP1.lean"
 
-  let zkvmcfg ← tomlToZkVMCfg sp1TomlFile
+  let jaggedVM ← tomlToJaggedVM sp1TomlFile
 
   /- Incremental contents of `SP1.lean`.
      We overwrite the file only if the parsing succeeds. -/
@@ -220,11 +220,11 @@ def main (args: List String): IO Unit := do
   /-
     We iterate over all the [[circuits]], collecting the lean
     variables we parse along the way. These variables will
-    be collected in the final `ZkVMCfg` Lean structure.
+    be collected in the final `jaggedVM` Lean structure.
   -/
   let mut jaggedcfg_lean_vars : List String := []
 
-  for jaggedcfg in zkvmcfg.circuits do
+  for jaggedcfg in jaggedVM.circuits do
     /-
       We iterate over all the [[circuit.lookups]], collecting the
       lean variables along the way. These variables will be
@@ -233,7 +233,7 @@ def main (args: List String): IO Unit := do
     let mut lookupcfg_lean_vars : List String := []
 
     for lookupcfg in jaggedcfg.lookups do
-      let lookupcfg_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_{lookupcfg.name}_lookup"
+      let lookupcfg_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_{lookupcfg.name}_lookup"
 
       /- We retrieve the variable name associated with the field
         specified within `lookupcfg.field` from the map
@@ -245,7 +245,7 @@ def main (args: List String): IO Unit := do
       )
 
       outStr := outStr ++
-        s!"/- ZkVM `{zkvmcfg.name}` | Circuit `{jaggedcfg.name}` | Lookup `{lookupcfg.name}` -/\n" ++
+        s!"/- ZkVM `{jaggedVM.name}` | Circuit `{jaggedcfg.name}` | Lookup `{lookupcfg.name}` -/\n" ++
         s!"\n" ++
         s!"def {lookupcfg_lean_var} : LookupCfg where\n" ++
         s!"  name            := \"{lookupcfg.name}\"\n" ++
@@ -261,7 +261,7 @@ def main (args: List String): IO Unit := do
       /- Collecting `LookupCfg` Lean variables in a list. -/
       lookupcfg_lean_vars := lookupcfg_lean_vars.concat lookupcfg_lean_var
 
-    let friconfig_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_FRI"
+    let friconfig_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_FRI"
 
     /- We retrieve the variable name associated with the field
     specified within `jaggedcfg.densePCS.field` from the map
@@ -273,12 +273,12 @@ def main (args: List String): IO Unit := do
     )
 
     outStr := outStr ++
-      s!"/- ZkVM `{zkvmcfg.name}` | Circuit `{jaggedcfg.name}` -/\n" ++
+      s!"/- ZkVM `{jaggedVM.name}` | Circuit `{jaggedcfg.name}` -/\n" ++
       s!"\n" ++
       s!"def {friconfig_lean_var} : FRIConfig where\n" ++
-      s!"  hashBits        := {zkvmcfg.hashSizeBits}\n" ++
+      s!"  hashBits        := {jaggedcfg.densePCS.hashBits}\n" ++
       s!"  ρ               := ⟨{jaggedcfg.densePCS.ρ}, by norm_num⟩\n" ++
-      s!"  traceLen        := {jaggedcfg.densePCS.traceLen}\n" ++
+      s!"  traceLen        := {jaggedcfg.traceLength}\n" ++ -- **TODO** collapse or remove in FRIConfig?
       s!"  field           := {friconfig_field_leanvar}\n" ++
       s!"  denseLen        := {jaggedcfg.densePCS.denseLen}\n" ++
       s!"  batchSize       := {jaggedcfg.densePCS.batchSize}\n" ++
@@ -291,7 +291,7 @@ def main (args: List String): IO Unit := do
       s!"  grindBatch      := {jaggedcfg.densePCS.grindBatch}\n" ++
       s!"\n"
 
-    let jaggedcfg_lean_var := s!"{zkvmcfg.name}_{jaggedcfg.name}_jagged"
+    let jaggedcfg_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_jagged"
 
     /- We retrieve the variable name associated with the field
     specified within `jaggedcfg.field` from the map

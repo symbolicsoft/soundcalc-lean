@@ -252,7 +252,7 @@ example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
 Bundles all of SP1's circuits into the generic `JaggedVM` (`Soundcalc.ZkVM`). Each
 `JaggedCfg` already enforces its own FRI/lookup field consistency
-(`h_densePCS_field`/`h_lookups_field`); `ZkVMCfg.h_circuits_field` additionally
+(`h_densePCS_field`/`h_lookups_field`); `JaggedVM.h_circuits_field` additionally
 enforces that every circuit agrees with the zkVM's own `field`. Metadata from
 `soundcalc/zkvms/sp1/sp1.toml`'s `[zkevm]` section. -/
 def sp1 : JaggedVM where

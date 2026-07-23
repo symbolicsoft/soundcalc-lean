@@ -49,8 +49,9 @@ jobs:
               run: |
                 lake exe leanemitter
 
-            # Output `SP1.md` (default exe param) 
-            - name: Output SP1.md
+            # Reproduce soundcalc's`.md files (default exe param).
+            # Current support: {sp1, airbender}.md. 
+            - name: Reproduce soundcalc's .md files
               run: |
                 lake exe mdrenderer
             
@@ -60,15 +61,27 @@ jobs:
             - name: Check regenerated SP1.lean matches committed golden
               run: git diff --exit-code
 
-            # Check whether the output `SP1.md` matches
-            # the `sp1.md` produced by the original `soundcalc`.
-            - name: Check output SP1.md against golden sp1.md
+            # Check whether the reproduced .md files match their
+            # .md counterparts produced by the original `soundcalc`.
+            # Current support: {sp1, airbender}.md.
+            - name: Check reproduced .md files against soundcalc's golden .md files
               run: |
-                if cmp -s SoundcalcIO/ZkVM/SP1.md SoundcalcIO/ZkVM/Ref/sp1.md; then
-                  echo "SP1 report regenerated correctly!"
+                files=("sp1.md" "airbender.md")
+                failed=()
+
+                for f in "${files[@]}"; do
+                    if cmp -s "SoundcalcIO/ZkVM/$f" "SoundcalcIO/ZkVM/Ref/$f"; then
+                        echo "$f regenerated correctly."
+                    else
+                        failed+=("$f")
+                    fi
+                done
+
+                if [ ${#failed[@]} -eq 0 ]; then
+                    echo "All reports were reproduced correctly!"
                 else
-                  echo "Incorrect SP1 report regeneration."
-                  exit 1
+                    echo "Mismatches: ${failed[*]}"
+                    exit 1
                 fi
             # Cache a successful build, unless a cache already exists.
             # Same pattern as ArkLib.

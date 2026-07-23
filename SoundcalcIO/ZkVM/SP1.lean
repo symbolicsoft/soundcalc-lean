@@ -1,4 +1,4 @@
-/- Automatically generated from `LeanEmitter.lean` and `SP1.toml`. -/
+/- Automatically generated from `LeanEmitter.lean` and `sp1.toml`. -/
 
 import Mathlib
 import Soundcalc
@@ -245,7 +245,7 @@ example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
 example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
 /- Theorems tying together the hand-written configs in
-   `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `SP1.toml`.-/
+   `Soundcalc/ZkVM/SP1.lean` with the ones parsed from `sp1.toml`.-/
 example : SP1_core_jagged = sp1CoreJagged := by rfl
 example : SP1_compress_jagged = sp1CompressJagged := by rfl
 example : SP1_shrink_jagged = sp1ShrinkJagged := by rfl

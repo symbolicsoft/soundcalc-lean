@@ -74,10 +74,11 @@ def airbenderDecoder : LookupCfg where
   grindBitsLookup := 5
 
 
-/-- The two regimes for Airbender. `η = 1/40`, `g = 2^40` are the pinned gap and
+/-- The two regimes for Airbender. `η` is derived from `(mersenne31_4, ρ, g)` by
+    `JBR` itself (BCHKS25's default gap, `= 1/40` for `ρ = 1/2`); `g = 2^40` is the
     A1 granularity. -/
 abbrev airbenderUDR : Regime := UDR mersenne31_4
-abbrev airbenderJBR : Regime := JBR mersenne31_4 (1/40) (2^40)
+abbrev airbenderJBR : Regime := JBR mersenne31_4 (2^40)
 
 /-! ## DEEP-ALI configuration (tied to FRI by construction) -/
 

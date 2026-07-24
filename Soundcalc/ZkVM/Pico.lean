@@ -171,15 +171,17 @@ def picoEmbedMemory : LookupCfg where
   rowsT := 491520; rowsL := 1048592; numColumnsS := 6; numLookupsM := 1
   grindBitsLookup := 0
 
-/-- The two regimes for Pico. `η = 1/40`, `g = 2^40` are the pinned gap and A1
-    granularity for `ρ = 1/2` (riscv/convert/combine); `η = 1/320` for `ρ = 1/16`
-    (compress/embed). -/
+/-- The two regimes for Pico. `η` is derived from `(koalaBear4, ρ, g)` by `JBR`
+    itself (BCHKS25's default gap, `= 1/40` for `ρ = 1/2`, `= 1/320` for `ρ = 1/16`);
+    `g = 2^40` is the A1 granularity. A single `JBR koalaBear4 (2^40)` value is
+    correct for every circuit regardless of its `ρ` — kept as separate per-circuit
+    abbrevs below purely for readability at call sites. -/
 abbrev picoUDR : Regime := UDR koalaBear4
-abbrev picoRiscvJBR : Regime := JBR koalaBear4 (1/40) (2^40)
-abbrev picoConvertJBR : Regime := JBR koalaBear4 (1/40) (2^40)
-abbrev picoCombineJBR : Regime := JBR koalaBear4 (1/40) (2^40)
-abbrev picoCompressJBR : Regime := JBR koalaBear4 (1/320) (2^40)
-abbrev picoEmbedJBR : Regime := JBR koalaBear4 (1/320) (2^40)
+abbrev picoRiscvJBR : Regime := JBR koalaBear4 (2^40)
+abbrev picoConvertJBR : Regime := JBR koalaBear4 (2^40)
+abbrev picoCombineJBR : Regime := JBR koalaBear4 (2^40)
+abbrev picoCompressJBR : Regime := JBR koalaBear4 (2^40)
+abbrev picoEmbedJBR : Regime := JBR koalaBear4 (2^40)
 
 /-! ## DEEP-ALI configurations (tied to FRI by construction) -/
 

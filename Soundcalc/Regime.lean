@@ -95,6 +95,22 @@ appearance is replaced by `sqrtLB` or `sqrtUB` in whichever direction keeps the
 result an upper bound.
 -/
 
+/-- BCHKS25's default JBR gap (`soundcalc/proxgaps/johnson_bound.py`):
+    `η = if fieldCard > 2^150 then √ρ/100 else max(ρ/20, √ρ/100)`.
+    `√ρ` is generally irrational, so — exactly like `sqrtLB`/`sqrtUB` — `η` needs a
+    certified rational *lower* and *upper* bound rather than a single rational value.
+    This is the lower bound: `√ρ` is replaced by `sqrtLB` (`≤ √ρ`), so `etaLB ≤ η_true`.
+    In the common case `fieldCard ≤ 2^150 ∧ ρ ≥ 1/25`, `ρ/20 ≥ sqrtLB ρ g / 100`
+    (since `ρ/20 ≥ √ρ/100 ⟺ 25ρ ≥ 1`), so the max collapses to exactly `ρ/20` —
+    rational, hence `etaLB = etaUB` exactly in that case. -/
+def etaLB (ρ : ℚ) (g fieldCard : ℕ) : ℚ :=
+  if fieldCard > 2 ^ 150 then sqrtLB ρ g / 100 else max (ρ / 20) (sqrtLB ρ g / 100)
+
+/-- Upper bound companion to `etaLB`: `√ρ` is replaced by `sqrtUB` (`≥ √ρ`), so
+    `etaUB ≥ η_true`. -/
+def etaUB (ρ : ℚ) (g fieldCard : ℕ) : ℚ :=
+  if fieldCard > 2 ^ 150 then sqrtUB ρ g / 100 else max (ρ / 20) (sqrtUB ρ g / 100)
+
 /-- JBR multiplicity `m = max(⌈√ρ / (2η)⌉, 3)` (BCHKS25 Thm 4.2).
     Rounded **up** via `sqrtUB` since the error formula is increasing in `m`. -/
 def jbrM (ρ η : ℚ) (g : ℕ) : ℕ :=
@@ -114,17 +130,43 @@ def jbrErrLinear (F : FieldParams) (η : ℚ) (g : ℕ) (ρ : ℚ) (d : ℕ) : �
   (first + second) / (F.card : ℚ)
 
 /-- The Johnson Bound Regime as a certified conservative envelope.
-    `η` is the rational gap parameter and `g` the A1 granularity.
-    Each field rounds `√ρ` in the direction that makes the output an upper bound:
-    - `θ` uses `sqrtUB` (larger √ρ → smaller θ → fewer codewords in the list, conservative);
-    - `listSize` and `errLinear` use `sqrtLB` (smaller √ρ → larger error/list). -/
-def JBR (F : FieldParams) (η : ℚ) (g : ℕ) : Regime where
-  θLB            := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtUB ρ g   -- sqrtUB ≥ √ρ ⟹ θLB ≤ θ_true
-  θUB            := fun ⟨ρ, _⟩ _   => (1 - η) - sqrtLB ρ g   -- sqrtLB ≤ √ρ ⟹ θUB ≥ θ_true
-  listSize       := fun ⟨ρ, _⟩ _   => 1 / (2 * η * sqrtLB ρ g)
-  errLinear      := fun ⟨ρ, _⟩ d   => jbrErrLinear F η g ρ d
-  errPowers      := fun ⟨ρ, _⟩ d b => jbrErrLinear F η g ρ d * (b - 1)
-  errMultilinear := fun ⟨ρ, _⟩ d b => jbrErrLinear F η g ρ d * (Nat.clog 2 b : ℚ)
+    `g` is the A1 granularity; `η` is no longer a free parameter — it is derived
+    per-call from `(F, ρ, g)` via `etaLB`/`etaUB`, since it is generally irrational
+    (BCHKS25's default gap) rather than a caller-chosen constant.
+
+    Each field picks `etaLB` or `etaUB` — and `sqrtLB` or `sqrtUB` — in whichever
+    direction makes the output a valid bound. `θ = (1 - η) - √ρ` and `jbrErrLinear`
+    (hence `errLinear`/`errPowers`/`errMultilinear`, and the multiplicity `jbrM`
+    used inside it) are all **decreasing** in `η`; `listSize = 1/(2·η·√ρ)` is also
+    decreasing in `η`. Only `θLB` needs `η` to be as *large* as possible (to make θ
+    as *small* as possible, since `θLB` must be a genuine lower bound on the true
+    θ) — every other field below needs `η` as *small* as possible, hence `etaLB`
+    everywhere except `θLB`. -/
+def JBR (F : FieldParams) (g : ℕ) : Regime where
+  θLB            := fun ⟨ρ, _⟩ _   =>
+    -- θ decreasing in η ⟹ θLB (must be ≤ θ_true) needs the *largest* possible η:
+    -- etaUB ≥ η_true. Paired with sqrtUB (same "make θ as small as possible" logic
+    -- already used here) — this is the one field where the η-direction flips
+    -- relative to every other field in this Regime.
+    (1 - etaUB ρ g F.card) - sqrtUB ρ g
+  θUB            := fun ⟨ρ, _⟩ _   =>
+    -- θ decreasing in η ⟹ θUB (must be ≥ θ_true) needs the *smallest* possible η:
+    -- etaLB ≤ η_true. Paired with sqrtLB, same direction.
+    (1 - etaLB ρ g F.card) - sqrtLB ρ g
+  listSize       := fun ⟨ρ, _⟩ _   =>
+    -- listSize decreasing in η ⟹ the conservative (largest) listSize needs the
+    -- *smallest* η: etaLB.
+    1 / (2 * etaLB ρ g F.card * sqrtLB ρ g)
+  errLinear      := fun ⟨ρ, _⟩ d   =>
+    -- jbrErrLinear decreasing in η through both the multiplicity `m` (m ∝ 1/η) and
+    -- the direct θ term ⟹ the conservative (largest) error needs the *smallest* η:
+    -- etaLB, fed into jbrErrLinear's own η parameter (which also determines the
+    -- η it hands to the internal jbrM call).
+    jbrErrLinear F (etaLB ρ g F.card) g ρ d
+  errPowers      := fun ⟨ρ, _⟩ d b =>
+    jbrErrLinear F (etaLB ρ g F.card) g ρ d * (b - 1)   -- same direction as errLinear
+  errMultilinear := fun ⟨ρ, _⟩ d b =>
+    jbrErrLinear F (etaLB ρ g F.card) g ρ d * (Nat.clog 2 b : ℚ)   -- same direction as errLinear
 
 /-- The **true** real-valued Johnson linear error (BCHKS25 Thm 4.2): the quantity that the
     rational `jbrErrLinear` is proven to over-approximate. Uses the genuine irrational

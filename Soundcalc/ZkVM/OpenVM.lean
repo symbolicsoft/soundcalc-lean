@@ -87,12 +87,14 @@ def openvmInternalLookup : LookupCfg where
   rowsT := 0; rowsL := 128; numColumnsS := 1; numLookupsM := 1
   grindBitsLookup := 18
 
-/-- The regimes for OpenVM. `η` is the BCHKS25 default gap `max(ρ/20, √ρ/100)`,
-    which depends on `ρ` — hence one `JBR` abbrev per distinct rate. -/
+/-- The regimes for OpenVM. `η` is derived from `(babyBear4, ρ, g)` by `JBR` itself
+    (BCHKS25's default gap), so a single `JBR babyBear4 (2^40)` value is correct for
+    every circuit regardless of its `ρ` — kept as separate per-circuit abbrevs below
+    purely for readability at call sites. -/
 abbrev openvmUDR : Regime := UDR babyBear4
-abbrev openvmAppJBR : Regime := JBR babyBear4 (1/40) (2^40)
-abbrev openvmLeafJBR : Regime := JBR babyBear4 (1/40) (2^40)
-abbrev openvmInternalJBR : Regime := JBR babyBear4 (1/80) (2^40)
+abbrev openvmAppJBR : Regime := JBR babyBear4 (2^40)
+abbrev openvmLeafJBR : Regime := JBR babyBear4 (2^40)
+abbrev openvmInternalJBR : Regime := JBR babyBear4 (2^40)
 
 /-! ## DEEP-ALI configurations (tied to FRI by construction) -/
 /-

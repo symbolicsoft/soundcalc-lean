@@ -12,7 +12,7 @@ soundcalc-lean is meant to replace soundcalc, which evaluates the concrete secur
 
   `secBits ε` (the largest `k` with `ε ≤ 2⁻ᵏ`) is itself specified by the proved characterization `le_secBits_iff : k ≤ secBits ε ↔ ε ≤ 1 / 2 ^ k`, and "total security = minimum over components" is the order-theory lemma `secBits_min'`.
 
-- **No floats anywhere.** All arithmetic is exact, over `ℕ` and `ℚ`. Where the mathematics is irrational, the calculator substitutes certified rational enclosures and proves them conservative against the real-valued originals: `sqrtLB`/`sqrtUB` enclose `Real.sqrt ρ` from below and above (`sqrtLB_le`, `le_sqrtUB`), `log2UB` is within `1/m` of `Real.logb 2` (`log2UB_approx_bound`), and the rational Johnson-bound error formula provably upper-bounds the true BCHKS25 expression (`jbrErrLinear_conservative`). Reported security levels are sound bounds, not approximations.
+- **No floats anywhere.** All arithmetic is exact, over `ℕ` and `ℚ`. Where the mathematics is irrational, the calculator substitutes certified rational enclosures and proves them conservative against the real-valued originals: `sqrtLB`/`sqrtUB` enclose `Real.sqrt ρ` from below and above (`sqrtLB_le`, `le_sqrtUB`), `log2UB` is within `1/m` of `Real.logb 2` (`log2UB_approx_bound`), the Johnson-bound gap `η` — BCHKS25's default `max(ρ/20, √ρ/100)`, including its large-field `√ρ/100` branch — is enclosed by `etaLB`/`etaUB` and derived from the field and rate rather than supplied by the caller, and the rational Johnson-bound error formula provably upper-bounds the true BCHKS25 expression (`jbrErrLinear_conservative`). Reported security levels are sound bounds, not approximations.
 
 - **Invariants travel inside the types.** `FieldParams` carries proofs of primality and exact 2-adicity; a rate is `Rate := {ρ : ℚ // 0 < ρ ∧ ρ < 1}`; a `FRIConfig` cannot be constructed unless its folding schedule actually reaches its early-stop degree (`h_earlyStop`); circuits, lookups and zkVMs must all agree on their field (`h_densePCS_field`, `h_lookups_field`, `h_circuits_field`).
 
@@ -23,10 +23,11 @@ soundcalc-lean is meant to replace soundcalc, which evaluates the concrete secur
 | zkVM | proof system | field | regimes | verified |
 | --- | --- | --- | --- | --- |
 | [SP1](https://github.com/succinctlabs/sp1) — core, compress, shrink | Jagged over FRI | KoalaBear⁴ | UDR | all [`sp1.md`](https://github.com/ethereum/soundcalc/blob/main/reports/sp1.md) cells and proof sizes; TOML → Lean emission; report re-rendered byte-for-byte |
-| [Airbender](https://github.com/matter-labs/zksync-airbender) | DEEP-ALI over FRI | Mersenne31⁴ | UDR, JBR | all [`airbender.md`](https://github.com/ethereum/soundcalc/blob/main/reports/airbender.md) cells and proof sizes |
+| [Airbender](https://github.com/matter-labs/zksync-airbender) | DEEP-ALI over FRI | Mersenne31⁴ | UDR, JBR | all [`airbender.md`](https://github.com/ethereum/soundcalc/blob/main/reports/airbender.md) cells and proof sizes; report re-rendered byte-for-byte |
 | [OpenVM](https://github.com/openvm-org/openvm) — app, leaf, internal | DEEP-ALI over FRI | BabyBear⁴ | UDR, JBR | all [`openvm.md`](https://github.com/ethereum/soundcalc/blob/main/reports/openvm.md) cells and proof sizes |
+| [Pico](https://github.com/brevis-network/pico) — riscv, convert, combine, compress, embed | DEEP-ALI over FRI | KoalaBear⁴ | UDR, JBR | all [`pico.md`](https://github.com/ethereum/soundcalc/blob/main/reports/pico.md) cells and proof sizes |
 
-Byte-for-byte report re-rendering currently covers SP1, with Airbender next. Reference configurations and reports are copied verbatim from [ethereum/soundcalc](https://github.com/ethereum/soundcalc) (pinned at [`809896f`](https://github.com/ethereum/soundcalc/commit/809896fb8d3aba4fd8f657c781601e3ef2b968dd)).
+Byte-for-byte report re-rendering currently covers SP1 and Airbender, with OpenVM and Pico next. Reference configurations and reports are copied verbatim from [ethereum/soundcalc](https://github.com/ethereum/soundcalc) (pinned at [`809896f`](https://github.com/ethereum/soundcalc/commit/809896fb8d3aba4fd8f657c781601e3ef2b968dd)).
 
 The security regimes — UDR (Unique Decoding, `θ ≤ (1 − ρ)/2`) and JBR (Johnson Bound, `θ` up to `1 − √ρ`) — are parameters of the soundness analysis, not of the prover or verifier; see soundcalc's [background section](https://github.com/ethereum/soundcalc#background) for an explanation.
 
@@ -54,14 +55,14 @@ Pinned to Lean `v4.30.0` / Mathlib `v4.30.0`. There is no separate test suite: t
 | --- | --- | --- |
 | `Soundcalc/SecBits.lean` | `secBits` with its characterization, antitonicity, and min/max lemmas | — |
 | `Soundcalc/Field.lean` | `FieldParams` with certified primality and 2-adicity; KoalaBear⁴, Mersenne31⁴, BabyBear⁴ | `common/fields.py` |
-| `Soundcalc/Regime.lean` | the `Regime` interface; `UDR`; `JBR` as a certified conservative envelope of BCHKS25 Thm 4.2 | `proxgaps/` |
+| `Soundcalc/Regime.lean` | the `Regime` interface; `UDR`; `JBR` as a certified conservative envelope of BCHKS25 Thm 4.2, with the default gap `η` derived per field and rate via the `etaLB`/`etaUB` enclosures | `proxgaps/` |
 | `Soundcalc/Common/Sqrt.lean`, `Common/Log.lean` | rational `√·` and `log₂` enclosures, proved against `Real.sqrt` / `Real.logb` | (floats in Python) |
 | `Soundcalc/Common/Utils.lean` | Merkle proof and multi-proof size accounting | `common/utils.py` |
 | `Soundcalc/PCS/FRI.lean` | `FRIConfig`; batching, commit, and query errors; BCS proof sizes (expected and worst-case) | `pcs/fri.py` |
 | `Soundcalc/Circuit/Jagged.lean` | jagged reduction and zerocheck errors; per-circuit error rows, totals, proof sizes | `circuits/jagged.py` |
 | `Soundcalc/Circuit/DeepAli.lean` | ALI and DEEP errors, multi-point side condition, per-circuit rows and totals | `circuits/deep_ali.py` |
 | `Soundcalc/Lookup.lean` | LogUp (univariate and multivariate) and GKR error upper bounds | `lookups/` |
-| `Soundcalc/ZkVM.lean`, `Soundcalc/ZkVM/*.lean` | zkVM-level structures; literal SP1, Airbender, and OpenVM instances with per-cell theorems | `zkvms/` |
+| `Soundcalc/ZkVM.lean`, `Soundcalc/ZkVM/*.lean` | zkVM-level structures; literal SP1, Airbender, OpenVM, and Pico instances with per-cell theorems | `zkvms/` |
 | `SoundcalcIO/*.lean` | TOML parser, Lean emitter, Markdown renderer | `report_md.py` |
 | `SoundcalcIO/ZkVM/` | TOML configs, the committed emitted golden, and reference reports (`Ref/`) from soundcalc | `zkvms/`, `reports/` |
 

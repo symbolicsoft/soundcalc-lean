@@ -11,3 +11,4 @@ import Soundcalc.ZkVM
 import Soundcalc.ZkVM.SP1
 import Soundcalc.ZkVM.Airbender
 import Soundcalc.ZkVM.OpenVM
+import Soundcalc.ZkVM.Pico

@@ -402,11 +402,10 @@ private def deepali_renderSecurityLevels (c: DeepAliCfg) : IO String := do
   let mut secbitsUDRStr := ""
   let mut secbitsJBRStr := ""
 
-  /- Following our Airbender characterization (`Soundcalc/ZkVM/Airbender.lean`),
-     we keep `η = ρ/20`, `g = 2^40` as the pinned gap and sqrt granularity.
-     **TODO** Use the generic η field once it's defined. -/
+  /- `η` is derived by `JBR` itself from `(field, ρ, g)`; `g = 2^40` is the pinned
+     sqrt granularity (matches `Soundcalc/ZkVM/Airbender.lean`). -/
   let circ_UDR : Regime := UDR c.field
-  let circ_JBR : Regime := JBR c.field (c.densePCS.ρ/20) (2^40)
+  let circ_JBR : Regime := JBR c.field (2^40)
 
   /- Contains tuples of the form (fieldName, secBits). -/
   let secLevelsUDR ← deepali_getSecLevels c circ_UDR
@@ -476,16 +475,15 @@ private def deepali_renderOverviewStats (vm: DeepAliVM) : IO String := do
     /- Evaluates the circuit with the worst overall secBits using JBR. -/
     let worstSecBitsCircJBR := circuits.foldl
       (fun worst c =>
-      /- Following our Airbender characterization (`Soundcalc/ZkVM/Airbender.lean`),
-         we keep `η = ρ/20`, `g = 2^40` as the pinned gap and sqrt granularity.
-        **TODO** Use the generic η field once it's defined. -/
-        let circ_JBR : Regime := JBR c.field (c.densePCS.ρ/20) (2^40)
+      /- `η` is derived by `JBR` itself from `(field, ρ, g)`; `g = 2^40` is the
+         pinned sqrt granularity (matches `Soundcalc/ZkVM/Airbender.lean`). -/
+        let circ_JBR : Regime := JBR c.field (2^40)
         if secBits (c.totalErr circ_JBR) < secBits (worst.totalErr circ_JBR) then c
         else worst)
       firstCirc -- first circuit to accumulate over: always exists due to `hne`!
 
     let worstCircUDR : Regime := UDR worstSecBitsCircUDR.field
-    let worstCircJBR : Regime := JBR worstSecBitsCircJBR.field (worstSecBitsCircJBR.densePCS.ρ/20) (2^40)
+    let worstCircJBR : Regime := JBR worstSecBitsCircJBR.field (2^40)
 
     let minSecBitsUDR := secBits (worstSecBitsCircUDR.totalErr worstCircUDR)
     let minSecBitsJBR := secBits (worstSecBitsCircJBR.totalErr worstCircJBR)

@@ -7,7 +7,6 @@ import Soundcalc.ZkVM
 
 namespace Soundcalc
 
-
 /-!
 # SP1 zkVM — circuit instances
 
@@ -69,12 +68,6 @@ def sp1CoreFRI : FRIConfig where
   earlyStopDeg   := 4
   grindQuery     := 16
   grindBatch     := 5
-
-/-! `queryErr = (1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
-example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by native_decide
-example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4)  0)  = 103 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4) 20)  = 122 := by native_decide
 
 /-! ## FRI proof sizes
 
@@ -168,11 +161,6 @@ def sp1ShrinkLookup : LookupCfg where
   numLookupsM     := 53
   grindBitsLookup := 12
 
-/-! S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits. -/
-theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
-theorem sp1_compress_lookup_bits : secBits sp1CompressLookup.errUB = 107 := by native_decide
-theorem sp1_shrink_lookup_bits : secBits sp1ShrinkLookup.errUB = 109 := by native_decide
-
 /-! ## Jagged -/
 
 /-!
@@ -191,16 +179,6 @@ def sp1CoreJagged : JaggedCfg where
   numConstraints := 3412
   airMaxDegree   := 3
   lookups        := [sp1CoreLookup]
-
-/-!
-Exit criteria: `secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
-
-Derivation sketch:
-* `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
-* numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
--/
-example : secBits sp1CoreJagged.reduceErr = 116 := by native_decide
-example : secBits sp1CoreJagged.zerocheckErr = 112 := by native_decide
 
 /-! ## Jagged proof sizes
 
@@ -238,15 +216,37 @@ def sp1ShrinkJagged : JaggedCfg where
   airMaxDegree    := 3
   lookups         := [sp1ShrinkLookup]
 
--- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide
-example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide
--- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide
-example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
--- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
-example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
+/-! ## Exit criteria (bundled)
+
+One `JaggedCfg.ExitCriteria` per circuit checks — in a single `native_decide` — the
+reduce/zerocheck cells, the lookup cell, the full per-cell row (`listErrs` order:
+query · batching · reduce · zerocheck · commit rounds · lookup), the regime total, and
+the Jagged proof sizes in KiB. Cross-checked against
+<https://github.com/ethereum/soundcalc/blob/main/reports/sp1.md>. -/
+
+example : sp1CoreJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 112)
+    (lookupBits := [100])
+    (rowBits := [100, 104, 116, 112, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112,
+                  113, 114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100])
+    (totalBits := 100)
+    (proofSizeExpKib := 918) (proofSizeWorstKib := 1479) := by native_decide
+
+example : sp1CompressJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 115)
+    (lookupBits := [107])
+    (rowBits := [100, 105, 116, 115, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
+                  114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 107])
+    (totalBits := 100)
+    (proofSizeExpKib := 735) (proofSizeWorstKib := 1267) := by native_decide
+
+example : sp1ShrinkJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 115)
+    (lookupBits := [109])
+    (rowBits := [100, 106, 116, 115, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+                  115, 116, 117, 118, 119, 120, 120, 121, 109])
+    (totalBits := 100)
+    (proofSizeExpKib := 529) (proofSizeWorstKib := 887) := by native_decide
 
 /-! ## SP1 (all circuits)
 

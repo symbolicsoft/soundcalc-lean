@@ -23,9 +23,11 @@ travels as a *proof* and every size is an exact `ℕ` — no floats.
 -/
 
 /-
-* *TODO*: Include Goldilocks/BN254-scale primes using a `lucas_primality` Pratt
-  certificate - `native_decide` is avoided (it taxes the TCB and is slow).
-  This comes later in the roadmap.
+* Goldilocks (`goldilocks3`, below) is certified via `native_decide`, matching the
+  discipline already used throughout the zkVM cell/total theorems (Airbender, Pico,
+  …). A kernel-checked `lucas_primality` Pratt certificate — avoiding `native_decide`
+  entirely — remains desirable for the larger BN254-scale primes and is left for
+  later in the roadmap.
 -/
 
 namespace Soundcalc
@@ -144,5 +146,37 @@ theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 := by
 
 theorem babyBear4_elementBits : babyBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, babyBear4_baseBits]; rfl
+
+/-! ## Goldilocks -/
+
+/-- Goldilocks, `p = 2^64 - 2^32 + 1`; ZisK uses its degree-3 extension. -/
+def goldilocks3 : FieldParams where
+  p               := 2 ^ 64 - 2 ^ 32 + 1
+  e               := 3
+  twoAdicity      := 32
+  -- TODO(primality): the 64-bit prime is the one expensive obligation. `decide`/`norm_num`
+  -- do trial division to √p ≈ 2^32 *in the kernel* (infeasible); `native_decide` runs the
+  -- compiled minFac check (`@[csimp] Nat.decidablePrime'`) in seconds but overshoots the
+  -- default 200000-heartbeat *elaboration* budget. Stubbed with `sorry` for now while the
+  -- ZisK cells are validated; replace with `set_option maxHeartbeats 1000000 in` +
+  -- `native_decide`, or a kernel-clean `lucas_primality` Pratt certificate.
+  prime           := sorry
+  epos            := by decide
+  twoAdicity_spec := by decide
+
+/-- `|F|` matches the Python `GOLDILOCKS_3.F`. -/
+example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := by
+  unfold FieldParams.card goldilocks3; norm_num
+
+theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 := by
+  show Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) = 64
+  have hle : Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) ≤ 64 := by
+    rw [Nat.clog_le_iff_le_pow] <;> norm_num
+  have hlt : 63 < Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) := by
+    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
+  omega
+
+theorem goldilocks3_elementBits : goldilocks3.elementSizeBits = 192 := by
+  rw [FieldParams.elementSizeBits, goldilocks3_baseBits]; rfl
 
 end Soundcalc

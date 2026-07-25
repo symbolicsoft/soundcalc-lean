@@ -139,7 +139,6 @@ Lookup cells and proof sizes are regime-independent, hence identical across the
 UDR/JBR calls for a given circuit.
 Cross-checked against <https://github.com/ethereum/soundcalc/blob/main/reports/openvm.md>. -/
 
--- app/leaf: 234635 KiB (expected) / 235651 KiB (worst case).
 example : openvmAppDeepAli.ExitCriteria openvmUDR
     (aliBits := 109) (deepBits := 103)
     (lookupBits := [])
@@ -176,7 +175,6 @@ example : openvmLeafDeepAli.ExitCriteria openvmLeafJBR
     (proofSizeExpKib := 234635) (proofSizeWorstKib := 235651) := by
   native_decide
 
--- internal: 7687 KiB (expected) / 8231 KiB (worst case).
 example : openvmInternalDeepAli.ExitCriteria openvmUDR
     (aliBits := 109) (deepBits := 105)
     (lookupBits := [134])
@@ -200,6 +198,10 @@ example : openvmInternalDeepAli.ExitCriteria openvmInternalJBR
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
 example : sqrtLB (1/4) (2^40) < sqrtUB (1/4) (2^40) := by native_decide
 example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+-- Perfect-square ρ (√ρ = 1/2 exactly): Python's float √ρ lands ⌈√ρ/(2η)⌉ on 20 exactly,
+-- but Lean's rational upper bound `sqrtUB > √ρ` rounds it up to 21. The JBR error is
+-- increasing in `m` (the `2·(m+½)⁵` term), so a larger `m` only makes the bound *more*
+-- conservative — never smaller — so 21-instead-of-20 is safe, nothing to worry about.
 example : jbrM (1/4) (1/80) (2^40) = 21 := by native_decide
 
 end Soundcalc

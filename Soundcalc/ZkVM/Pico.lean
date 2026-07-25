@@ -350,6 +350,10 @@ example : picoEmbedDeepAli.ExitCriteria picoEmbedJBR
 example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
 example : sqrtLB (1/16) (2^40) < sqrtUB (1/16) (2^40) := by native_decide
 example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+-- Perfect-square ρ (√ρ = 1/4 exactly): Python's float √ρ lands ⌈√ρ/(2η)⌉ on 40 exactly,
+-- but Lean's rational upper bound `sqrtUB > √ρ` rounds it up to 41. The JBR error is
+-- increasing in `m` (the `2·(m+½)⁵` term), so a larger `m` only makes the bound *more*
+-- conservative — never smaller — so 41-instead-of-40 is safe, nothing to worry about.
 example : jbrM (1/16) (1/320) (2^40) = 41 := by native_decide
 
 end Soundcalc

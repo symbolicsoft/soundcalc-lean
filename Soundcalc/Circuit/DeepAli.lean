@@ -57,8 +57,12 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
 
 /-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
     Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
-    true window — if the guard passes here it passes with the exact θ. -/
-def DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
+    true window — if the guard passes here it passes with the exact θ.
+
+    An `abbrev` (i.e. `@[reducible]`), like `ExitCriteria`: instance resolution sees
+    through it to the underlying `<`, so each proof closes with a bare
+    `rcases hR … <;> native_decide` — no `unfold DeepAliCfg.multiPointOk` first. -/
+abbrev DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
   let traceLength := c.densePCS.traceLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
   ((traceLength : Q) + (c.maxCombo : Q)) <
     (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q))
@@ -105,14 +109,21 @@ def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
 
 /-! ## Exit criteria (bundled) -/
 
-/-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the ALI/DEEP cells,
-    the (regime-independent) lookup cells, the full per-cell row, the regime total, and
-    the (regime-independent) proof sizes in KiB. One instance of this `Prop`, discharged
-    by `native_decide`, replaces the scattered per-circuit `example`s previously written
-    by hand for each of Airbender/OpenVM/etc. -/
-def DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
+/-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the multi-point side
+    condition, the ALI/DEEP cells, the (regime-independent) lookup cells, the full per-cell
+    row, the regime total, and the (regime-independent) proof sizes in KiB. One instance of
+    this `Prop`, discharged by `native_decide`, replaces the scattered per-circuit `example`s
+    previously written by hand for each of Airbender/OpenVM/etc.
+
+    The leading `c.multiPointOk R` conjunct means a passing `ExitCriteria` also certifies the
+    DEEP-ALI multi-point precondition for regime `R`. Every circuit is checked in both its
+    regimes (one `ExitCriteria` call for `…UDR`, one for `…JBR`), so this subsumes — and
+    replaces — the standalone per-circuit `_multiPoint_ok` theorems, which covered the same
+    two regimes via a disjunction. -/
+abbrev DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
     (aliBits deepBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
     (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
+  c.multiPointOk R ∧
   secBits (c.aliErr R) = aliBits ∧
   secBits (c.deepErr R) = deepBits ∧
   (c.lookups.map (·.errUB)).map secBits = lookupBits ∧

@@ -241,38 +241,6 @@ def picoEmbedDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [picoEmbedMemory]
 
-/-- Pico's `riscv`/`convert`/`combine`/`compress`/`embed` circuits satisfy the
-    DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`) in both regimes. -/
-theorem picoRiscvDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoRiscvJBR) :
-    picoRiscvDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoConvertDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoConvertJBR) :
-    picoConvertDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoCombineDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoCombineJBR) :
-    picoCombineDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoCompressDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoCompressJBR) :
-    picoCompressDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoEmbedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoEmbedJBR) :
-    picoEmbedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 /-! ## Exit criteria (bundled)
 
 Row entries: batching | commit×rounds | query | ALI | DEEP | lookups.
@@ -289,7 +257,7 @@ example : picoRiscvDeepAli.ExitCriteria picoUDR
                   93, 92, 96, 93, 94, 95, 99])
     (totalBits := 50)
     (proofSizeExpKib := 2225) (proofSizeWorstKib := 2583) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : picoRiscvDeepAli.ExitCriteria picoRiscvJBR
     (aliBits := 106) (deepBits := 95)
@@ -299,7 +267,7 @@ example : picoRiscvDeepAli.ExitCriteria picoRiscvJBR
                   93, 92, 96, 93, 94, 95, 99])
     (totalBits := 53)
     (proofSizeExpKib := 2225) (proofSizeWorstKib := 2583) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 -- convert: 934 KiB (expected) / 1255 KiB (worst case).
 example : picoConvertDeepAli.ExitCriteria picoUDR
@@ -309,7 +277,7 @@ example : picoConvertDeepAli.ExitCriteria picoUDR
                   118, 119, 120, 121, 122, 122, 123, 50, 115, 101, 96])
     (totalBits := 50)
     (proofSizeExpKib := 934) (proofSizeWorstKib := 1255) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : picoConvertDeepAli.ExitCriteria picoConvertJBR
     (aliBits := 110) (deepBits := 97)
@@ -318,7 +286,7 @@ example : picoConvertDeepAli.ExitCriteria picoConvertJBR
                   96, 97, 98, 99, 100, 101, 102, 53, 110, 97, 96])
     (totalBits := 53)
     (proofSizeExpKib := 934) (proofSizeWorstKib := 1255) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 -- combine: 861 KiB (expected) / 1146 KiB (worst case).
 example : picoCombineDeepAli.ExitCriteria picoUDR
@@ -328,7 +296,7 @@ example : picoCombineDeepAli.ExitCriteria picoUDR
                   120, 121, 122, 122, 123, 50, 115, 103, 97])
     (totalBits := 50)
     (proofSizeExpKib := 861) (proofSizeWorstKib := 1146) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : picoCombineDeepAli.ExitCriteria picoCombineJBR
     (aliBits := 110) (deepBits := 99)
@@ -337,7 +305,7 @@ example : picoCombineDeepAli.ExitCriteria picoCombineJBR
                   98, 99, 100, 101, 102, 53, 110, 99, 97])
     (totalBits := 53)
     (proofSizeExpKib := 861) (proofSizeWorstKib := 1146) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 -- compress: 253 KiB (expected) / 308 KiB (worst case).
 example : picoCompressDeepAli.ExitCriteria picoUDR
@@ -347,7 +315,7 @@ example : picoCompressDeepAli.ExitCriteria picoUDR
                   118, 119, 119, 120, 35, 115, 104, 98])
     (totalBits := 35)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 308) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : picoCompressDeepAli.ExitCriteria picoCompressJBR
     (aliBits := 106) (deepBits := 95)
@@ -356,7 +324,7 @@ example : picoCompressDeepAli.ExitCriteria picoCompressJBR
                   84, 85, 86, 87, 57, 106, 95, 98])
     (totalBits := 57)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 308) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 -- embed: 232 KiB (expected) / 281 KiB (worst case).
 example : picoEmbedDeepAli.ExitCriteria picoUDR
@@ -366,7 +334,7 @@ example : picoEmbedDeepAli.ExitCriteria picoUDR
                   119, 120, 35, 115, 106, 100])
     (totalBits := 35)
     (proofSizeExpKib := 232) (proofSizeWorstKib := 281) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : picoEmbedDeepAli.ExitCriteria picoEmbedJBR
     (aliBits := 106) (deepBits := 97)
@@ -375,7 +343,7 @@ example : picoEmbedDeepAli.ExitCriteria picoEmbedJBR
                   86, 87, 57, 106, 97, 100])
     (totalBits := 57)
     (proofSizeExpKib := 232) (proofSizeWorstKib := 281) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ### Enclosure-granularity guard (verified where it bites) -/
 

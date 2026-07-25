@@ -73,7 +73,6 @@ def airbenderDecoder : LookupCfg where
   rowsT := 16777215; rowsL := 16777215; numColumnsS := 10; numLookupsM := 1
   grindBitsLookup := 5
 
-
 /-- The two regimes for Airbender. `η` is derived from `(mersenne31_4, ρ, g)` by
     `JBR` itself (BCHKS25's default gap, `= 1/40` for `ρ = 1/2`); `g = 2^40` is the
     A1 granularity. -/
@@ -97,14 +96,6 @@ def airbenderDeepAli : DeepAliCfg where
                      airbenderRangeCheck19,
                      airbenderDecoder]
 
-/-- Airbender satisfies the DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`)
-    in both regimes. -/
-theorem airbenderDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = airbenderUDR ∨ R = airbenderJBR) :
-    airbenderDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 /-! ## A4–A6 exit criteria (bundled)
 
 Row entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.
@@ -120,7 +111,7 @@ example : airbenderDeepAli.ExitCriteria airbenderUDR
     (rowBits := [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100])
     (totalBits := 64)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : airbenderDeepAli.ExitCriteria airbenderJBR
     (aliBits := 109) (deepBits := 105)
@@ -128,7 +119,7 @@ example : airbenderDeepAli.ExitCriteria airbenderJBR
     (rowBits := [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100])
     (totalBits := 67)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 

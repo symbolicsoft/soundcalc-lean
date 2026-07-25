@@ -190,12 +190,6 @@ def ziskDmaDeepAli : DeepAliCfg where
                      ziskDmaRangeCheckGsum104]
   h_lookups_field := by native_decide
 
-theorem ziskDmaDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaJBR) :
-    ziskDmaDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDmaDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -204,7 +198,7 @@ example : ziskDmaDeepAli.ExitCriteria ziskUDR
                 166, 170, 169, 169])
     (totalBits := 111)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [166, 169, 168, 168, 166, 170, 169, 169])
@@ -212,7 +206,7 @@ example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
                 166, 170, 169, 169])
     (totalBits := 128)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaMemCpy -/
 
@@ -279,12 +273,6 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
                      ziskDmaMemCpyRangeCheckGsum104]
   h_lookups_field := by native_decide
 
-theorem ziskDmaMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaMemCpyJBR) :
-    ziskDmaMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaMemCpy: 679 KiB (expected) / 1072 KiB (worst case).
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -293,7 +281,7 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
                 166, 170, 169])
     (totalBits := 111)
     (proofSizeExpKib := 679) (proofSizeWorstKib := 1072) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [166, 169, 168, 168, 166, 170, 169])
@@ -301,7 +289,7 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
                 166, 170, 169])
     (totalBits := 128)
     (proofSizeExpKib := 679) (proofSizeWorstKib := 1072) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaInputCpy -/
 
@@ -368,12 +356,6 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
                      ziskDmaInputCpyRangeCheckGsum105]
   h_lookups_field := by native_decide
 
-theorem ziskDmaInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaInputCpyJBR) :
-    ziskDmaInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaInputCpy: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -382,7 +364,7 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
                 170, 170, 170])
     (totalBits := 111)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [166, 168, 168, 166, 170, 170, 170])
@@ -390,7 +372,7 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
                 170, 170, 170])
     (totalBits := 128)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64Aligned -/
 
@@ -457,12 +439,6 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
                      ziskDma64AlignedRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDma64AlignedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedJBR) :
-    ziskDma64AlignedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64Aligned: 838 KiB (expected) / 1233 KiB (worst case).
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -471,7 +447,7 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
                 165, 167, 169])
     (totalBits := 111)
     (proofSizeExpKib := 838) (proofSizeWorstKib := 1233) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
     (aliBits := 178) (deepBits := 162)
     (lookupBits := [167, 166, 167, 167, 165, 167, 169])
@@ -479,7 +455,7 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
                 165, 167, 169])
     (totalBits := 128)
     (proofSizeExpKib := 838) (proofSizeWorstKib := 1233) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedInputCpy -/
 
@@ -546,12 +522,6 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedInputCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDma64AlignedInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedInputCpyJBR) :
-    ziskDma64AlignedInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -560,7 +530,7 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
                 166, 167, 169])
     (totalBits := 111)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [167, 166, 167, 167, 166, 167, 169])
@@ -568,7 +538,7 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJ
                 166, 167, 169])
     (totalBits := 128)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMemSet -/
 
@@ -625,12 +595,6 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemSetRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDma64AlignedMemSetDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemSetJBR) :
-    ziskDma64AlignedMemSetDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedMemSet: 662 KiB (expected) / 1056 KiB (worst case).
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -639,7 +603,7 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 662) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 165, 169])
@@ -647,7 +611,7 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 662) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMem -/
 
@@ -704,12 +668,6 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDma64AlignedMemDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemJBR) :
-    ziskDma64AlignedMemDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedMem: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -718,7 +676,7 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 165, 169])
@@ -726,7 +684,7 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMemCpy -/
 
@@ -783,12 +741,6 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDma64AlignedMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemCpyJBR) :
-    ziskDma64AlignedMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedMemCpy: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -797,7 +749,7 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 164, 169])
@@ -805,7 +757,7 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaUnaligned -/
 
@@ -867,12 +819,6 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
                      ziskDmaUnalignedRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskDmaUnalignedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaUnalignedJBR) :
-    ziskDmaUnalignedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaUnaligned: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -881,7 +827,7 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
                 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 165, 167, 167, 166, 169])
@@ -889,7 +835,7 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
                 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePost -/
 
@@ -946,12 +892,6 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
                      ziskDmaPrePostPermutationGsum8000]
   h_lookups_field := by native_decide
 
-theorem ziskDmaPrePostDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostJBR) :
-    ziskDmaPrePostDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePost: 951 KiB (expected) / 1346 KiB (worst case).
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -960,7 +900,7 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
                 167])
     (totalBits := 111)
     (proofSizeExpKib := 951) (proofSizeWorstKib := 1346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 169, 166, 166, 167])
@@ -968,7 +908,7 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
                 167])
     (totalBits := 128)
     (proofSizeExpKib := 951) (proofSizeWorstKib := 1346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePostMemCpy -/
 
@@ -1020,12 +960,6 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostMemCpyPermutationGsum8000]
   h_lookups_field := by native_decide
 
-theorem ziskDmaPrePostMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostMemCpyJBR) :
-    ziskDmaPrePostMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePostMemCpy: 881 KiB (expected) / 1276 KiB (worst case).
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -1033,14 +967,14 @@ example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 172, 175, 178, 181, 184, 187, 111, 186, 168, 168, 166, 166, 167])
     (totalBits := 111)
     (proofSizeExpKib := 881) (proofSizeWorstKib := 1276) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskDmaPrePostMemCpyJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 166, 166, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 168, 166, 166, 167])
     (totalBits := 128)
     (proofSizeExpKib := 881) (proofSizeWorstKib := 1276) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePostInputCpy -/
 
@@ -1092,12 +1026,6 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostInputCpyPermutationGsum8000]
   h_lookups_field := by native_decide
 
-theorem ziskDmaPrePostInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostInputCpyJBR) :
-    ziskDmaPrePostInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePostInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -1105,14 +1033,14 @@ example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 187, 168, 168, 166, 167, 167])
     (totalBits := 111)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskDmaPrePostInputCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [168, 166, 167, 167])
     (rowBits := [133, 138, 141, 144, 147, 150, 154, 128, 180, 161, 168, 166, 167, 167])
     (totalBits := 128)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Main -/
 
@@ -1174,12 +1102,6 @@ def ziskMainDeepAli : DeepAliCfg where
                      ziskMainRangeCheckGsum106]
   h_lookups_field := by native_decide
 
-theorem ziskMainDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMainJBR) :
-    ziskMainDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Main: 890 KiB (expected) / 1292 KiB (worst case).
 example : ziskMainDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 167)
@@ -1188,7 +1110,7 @@ example : ziskMainDeepAli.ExitCriteria ziskUDR
                 164, 169])
     (totalBits := 111)
     (proofSizeExpKib := 890) (proofSizeWorstKib := 1292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMainDeepAli.ExitCriteria ziskMainJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [166, 166, 166, 161, 164, 169])
@@ -1196,7 +1118,7 @@ example : ziskMainDeepAli.ExitCriteria ziskMainJBR
                 164, 169])
     (totalBits := 128)
     (proofSizeExpKib := 890) (proofSizeWorstKib := 1292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Rom -/
 
@@ -1233,12 +1155,6 @@ def ziskRomDeepAli : DeepAliCfg where
   lookups        := [ziskRomLookupGsum7890]
   h_lookups_field := by native_decide
 
-theorem ziskRomDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRomJBR) :
-    ziskRomDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Rom: 635 KiB (expected) / 1019 KiB (worst case).
 example : ziskRomDeepAli.ExitCriteria ziskUDR
     (aliBits := 190) (deepBits := 168)
@@ -1246,14 +1162,14 @@ example : ziskRomDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 190, 168, 166])
     (totalBits := 111)
     (proofSizeExpKib := 635) (proofSizeWorstKib := 1019) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRomDeepAli.ExitCriteria ziskRomJBR
     (aliBits := 183) (deepBits := 161)
     (lookupBits := [166])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 183, 161, 166])
     (totalBits := 128)
     (proofSizeExpKib := 635) (proofSizeWorstKib := 1019) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Mem -/
 
@@ -1306,12 +1222,6 @@ def ziskMemDeepAli : DeepAliCfg where
   lookups        := [ziskMemDirectGsum11, ziskMemPermutationGsum10, ziskMemRangeCheckGsum102, ziskMemRangeCheckGsum103, ziskMemRangeCheckGsum104]
   h_lookups_field := by native_decide
 
-theorem ziskMemDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemJBR) :
-    ziskMemDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Mem: 718 KiB (expected) / 1120 KiB (worst case).
 example : ziskMemDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 167)
@@ -1320,7 +1230,7 @@ example : ziskMemDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 718) (proofSizeWorstKib := 1120) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemDeepAli.ExitCriteria ziskMemJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [166, 167, 169, 167, 169])
@@ -1328,7 +1238,7 @@ example : ziskMemDeepAli.ExitCriteria ziskMemJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 718) (proofSizeWorstKib := 1120) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## RomData -/
 
@@ -1373,12 +1283,6 @@ def ziskRomDataDeepAli : DeepAliCfg where
   lookups        := [ziskRomDataDirectGsum11, ziskRomDataPermutationGsum10, ziskRomDataRangeCheckGsum102]
   h_lookups_field := by native_decide
 
-theorem ziskRomDataDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRomDataJBR) :
-    ziskRomDataDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- RomData: 603 KiB (expected) / 997 KiB (worst case).
 example : ziskRomDataDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -1386,14 +1290,14 @@ example : ziskRomDataDeepAli.ExitCriteria ziskUDR
     (rowBits := [167, 172, 175, 178, 181, 184, 187, 111, 187, 168, 167, 168, 169])
     (totalBits := 111)
     (proofSizeExpKib := 603) (proofSizeWorstKib := 997) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRomDataDeepAli.ExitCriteria ziskRomDataJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [167, 168, 169])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 180, 161, 167, 168, 169])
     (totalBits := 128)
     (proofSizeExpKib := 603) (proofSizeWorstKib := 997) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## InputData -/
 
@@ -1442,12 +1346,6 @@ def ziskInputDataDeepAli : DeepAliCfg where
   lookups        := [ziskInputDataDirectGsum11, ziskInputDataPermutationGsum10, ziskInputDataRangeCheckGsum102, ziskInputDataRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskInputDataDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskInputDataJBR) :
-    ziskInputDataDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- InputData: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskInputDataDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -1455,14 +1353,14 @@ example : ziskInputDataDeepAli.ExitCriteria ziskUDR
     (rowBits := [167, 172, 175, 178, 181, 184, 187, 111, 187, 168, 167, 168, 170, 167])
     (totalBits := 111)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskInputDataDeepAli.ExitCriteria ziskInputDataJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [167, 168, 170, 167])
     (rowBits := [133, 137, 140, 143, 146, 149, 153, 128, 179, 161, 167, 168, 170, 167])
     (totalBits := 128)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlign -/
 
@@ -1507,12 +1405,6 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   lookups        := [ziskMemAlignLookupGsum133, ziskMemAlignPermutationGsum10, ziskMemAlignRangeCheckGsum107]
   h_lookups_field := by native_decide
 
-theorem ziskMemAlignDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignJBR) :
-    ziskMemAlignDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlign: 821 KiB (expected) / 1217 KiB (worst case).
 example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -1520,14 +1412,14 @@ example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 186, 168, 168, 168, 167])
     (totalBits := 111)
     (proofSizeExpKib := 821) (proofSizeWorstKib := 1217) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignDeepAli.ExitCriteria ziskMemAlignJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 168, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 168, 168, 167])
     (totalBits := 128)
     (proofSizeExpKib := 821) (proofSizeWorstKib := 1217) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignByte -/
 
@@ -1584,12 +1476,6 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
                      ziskMemAlignByteRangeCheckGsum107]
   h_lookups_field := by native_decide
 
-theorem ziskMemAlignByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignByteJBR) :
-    ziskMemAlignByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlignByte: 694 KiB (expected) / 1093 KiB (worst case).
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 167)
@@ -1598,7 +1484,7 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 694) (proofSizeWorstKib := 1093) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
     (aliBits := 180) (deepBits := 160)
     (lookupBits := [166, 168, 165, 169, 169])
@@ -1606,7 +1492,7 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 694) (proofSizeWorstKib := 1093) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignReadByte -/
 
@@ -1658,12 +1544,6 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
                      ziskMemAlignReadByteRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskMemAlignReadByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignReadByteJBR) :
-    ziskMemAlignReadByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlignReadByte: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1671,14 +1551,14 @@ example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 168, 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskMemAlignReadByteJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 168, 166, 169])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 181, 160, 166, 168, 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignWriteByte -/
 
@@ -1735,12 +1615,6 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
                      ziskMemAlignWriteByteRangeCheckGsum107]
   h_lookups_field := by native_decide
 
-theorem ziskMemAlignWriteByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignWriteByteJBR) :
-    ziskMemAlignWriteByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlignWriteByte: 683 KiB (expected) / 1082 KiB (worst case).
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1749,7 +1623,7 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 683) (proofSizeWorstKib := 1082) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 168, 165, 169, 169])
@@ -1757,7 +1631,7 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 683) (proofSizeWorstKib := 1082) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Arith -/
 
@@ -1802,12 +1676,6 @@ def ziskArithDeepAli : DeepAliCfg where
   lookups        := [ziskArithLookupGsum330, ziskArithLookupGsum331, ziskArithLookupGsum5000]
   h_lookups_field := by native_decide
 
-theorem ziskArithDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithJBR) :
-    ziskArithDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Arith: 848 KiB (expected) / 1244 KiB (worst case).
 example : ziskArithDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -1815,14 +1683,14 @@ example : ziskArithDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 185, 168, 165, 168, 166])
     (totalBits := 111)
     (proofSizeExpKib := 848) (proofSizeWorstKib := 1244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithDeepAli.ExitCriteria ziskArithJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [165, 168, 166])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 165, 168, 166])
     (totalBits := 128)
     (proofSizeExpKib := 848) (proofSizeWorstKib := 1244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Binary -/
 
@@ -1867,12 +1735,6 @@ def ziskBinaryDeepAli : DeepAliCfg where
   lookups        := [ziskBinaryDirectGsum5000, ziskBinaryLookupGsum125, ziskBinaryLookupGsum5000]
   h_lookups_field := by native_decide
 
-theorem ziskBinaryDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryJBR) :
-    ziskBinaryDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Binary: 826 KiB (expected) / 1227 KiB (worst case).
 example : ziskBinaryDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1880,14 +1742,14 @@ example : ziskBinaryDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 164, 166])
     (totalBits := 111)
     (proofSizeExpKib := 826) (proofSizeWorstKib := 1227) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryDeepAli.ExitCriteria ziskBinaryJBR
     (aliBits := 181) (deepBits := 161)
     (lookupBits := [166, 164, 166])
     (rowBits := [133, 138, 141, 144, 147, 150, 153, 128, 181, 161, 166, 164, 166])
     (totalBits := 128)
     (proofSizeExpKib := 826) (proofSizeWorstKib := 1227) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## BinaryAdd -/
 
@@ -1932,12 +1794,6 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   lookups        := [ziskBinaryAddDirectGsum5000, ziskBinaryAddLookupGsum5000, ziskBinaryAddRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskBinaryAddDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryAddJBR) :
-    ziskBinaryAddDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- BinaryAdd: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1945,14 +1801,14 @@ example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 166, 167])
     (totalBits := 111)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryAddDeepAli.ExitCriteria ziskBinaryAddJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 166, 167])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 181, 160, 166, 166, 167])
     (totalBits := 128)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## BinaryExtension -/
 
@@ -2004,12 +1860,6 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
                      ziskBinaryExtensionRangeCheckGsum102]
   h_lookups_field := by native_decide
 
-theorem ziskBinaryExtensionDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryExtensionJBR) :
-    ziskBinaryExtensionDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- BinaryExtension: 777 KiB (expected) / 1179 KiB (worst case).
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -2017,14 +1867,14 @@ example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 164, 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 777) (proofSizeWorstKib := 1179) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskBinaryExtensionJBR
     (aliBits := 182) (deepBits := 161)
     (lookupBits := [166, 164, 166, 169])
     (rowBits := [133, 138, 141, 144, 147, 150, 153, 128, 182, 161, 166, 164, 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 777) (proofSizeWorstKib := 1179) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Add256 -/
 
@@ -2069,12 +1919,6 @@ def ziskAdd256DeepAli : DeepAliCfg where
   lookups        := [ziskAdd256LookupGsum5000, ziskAdd256PermutationGsum10, ziskAdd256RangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskAdd256DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskAdd256JBR) :
-    ziskAdd256DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Add256: 816 KiB (expected) / 1165 KiB (worst case).
 example : ziskAdd256DeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 169)
@@ -2082,14 +1926,14 @@ example : ziskAdd256DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 173, 176, 179, 182, 185, 111, 186, 169, 168, 165, 167])
     (totalBits := 111)
     (proofSizeExpKib := 816) (proofSizeWorstKib := 1165) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskAdd256DeepAli.ExitCriteria ziskAdd256JBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 165, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 128, 179, 162, 168, 165, 167])
     (totalBits := 128)
     (proofSizeExpKib := 816) (proofSizeWorstKib := 1165) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq -/
 
@@ -2151,12 +1995,6 @@ def ziskArithEqDeepAli : DeepAliCfg where
                      ziskArithEqRangeCheckGsum108]
   h_lookups_field := by native_decide
 
-theorem ziskArithEqDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEqJBR) :
-    ziskArithEqDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq: 2994 KiB (expected) / 3346 KiB (worst case).
 example : ziskArithEqDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 169)
@@ -2165,7 +2003,7 @@ example : ziskArithEqDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 2994) (proofSizeWorstKib := 3346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
     (aliBits := 178) (deepBits := 163)
     (lookupBits := [168, 169, 168, 170, 169, 169])
@@ -2173,7 +2011,7 @@ example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 2994) (proofSizeWorstKib := 3346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq384 -/
 
@@ -2235,12 +2073,6 @@ def ziskArithEq384DeepAli : DeepAliCfg where
                      ziskArithEq384RangeCheckGsum108]
   h_lookups_field := by native_decide
 
-theorem ziskArithEq384DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEq384JBR) :
-    ziskArithEq384DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq384: 3366 KiB (expected) / 3720 KiB (worst case).
 example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 169)
@@ -2249,7 +2081,7 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 112)
     (proofSizeExpKib := 3366) (proofSizeWorstKib := 3720) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
     (aliBits := 179) (deepBits := 163)
     (lookupBits := [168, 169, 168, 170, 169, 169])
@@ -2257,7 +2089,7 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 3366) (proofSizeWorstKib := 3720) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Keccakf -/
 
@@ -2302,12 +2134,6 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   lookups        := [ziskKeccakfLookupGsum126, ziskKeccakfLookupGsum5000, ziskKeccakfPermutationGsum10]
   h_lookups_field := by native_decide
 
-theorem ziskKeccakfDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskKeccakfJBR) :
-    ziskKeccakfDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Keccakf: 20975 KiB (expected) / 21244 KiB (worst case).
 example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
     (aliBits := 180) (deepBits := 172)
@@ -2315,14 +2141,14 @@ example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 176, 179, 182, 185, 113, 180, 172, 163, 171, 167])
     (totalBits := 113)
     (proofSizeExpKib := 20975) (proofSizeWorstKib := 21244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskKeccakfDeepAli.ExitCriteria ziskKeccakfJBR
     (aliBits := 174) (deepBits := 166)
     (lookupBits := [163, 171, 167])
     (rowBits := [132, 145, 148, 151, 154, 128, 174, 166, 163, 171, 167])
     (totalBits := 128)
     (proofSizeExpKib := 20975) (proofSizeWorstKib := 21244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Sha256f -/
 
@@ -2367,12 +2193,6 @@ def ziskSha256fDeepAli : DeepAliCfg where
   lookups        := [ziskSha256fLookupGsum5000, ziskSha256fPermutationGsum10, ziskSha256fRangeCheckGsum109]
   h_lookups_field := by native_decide
 
-theorem ziskSha256fDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSha256fJBR) :
-    ziskSha256fDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Sha256f: 7215 KiB (expected) / 7549 KiB (worst case).
 example : ziskSha256fDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 171)
@@ -2380,14 +2200,14 @@ example : ziskSha256fDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 175, 178, 181, 184, 187, 111, 185, 171, 170, 171, 172])
     (totalBits := 111)
     (proofSizeExpKib := 7215) (proofSizeWorstKib := 7549) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSha256fDeepAli.ExitCriteria ziskSha256fJBR
     (aliBits := 178) (deepBits := 165)
     (lookupBits := [170, 171, 172])
     (rowBits := [132, 143, 146, 149, 152, 155, 128, 178, 165, 170, 171, 172])
     (totalBits := 128)
     (proofSizeExpKib := 7215) (proofSizeWorstKib := 7549) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Poseidon2 -/
 
@@ -2428,12 +2248,6 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   lookups        := [ziskPoseidon2LookupGsum5000, ziskPoseidon2PermutationGsum10]
   h_lookups_field := by native_decide
 
-theorem ziskPoseidon2DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskPoseidon2JBR) :
-    ziskPoseidon2DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Poseidon2: 682 KiB (expected) / 832 KiB (worst case).
 example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 172)
@@ -2441,14 +2255,14 @@ example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 174, 177, 180, 183, 186, 93, 185, 172, 171, 170])
     (totalBits := 93)
     (proofSizeExpKib := 682) (proofSizeWorstKib := 832) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskPoseidon2DeepAli.ExitCriteria ziskPoseidon2JBR
     (aliBits := 177) (deepBits := 164)
     (lookupBits := [171, 170])
     (rowBits := [133, 140, 143, 146, 149, 153, 128, 177, 164, 171, 170])
     (totalBits := 128)
     (proofSizeExpKib := 682) (proofSizeWorstKib := 832) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Blake2br -/
 
@@ -2497,12 +2311,6 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   lookups        := [ziskBlake2brLookupGsum5000, ziskBlake2brPermutationGsum10, ziskBlake2brPermutationGsum127, ziskBlake2brRangeCheckGsum103]
   h_lookups_field := by native_decide
 
-theorem ziskBlake2brDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBlake2brJBR) :
-    ziskBlake2brDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Blake2br: 3874 KiB (expected) / 4207 KiB (worst case).
 example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -2510,14 +2318,14 @@ example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 175, 178, 181, 184, 187, 111, 184, 171, 170, 169, 171, 170])
     (totalBits := 111)
     (proofSizeExpKib := 3874) (proofSizeWorstKib := 4207) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBlake2brDeepAli.ExitCriteria ziskBlake2brJBR
     (aliBits := 177) (deepBits := 165)
     (lookupBits := [170, 169, 171, 170])
     (rowBits := [133, 142, 145, 148, 151, 155, 128, 177, 165, 170, 169, 171, 170])
     (totalBits := 128)
     (proofSizeExpKib := 3874) (proofSizeWorstKib := 4207) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## SpecifiedRanges -/
 
@@ -2579,12 +2387,6 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
                      ziskSpecifiedRangesLookupGsum108]
   h_lookups_field := by native_decide
 
-theorem ziskSpecifiedRangesDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSpecifiedRangesJBR) :
-    ziskSpecifiedRangesDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- SpecifiedRanges: 1020 KiB (expected) / 1369 KiB (worst case).
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 169)
@@ -2593,7 +2395,7 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
                 171])
     (totalBits := 111)
     (proofSizeExpKib := 1020) (proofSizeWorstKib := 1369) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
     (aliBits := 180) (deepBits := 162)
     (lookupBits := [171, 171, 171, 171, 171, 171])
@@ -2601,7 +2403,7 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
                 171])
     (totalBits := 128)
     (proofSizeExpKib := 1020) (proofSizeWorstKib := 1369) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## VirtualTable0 -/
 
@@ -2663,12 +2465,6 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
                      ziskVirtualTable0LookupGsum5002_88_77_8003_126]
   h_lookups_field := by native_decide
 
-theorem ziskVirtualTable0DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskVirtualTable0JBR) :
-    ziskVirtualTable0DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- VirtualTable0: 875 KiB (expected) / 1270 KiB (worst case).
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
     (aliBits := 189) (deepBits := 168)
@@ -2677,7 +2473,7 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
                 169, 168])
     (totalBits := 111)
     (proofSizeExpKib := 875) (proofSizeWorstKib := 1270) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
     (aliBits := 182) (deepBits := 162)
     (lookupBits := [168, 168, 168, 168, 169, 168])
@@ -2685,7 +2481,7 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
                 169, 168])
     (totalBits := 128)
     (proofSizeExpKib := 875) (proofSizeWorstKib := 1270) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## VirtualTable1 -/
 
@@ -2722,12 +2518,6 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   lookups        := [ziskVirtualTable1LookupGsum5000]
   h_lookups_field := by native_decide
 
-theorem ziskVirtualTable1DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskVirtualTable1JBR) :
-    ziskVirtualTable1DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- VirtualTable1: 989 KiB (expected) / 1384 KiB (worst case).
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
     (aliBits := 189) (deepBits := 168)
@@ -2735,14 +2525,14 @@ example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 172, 175, 178, 181, 184, 187, 111, 189, 168, 167])
     (totalBits := 111)
     (proofSizeExpKib := 989) (proofSizeWorstKib := 1384) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskVirtualTable1JBR
     (aliBits := 182) (deepBits := 162)
     (lookupBits := [167])
     (rowBits := [133, 139, 142, 145, 148, 151, 155, 128, 182, 162, 167])
     (totalBits := 128)
     (proofSizeExpKib := 989) (proofSizeWorstKib := 1384) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePost-compressor -/
 
@@ -2779,12 +2569,6 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   lookups        := [ziskDmaPrePostCompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskDmaPrePostCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostCompressorJBR) :
-    ziskDmaPrePostCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePost-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -2792,14 +2576,14 @@ example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskDmaPrePostCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq-compressor -/
 
@@ -2836,12 +2620,6 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   lookups        := [ziskArithEqCompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskArithEqCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEqCompressorJBR) :
-    ziskArithEqCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -2849,14 +2627,14 @@ example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskArithEqCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq384-compressor -/
 
@@ -2893,12 +2671,6 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   lookups        := [ziskArithEq384CompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskArithEq384CompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEq384CompressorJBR) :
-    ziskArithEq384CompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq384-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -2906,14 +2678,14 @@ example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskArithEq384CompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Keccakf-compressor -/
 
@@ -2950,12 +2722,6 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   lookups        := [ziskKeccakfCompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskKeccakfCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskKeccakfCompressorJBR) :
-    ziskKeccakfCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Keccakf-compressor: 771 KiB (expected) / 940 KiB (worst case).
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 169)
@@ -2963,14 +2729,14 @@ example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [163, 171, 174, 177, 180, 183, 186, 94, 184, 169, 164])
     (totalBits := 94)
     (proofSizeExpKib := 771) (proofSizeWorstKib := 940) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskKeccakfCompressorJBR
     (aliBits := 177) (deepBits := 162)
     (lookupBits := [164])
     (rowBits := [133, 141, 144, 147, 150, 153, 156, 128, 177, 162, 164])
     (totalBits := 128)
     (proofSizeExpKib := 771) (proofSizeWorstKib := 940) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Sha256f-compressor -/
 
@@ -3007,12 +2773,6 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   lookups        := [ziskSha256fCompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskSha256fCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSha256fCompressorJBR) :
-    ziskSha256fCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Sha256f-compressor: 743 KiB (expected) / 892 KiB (worst case).
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 170)
@@ -3020,14 +2780,14 @@ example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 172, 175, 178, 181, 184, 94, 184, 170, 165])
     (totalBits := 94)
     (proofSizeExpKib := 743) (proofSizeWorstKib := 892) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskSha256fCompressorJBR
     (aliBits := 176) (deepBits := 162)
     (lookupBits := [165])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 162, 165])
     (totalBits := 128)
     (proofSizeExpKib := 743) (proofSizeWorstKib := 892) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Blake2br-compressor -/
 
@@ -3064,12 +2824,6 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   lookups        := [ziskBlake2brCompressorConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskBlake2brCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBlake2brCompressorJBR) :
-    ziskBlake2brCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Blake2br-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -3077,14 +2831,14 @@ example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskBlake2brCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Recursive2 -/
 
@@ -3121,12 +2875,6 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   lookups        := [ziskRecursive2ConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskRecursive2DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRecursive2JBR) :
-    ziskRecursive2DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Recursive2: 398 KiB (expected) / 487 KiB (worst case).
 example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -3134,14 +2882,14 @@ example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 173, 176, 179, 182, 185, 80, 184, 171, 168])
     (totalBits := 80)
     (proofSizeExpKib := 398) (proofSizeWorstKib := 487) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRecursive2DeepAli.ExitCriteria ziskRecursive2JBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [168])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 168])
     (totalBits := 128)
     (proofSizeExpKib := 398) (proofSizeWorstKib := 487) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Final -/
 
@@ -3178,12 +2926,6 @@ def ziskFinalDeepAli : DeepAliCfg where
   lookups        := [ziskFinalConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskFinalDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskFinalJBR) :
-    ziskFinalDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Final: 253 KiB (expected) / 292 KiB (worst case).
 example : ziskFinalDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 172)
@@ -3191,14 +2933,14 @@ example : ziskFinalDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 172, 176, 180, 184, 63, 184, 172, 169])
     (totalBits := 63)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskFinalDeepAli.ExitCriteria ziskFinalJBR
     (aliBits := 175) (deepBits := 163)
     (lookupBits := [169])
     (rowBits := [133, 140, 144, 148, 152, 128, 175, 163, 169])
     (totalBits := 128)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Final_Compressed -/
 
@@ -3235,12 +2977,6 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   lookups        := [ziskFinalCompressedConnectionGprod1]
   h_lookups_field := by native_decide
 
-theorem ziskFinalCompressedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskFinalCompressedJBR) :
-    ziskFinalCompressedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Final_Compressed: 269 KiB (expected) / 313 KiB (worst case).
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 173)
@@ -3248,13 +2984,13 @@ example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 174, 177, 180, 71, 184, 173, 170])
     (totalBits := 71)
     (proofSizeExpKib := 269) (proofSizeWorstKib := 313) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskFinalCompressedJBR
     (aliBits := 175) (deepBits := 164)
     (lookupBits := [170])
     (rowBits := [134, 141, 144, 147, 128, 175, 164, 170])
     (totalBits := 128)
     (proofSizeExpKib := 269) (proofSizeWorstKib := 313) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 end Soundcalc

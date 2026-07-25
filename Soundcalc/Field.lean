@@ -73,20 +73,18 @@ def koalaBear4 : FieldParams where
 example : koalaBear4.card = (2 ^ 31 - 2 ^ 24 + 1) ^ 4 := by
   unfold FieldParams.card koalaBear4; norm_num
 
-/-- Reusable pattern for evaluating `Nat.clog` without `decide`/`native_decide`
-(it is well-founded recursion, so it does not reduce in the kernel): bound it
-both ways via the characterization lemmas, then `omega`. -/
+/-- Evaluate `Nat.clog 2 n` (well-founded recursion, so it does not reduce in the
+kernel) by sandwiching it between consecutive powers of two — `2^(k-1) < n ≤ 2^k`.
+Shared by the `*_baseBits` theorems below; each supplies the two bounds by `norm_num`. -/
+private theorem clog_two_eq {n k : ℕ} (hlo : 2 ^ (k - 1) < n) (hhi : n ≤ 2 ^ k) :
+    Nat.clog 2 n = k := by
+  have hle : Nat.clog 2 n ≤ k := (Nat.clog_le_iff_le_pow (b := 2) one_lt_two).mpr hhi
+  have hlt : k - 1 < Nat.clog 2 n := (Nat.lt_clog_iff_pow_lt (b := 2) one_lt_two).mpr hlo
+  omega
+
 theorem koalaBear4_baseBits : koalaBear4.baseElementSizeBits = 31 := by
   show Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) = 31
-  have hle : Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow]
-    norm_num
-    norm_num
-  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt]
-    norm_num
-    norm_num
-  omega
+  refine clog_two_eq ?_ ?_ <;> norm_num
 
 /-- An extension-field element of KoalaBear⁴ is 124 bits (`31 · 4`). -/
 theorem koalaBear4_elementBits : koalaBear4.elementSizeBits = 124 := by
@@ -110,11 +108,7 @@ example : mersenne31_4.card = (2 ^ 31 - 1) ^ 4 := by
 /-- An M31⁴ element is 124 bits (`31 · 4`) — same sandwich proof as `koalaBear4_baseBits`. -/
 theorem mersenne31_4_baseBits : mersenne31_4.baseElementSizeBits = 31 := by
   show Nat.clog 2 (2 ^ 31 - 1) = 31
-  have hle : Nat.clog 2 (2 ^ 31 - 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow] <;> norm_num
-  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 1) := by
-    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
-  omega
+  refine clog_two_eq ?_ ?_ <;> norm_num
 
 theorem mersenne31_4_elementBits : mersenne31_4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, mersenne31_4_baseBits]; rfl
@@ -136,11 +130,7 @@ example : babyBear4.card = (2 ^ 31 - 2 ^ 27 + 1) ^ 4 := by
 
 theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 := by
   show Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) = 31
-  have hle : Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow] <;> norm_num
-  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
-  omega
+  refine clog_two_eq ?_ ?_ <;> norm_num
 
 theorem babyBear4_elementBits : babyBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, babyBear4_baseBits]; rfl
@@ -266,11 +256,7 @@ example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := by
 
 theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 := by
   show Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) = 64
-  have hle : Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) ≤ 64 := by
-    rw [Nat.clog_le_iff_le_pow] <;> norm_num
-  have hlt : 63 < Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
-  omega
+  refine clog_two_eq ?_ ?_ <;> norm_num
 
 theorem goldilocks3_elementBits : goldilocks3.elementSizeBits = 192 := by
   rw [FieldParams.elementSizeBits, goldilocks3_baseBits]; rfl

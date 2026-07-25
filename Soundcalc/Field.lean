@@ -70,8 +70,7 @@ def koalaBear4 : FieldParams where
 /-! ## S2 exit criteria (all kernel-checked, no `sorry`, no `native_decide`) -/
 
 /-- `|F|` matches the Python `field.F` for SP1 core. -/
-example : koalaBear4.card = (2 ^ 31 - 2 ^ 24 + 1) ^ 4 := by
-  unfold FieldParams.card koalaBear4; norm_num
+example : koalaBear4.card = (2 ^ 31 - 2 ^ 24 + 1) ^ 4 := rfl
 
 /-- Evaluate `Nat.clog 2 n` (well-founded recursion, so it does not reduce in the
 kernel) by sandwiching it between consecutive powers of two — `2^(k-1) < n ≤ 2^k`.
@@ -102,8 +101,7 @@ def mersenne31_4 : FieldParams where
   twoAdicity_spec := by decide
 
 /-- `|F|` matches the Python `M31_4.F`. -/
-example : mersenne31_4.card = (2 ^ 31 - 1) ^ 4 := by
-  unfold FieldParams.card mersenne31_4; norm_num
+example : mersenne31_4.card = (2 ^ 31 - 1) ^ 4 := rfl
 
 /-- An M31⁴ element is 124 bits (`31 · 4`) — same sandwich proof as `koalaBear4_baseBits`. -/
 theorem mersenne31_4_baseBits : mersenne31_4.baseElementSizeBits = 31 := by
@@ -125,8 +123,7 @@ def babyBear4 : FieldParams where
   twoAdicity_spec := by decide
 
 /-- `|F|` matches the Python `BABYBEAR_4.F`. -/
-example : babyBear4.card = (2 ^ 31 - 2 ^ 27 + 1) ^ 4 := by
-  unfold FieldParams.card babyBear4; norm_num
+example : babyBear4.card = (2 ^ 31 - 2 ^ 27 + 1) ^ 4 := rfl
 
 theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 := by
   show Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) = 31
@@ -251,8 +248,7 @@ def goldilocks3 : FieldParams where
   twoAdicity_spec := by decide
 
 /-- `|F|` matches the Python `GOLDILOCKS_3.F`. -/
-example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := by
-  unfold FieldParams.card goldilocks3; norm_num
+example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := rfl
 
 theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 := by
   show Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) = 64

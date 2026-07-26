@@ -23,11 +23,9 @@ travels as a *proof* and every size is an exact `ℕ` — no floats.
 -/
 
 /-
-* Goldilocks (`goldilocks3`, below) is certified via `native_decide`, matching the
-  discipline already used throughout the zkVM cell/total theorems (Airbender, Pico,
-  …). A kernel-checked `lucas_primality` Pratt certificate — avoiding `native_decide`
-  entirely — remains desirable for the larger BN254-scale primes and is left for
-  later in the roadmap.
+* Goldilocks (`goldilocks3`, below) is certified by a kernel-checked `lucas_primality`
+  Pratt certificate — no `native_decide` — see the `Goldilocks` namespace at the end of
+  this file. The larger BN254-scale primes are left for later in the roadmap.
 -/
 
 namespace Soundcalc
@@ -147,20 +145,118 @@ theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 := by
 theorem babyBear4_elementBits : babyBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, babyBear4_baseBits]; rfl
 
-/-! ## Goldilocks -/
+/-! ## Goldilocks
+
+The 64-bit prime `p = 2^64 - 2^32 + 1` is out of reach for kernel `decide`/`norm_num` (trial
+division to √p ≈ 2^32), and we avoid `native_decide`. The `Goldilocks` namespace below proves
+primality with a **Pratt certificate** (`lucas_primality`, primitive root 7,
+`p - 1 = 2^32 · 3 · 5 · 17 · 257 · 65537`): each modular exponentiation is discharged by
+`decide` over `modPow`, a square-and-multiply *structural in an explicit `fuel`* so the kernel
+reduces it in `O(fuel)` steps. Kernel-checked, `native_decide`-free. -/
+
+namespace Goldilocks
+
+/-- Modular exponentiation `base ^ e % m` by square-and-multiply, with an explicit `fuel`
+    bound. Recursion is structural in `fuel`, so the kernel evaluates it in `O(fuel)` steps
+    (unlike well-founded recursion on `e`, which does not reduce in the kernel). -/
+def modPow (m : ℕ) : (fuel base e : ℕ) → ℕ
+  | 0,        _,    _ => 1 % m
+  | fuel + 1, base, e =>
+    if e = 0 then 1 % m
+    else if e % 2 = 1 then modPow m fuel (base * base % m) (e / 2) * base % m
+    else modPow m fuel (base * base % m) (e / 2)
+
+/-- `modPow` computes `base ^ e % m`, provided `fuel` is a large enough bit budget. -/
+theorem modPow_eq (m : ℕ) :
+    ∀ (fuel base e : ℕ), e < 2 ^ fuel → modPow m fuel base e = base ^ e % m := by
+  intro fuel
+  induction fuel with
+  | zero =>
+    intro base e he
+    rw [pow_zero] at he
+    have : e = 0 := by omega
+    subst this
+    simp [modPow]
+  | succ fuel ih =>
+    intro base e he
+    rw [modPow]
+    by_cases he0 : e = 0
+    · subst he0; simp
+    · rw [if_neg he0]
+      have hhalf : e / 2 < 2 ^ fuel := by rw [pow_succ] at he; omega
+      have hr : modPow m fuel (base * base % m) (e / 2) = (base * base % m) ^ (e / 2) % m :=
+        ih (base * base % m) (e / 2) hhalf
+      have hsq : (base * base % m) ^ (e / 2) % m = base ^ (2 * (e / 2)) % m := by
+        have hmm : base * base % m ≡ base ^ 2 [MOD m] := by
+          rw [pow_two]; exact Nat.mod_modEq _ _
+        calc (base * base % m) ^ (e / 2) % m
+            = (base ^ 2) ^ (e / 2) % m := hmm.pow _
+          _ = base ^ (2 * (e / 2)) % m := by rw [← pow_mul]
+      by_cases hpar : e % 2 = 1
+      · rw [if_pos hpar, hr, hsq]
+        calc base ^ (2 * (e / 2)) % m * base % m
+            = base ^ (2 * (e / 2)) * base % m := (Nat.mod_modEq _ m).mul_right base
+          _ = base ^ (2 * (e / 2) + 1) % m := by rw [pow_succ]
+          _ = base ^ e % m := by rw [show 2 * (e / 2) + 1 = e from by omega]
+      · rw [if_neg hpar, hr, hsq, show 2 * (e / 2) = e from by omega]
+
+/-- Bridge: `(7 : ZMod m) ^ E = ↑(modPow m 64 7 E)` for any `E < 2^64`. -/
+private theorem zmod_pow_eq (m E : ℕ) (hE : E < 2 ^ 64) :
+    (7 : ZMod m) ^ E = ((modPow m 64 7 E : ℕ) : ZMod m) := by
+  rw [modPow_eq m 64 7 E hE, ZMod.natCast_mod]
+  push_cast
+  ring
+
+set_option maxRecDepth 4000 in
+set_option maxHeartbeats 800000 in
+/-- The Goldilocks prime, via a kernel-checked Pratt certificate (`a = 7`,
+    `p - 1 = 2^32 · 3 · 5 · 17 · 257 · 65537`). -/
+theorem goldilocks_prime : Nat.Prime (2 ^ 64 - 2 ^ 32 + 1) := by
+  refine lucas_primality (2 ^ 64 - 2 ^ 32 + 1) (7 : ZMod (2 ^ 64 - 2 ^ 32 + 1)) ?_ ?_
+  · -- 7 ^ (p-1) = 1
+    rw [zmod_pow_eq _ _ (by norm_num),
+        show modPow (2 ^ 64 - 2 ^ 32 + 1) 64 7 (2 ^ 64 - 2 ^ 32 + 1 - 1) = 1 from by decide]
+    exact Nat.cast_one
+  · -- ∀ prime q ∣ p-1, 7 ^ ((p-1)/q) ≠ 1
+    intro q hq hqd
+    have hfact : 2 ^ 64 - 2 ^ 32 + 1 - 1 = 2 ^ 32 * 3 * 5 * 17 * 257 * 65537 := by norm_num
+    rw [hfact] at hqd
+    -- reduce a `≠ 1` goal to a `decide`-able `modPow` residue fact
+    have hne : ∀ E : ℕ, E < 2 ^ 64 →
+        modPow (2 ^ 64 - 2 ^ 32 + 1) 64 7 E % (2 ^ 64 - 2 ^ 32 + 1) ≠ 1 % (2 ^ 64 - 2 ^ 32 + 1) →
+        (7 : ZMod (2 ^ 64 - 2 ^ 32 + 1)) ^ E ≠ 1 := by
+      intro E hE hmod hc
+      rw [zmod_pow_eq _ _ hE,
+          show (1 : ZMod (2 ^ 64 - 2 ^ 32 + 1)) = ((1 : ℕ) : ZMod (2 ^ 64 - 2 ^ 32 + 1)) from
+            (Nat.cast_one).symm,
+          ZMod.natCast_eq_natCast_iff] at hc
+      exact hmod hc
+    rcases hq.dvd_mul.mp hqd with h | h65537
+    rcases hq.dvd_mul.mp h with h | h257
+    rcases hq.dvd_mul.mp h with h | h17
+    rcases hq.dvd_mul.mp h with h | h5
+    rcases hq.dvd_mul.mp h with h2 | h3
+    · rw [(Nat.prime_dvd_prime_iff_eq hq Nat.prime_two).mp (hq.dvd_of_dvd_pow h2)]
+      exact hne _ (by norm_num) (by decide)
+    · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h3]
+      exact hne _ (by norm_num) (by decide)
+    · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h5]
+      exact hne _ (by norm_num) (by decide)
+    · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h17]
+      exact hne _ (by norm_num) (by decide)
+    · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h257]
+      exact hne _ (by norm_num) (by decide)
+    · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h65537]
+      exact hne _ (by norm_num) (by decide)
+
+end Goldilocks
 
 /-- Goldilocks, `p = 2^64 - 2^32 + 1`; ZisK uses its degree-3 extension. -/
 def goldilocks3 : FieldParams where
   p               := 2 ^ 64 - 2 ^ 32 + 1
   e               := 3
   twoAdicity      := 32
-  -- TODO(primality): the 64-bit prime is the one expensive obligation. `decide`/`norm_num`
-  -- do trial division to √p ≈ 2^32 *in the kernel* (infeasible); `native_decide` runs the
-  -- compiled minFac check (`@[csimp] Nat.decidablePrime'`) in seconds but overshoots the
-  -- default 200000-heartbeat *elaboration* budget. Stubbed with `sorry` for now while the
-  -- ZisK cells are validated; replace with `set_option maxHeartbeats 1000000 in` +
-  -- `native_decide`, or a kernel-clean `lucas_primality` Pratt certificate.
-  prime           := sorry
+  prime           := Goldilocks.goldilocks_prime   -- kernel-clean Pratt cert (`Goldilocks` above)
   epos            := by decide
   twoAdicity_spec := by decide
 

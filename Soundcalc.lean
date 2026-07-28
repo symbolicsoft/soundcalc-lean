@@ -1,8 +1,10 @@
 import Soundcalc.SecBits
 import Soundcalc.Regime
 import Soundcalc.PCS.FRI
-import Soundcalc.Circuit.Jagged
+import Soundcalc.Circuit.CircuitVM
 import Soundcalc.Circuit.DeepAli
+import Soundcalc.Circuit.GenericCircuit
+import Soundcalc.Circuit.Jagged
 import Soundcalc.Field
 import Soundcalc.Lookup
 import Soundcalc.Common.Utils

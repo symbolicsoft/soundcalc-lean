@@ -191,6 +191,8 @@ def sp1CoreJagged : JaggedCfg where
   numConstraints := 3412
   airMaxDegree   := 3
   lookups        := [sp1CoreLookup]
+  isUDR          := true
+  isJBR          := false
 
 /-!
 Exit criteria: `secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
@@ -226,6 +228,8 @@ def sp1CompressJagged : JaggedCfg where
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [sp1CompressLookup]
+  isUDR           := true
+  isJBR           := false
 
 def sp1ShrinkJagged : JaggedCfg where
   name            := "shrink"
@@ -237,6 +241,8 @@ def sp1ShrinkJagged : JaggedCfg where
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [sp1ShrinkLookup]
+  isUDR          := true
+  isJBR          := false
 
 -- core: 918 KiB (expected) / 1479 KiB (worst case)
 example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide
@@ -250,15 +256,17 @@ example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
 
 /-! ## SP1 (all circuits)
 
-Bundles all of SP1's circuits into the generic `JaggedVM` (`Soundcalc.ZkVM`). Each
+Bundles all of SP1's circuits into the generic `ZkVM` (`Soundcalc.ZkVM`). Each
 `JaggedCfg` already enforces its own FRI/lookup field consistency
-(`h_densePCS_field`/`h_lookups_field`); `JaggedVM.h_circuits_field` additionally
+(`h_densePCS_field`/`h_lookups_field`); `ZkVM.h_circuits_field` additionally
 enforces that every circuit agrees with the zkVM's own `field`. Metadata from
 `soundcalc/zkvms/sp1/sp1.toml`'s `[zkevm]` section. -/
-def sp1 : JaggedVM where
+def sp1 : ZkVM where
   name         := "SP1"
   field        := koalaBear4
   version      := "6.1.0"
-  circuits     := [sp1CoreJagged, sp1CompressJagged, sp1ShrinkJagged]
+  circuits     := [.jagged sp1CoreJagged,
+                   .jagged sp1CompressJagged,
+                   .jagged sp1ShrinkJagged]
 
 end Soundcalc

@@ -110,6 +110,8 @@ def openvmAppDeepAli : DeepAliCfg where
   airMaxDegree   := 3
   maxCombo       := 2
   grindDeep      := 5
+  isUDR          := true
+  isJBR          := true
 
 def openvmLeafDeepAli : DeepAliCfg where
   name           := "leaf"
@@ -120,6 +122,8 @@ def openvmLeafDeepAli : DeepAliCfg where
   airMaxDegree   := 3
   maxCombo       := 2
   grindDeep      := 5
+  isUDR          := true
+  isJBR          := true
 
 def openvmInternalDeepAli : DeepAliCfg where
   name           := "internal"
@@ -131,6 +135,8 @@ def openvmInternalDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 5
   lookups        := [openvmInternalLookup]
+  isUDR          := true
+  isJBR          := true
 
 /-- OpenVM's `app`/`leaf`/`internal` circuits satisfy the DEEP-ALI multi-point
     side condition (`DeepAliCfg.multiPointOk`) in both regimes. -/

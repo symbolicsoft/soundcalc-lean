@@ -210,7 +210,7 @@ def main (args: List String): IO Unit := do
   let sp1TomlFile := args.getD 0 "./SoundcalcIO/ZkVM/Ref/sp1.toml"
   let sp1LeanFile := args.getD 1 "./SoundcalcIO/ZkVM/SP1.lean"
 
-  let jaggedVM ← tomlToJaggedVM sp1TomlFile
+  let zkVM ← tomlToZkVM sp1TomlFile
 
   /- Incremental contents of `SP1.lean`.
      We overwrite the file only if the parsing succeeds. -/
@@ -220,113 +220,118 @@ def main (args: List String): IO Unit := do
   /-
     We iterate over all the [[circuits]], collecting the lean
     variables we parse along the way. These variables will
-    be collected in the final `jaggedVM` Lean structure.
+    be collected in the final `zkVM` Lean structure.
   -/
   let mut jaggedcfg_lean_vars : List String := []
 
-  for jaggedcfg in jaggedVM.circuits do
-    /-
-      We iterate over all the [[circuit.lookups]], collecting the
-      lean variables along the way. These variables will be
-      collected in the final `JaggedCfg` Lean structure.
-    -/
-    let mut lookupcfg_lean_vars : List String := []
+  for circ in zkVM.circuits do
+    match circ with
+    | .jagged jcirc =>
+      /-
+        We iterate over all the [[circuit.lookups]], collecting the
+        lean variables along the way. These variables will be
+        collected in the final `JaggedCfg` Lean structure.
+      -/
+      let mut lookupcfg_lean_vars : List String := []
 
-    for lookupcfg in jaggedcfg.lookups do
-      let lookupcfg_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_{lookupcfg.name}_lookup"
+      for lookupcfg in jcirc.lookups do
+        let lookupcfg_lean_var := s!"{zkVM.name}_{jcirc.name}_{lookupcfg.name}_lookup"
+
+        /- We retrieve the variable name associated with the field
+          specified within `lookupcfg.field` from the map
+          `mapFieldParamsToVarname`. -/
+        let lookupcfg_field_leanvar ← orExit (
+          fieldParamsToVarname
+          mapFieldParamsToVarname
+          lookupcfg.field
+        )
+
+        outStr := outStr ++
+          s!"/- ZkVM `{zkVM.name}` | Circuit `{jcirc.name}` | Lookup `{lookupcfg.name}` -/\n" ++
+          s!"\n" ++
+          s!"def {lookupcfg_lean_var} : LookupCfg where\n" ++
+          s!"  name            := \"{lookupcfg.name}\"\n" ++
+          s!"  field           := {lookupcfg_field_leanvar}\n" ++
+          s!"  isLogUpMultivar := {lookupcfg.isLogUpMultivar}\n" ++
+          s!"  rowsL           := {lookupcfg.rowsL}\n" ++
+          s!"  rowsT           := {lookupcfg.rowsT}\n" ++
+          s!"  numColumnsS     := {lookupcfg.numColumnsS}\n" ++
+          s!"  numLookupsM     := {lookupcfg.numLookupsM}\n" ++
+          s!"  grindBitsLookup := {lookupcfg.grindBitsLookup}\n" ++
+          s!"\n"
+
+        /- Collecting `LookupCfg` Lean variables in a list. -/
+        lookupcfg_lean_vars := lookupcfg_lean_vars.concat lookupcfg_lean_var
+
+      let friconfig_lean_var := s!"{zkVM.name}_{jcirc.name}_FRI"
 
       /- We retrieve the variable name associated with the field
-        specified within `lookupcfg.field` from the map
-        `mapFieldParamsToVarname`. -/
-      let lookupcfg_field_leanvar ← orExit (
+      specified within `jaggedcfg.densePCS.field` from the map
+      `mapFieldParamsToVarname`. -/
+      let friconfig_field_leanvar ← orExit (
         fieldParamsToVarname
         mapFieldParamsToVarname
-        lookupcfg.field
+        jcirc.densePCS.field
       )
 
       outStr := outStr ++
-        s!"/- ZkVM `{jaggedVM.name}` | Circuit `{jaggedcfg.name}` | Lookup `{lookupcfg.name}` -/\n" ++
+        s!"/- ZkVM `{zkVM.name}` | Circuit `{jcirc.name}` -/\n" ++
         s!"\n" ++
-        s!"def {lookupcfg_lean_var} : LookupCfg where\n" ++
-        s!"  name            := \"{lookupcfg.name}\"\n" ++
-        s!"  field           := {lookupcfg_field_leanvar}\n" ++
-        s!"  isLogUpMultivar := {lookupcfg.isLogUpMultivar}\n" ++
-        s!"  rowsL           := {lookupcfg.rowsL}\n" ++
-        s!"  rowsT           := {lookupcfg.rowsT}\n" ++
-        s!"  numColumnsS     := {lookupcfg.numColumnsS}\n" ++
-        s!"  numLookupsM     := {lookupcfg.numLookupsM}\n" ++
-        s!"  grindBitsLookup := {lookupcfg.grindBitsLookup}\n" ++
+        s!"def {friconfig_lean_var} : FRIConfig where\n" ++
+        s!"  hashBits        := {jcirc.densePCS.hashBits}\n" ++
+        s!"  ρ               := ⟨{jcirc.densePCS.ρ}, by norm_num⟩\n" ++
+        s!"  traceLen        := {jcirc.traceLength}\n" ++ -- **TODO** collapse or remove in FRIConfig?
+        s!"  field           := {friconfig_field_leanvar}\n" ++
+        s!"  denseLen        := {jcirc.densePCS.denseLen}\n" ++
+        s!"  batchSize       := {jcirc.densePCS.batchSize}\n" ++
+        s!"  powerBatch      := {jcirc.densePCS.powerBatch}\n" ++
+        s!"  multilinBatch   := {jcirc.densePCS.multilinBatch}\n" ++
+        s!"  numQueries      := {jcirc.densePCS.numQueries}\n" ++
+        s!"  foldingFactors  := {jcirc.densePCS.foldingFactors}\n" ++
+        s!"  earlyStopDeg    := {jcirc.densePCS.earlyStopDeg}\n" ++
+        s!"  grindQuery      := {jcirc.densePCS.grindQuery}\n" ++
+        s!"  grindBatch      := {jcirc.densePCS.grindBatch}\n" ++
         s!"\n"
 
-      /- Collecting `LookupCfg` Lean variables in a list. -/
-      lookupcfg_lean_vars := lookupcfg_lean_vars.concat lookupcfg_lean_var
+      let jaggedcfg_lean_var := s!"{zkVM.name}_{jcirc.name}_jagged"
 
-    let friconfig_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_FRI"
+      /- We retrieve the variable name associated with the field
+      specified within `jaggedcfg.field` from the map
+      `mapFieldParamsToVarname`. -/
+      let jaggedcfg_field_leanvar ← orExit (
+        fieldParamsToVarname
+        mapFieldParamsToVarname
+        jcirc.field
+      )
 
-    /- We retrieve the variable name associated with the field
-    specified within `jaggedcfg.densePCS.field` from the map
-    `mapFieldParamsToVarname`. -/
-    let friconfig_field_leanvar ← orExit (
-      fieldParamsToVarname
-      mapFieldParamsToVarname
-      jaggedcfg.densePCS.field
-    )
+      outStr := outStr ++
+      s!"def {jaggedcfg_lean_var} : JaggedCfg where\n" ++
+        s!"  name            := \"{jcirc.name}\"\n" ++
+        s!"  field           := {jaggedcfg_field_leanvar}\n" ++
+        s!"  proofSystName   := \"{jcirc.proofSystName}\"\n" ++
+        s!"  densePCS        := {friconfig_lean_var}\n" ++
+        s!"  traceLength     := {jcirc.traceLength}\n" ++
+        s!"  traceWidth      := {jcirc.traceWidth}\n" ++
+        s!"  numConstraints  := {jcirc.numConstraints}\n" ++
+        s!"  airMaxDegree    := {jcirc.airMaxDegree}\n" ++
+        s!"  lookups         := {lookupcfg_lean_vars}\n" ++
+        s!"  isUDR           := true\n" ++  -- **TODO** generalize
+        s!"  isJBR           := false\n" ++ -- **TODO** generalize
+        s!"\n"
 
-    outStr := outStr ++
-      s!"/- ZkVM `{jaggedVM.name}` | Circuit `{jaggedcfg.name}` -/\n" ++
-      s!"\n" ++
-      s!"def {friconfig_lean_var} : FRIConfig where\n" ++
-      s!"  hashBits        := {jaggedcfg.densePCS.hashBits}\n" ++
-      s!"  ρ               := ⟨{jaggedcfg.densePCS.ρ}, by norm_num⟩\n" ++
-      s!"  traceLen        := {jaggedcfg.traceLength}\n" ++ -- **TODO** collapse or remove in FRIConfig?
-      s!"  field           := {friconfig_field_leanvar}\n" ++
-      s!"  denseLen        := {jaggedcfg.densePCS.denseLen}\n" ++
-      s!"  batchSize       := {jaggedcfg.densePCS.batchSize}\n" ++
-      s!"  powerBatch      := {jaggedcfg.densePCS.powerBatch}\n" ++
-      s!"  multilinBatch   := {jaggedcfg.densePCS.multilinBatch}\n" ++
-      s!"  numQueries      := {jaggedcfg.densePCS.numQueries}\n" ++
-      s!"  foldingFactors  := {jaggedcfg.densePCS.foldingFactors}\n" ++
-      s!"  earlyStopDeg    := {jaggedcfg.densePCS.earlyStopDeg}\n" ++
-      s!"  grindQuery      := {jaggedcfg.densePCS.grindQuery}\n" ++
-      s!"  grindBatch      := {jaggedcfg.densePCS.grindBatch}\n" ++
-      s!"\n"
+      /- Collecting `JaggedCfg` Lean variables in a list. -/
+      jaggedcfg_lean_vars := jaggedcfg_lean_vars.concat jaggedcfg_lean_var
 
-    let jaggedcfg_lean_var := s!"{jaggedVM.name}_{jaggedcfg.name}_jagged"
-
-    /- We retrieve the variable name associated with the field
-    specified within `jaggedcfg.field` from the map
-    `mapFieldParamsToVarname`. -/
-    let jaggedcfg_field_leanvar ← orExit (
-      fieldParamsToVarname
-      mapFieldParamsToVarname
-      jaggedcfg.field
-    )
-
-    outStr := outStr ++
-    s!"def {jaggedcfg_lean_var} : JaggedCfg where\n" ++
-      s!"  name            := \"{jaggedcfg.name}\"\n" ++
-      s!"  field           := {jaggedcfg_field_leanvar}\n" ++
-      s!"  proofSystName   := \"{jaggedcfg.proofSystName}\"\n" ++
-      s!"  densePCS        := {friconfig_lean_var}\n" ++
-      s!"  traceLength     := {jaggedcfg.traceLength}\n" ++
-      s!"  traceWidth      := {jaggedcfg.traceWidth}\n" ++
-      s!"  numConstraints  := {jaggedcfg.numConstraints}\n" ++
-      s!"  airMaxDegree    := {jaggedcfg.airMaxDegree}\n" ++
-      s!"  lookups         := {lookupcfg_lean_vars}\n" ++
-      s!"\n"
-
-    /- Collecting `JaggedCfg` Lean variables in a list. -/
-    jaggedcfg_lean_vars := jaggedcfg_lean_vars.concat jaggedcfg_lean_var
-
-    /-
-      For now, we only support per-cell verification of
-      circuits relevant to `sp1.md`.
-    -/
-    match jaggedcfg.name with
-    | "core" => outStr := outStr ++ getSP1CoreReportStr
-    | "compress" => outStr := outStr ++ getSP1CompressReportStr
-    | "shrink" => outStr := outStr ++ getSP1ShrinkReportStr
-    | _ => IO.eprintln "Unsupported circuit"; IO.Process.exit 1
+      /-
+        For now, we only support per-cell verification of
+        circuits relevant to `sp1.md`.
+      -/
+      match jcirc.name with
+      | "core" => outStr := outStr ++ getSP1CoreReportStr
+      | "compress" => outStr := outStr ++ getSP1CompressReportStr
+      | "shrink" => outStr := outStr ++ getSP1ShrinkReportStr
+      | _ => IO.eprintln "Unsupported circuit"; IO.Process.exit 1
+    | _ => IO.eprintln "Unsupported circuit family"; IO.Process.exit 1
 
   outStr := outStr ++ consistencyProofs
 

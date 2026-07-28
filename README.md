@@ -27,7 +27,7 @@ soundcalc-lean is meant to replace soundcalc, which evaluates the concrete secur
 | [OpenVM](https://github.com/openvm-org/openvm) — app, leaf, internal | DEEP-ALI over FRI | BabyBear⁴ | UDR, JBR | all [`openvm.md`](https://github.com/ethereum/soundcalc/blob/main/reports/openvm.md) cells and proof sizes |
 | [Pico](https://github.com/brevis-network/pico) — riscv, convert, combine, compress, embed | DEEP-ALI over FRI | KoalaBear⁴ | UDR, JBR | all [`pico.md`](https://github.com/ethereum/soundcalc/blob/main/reports/pico.md) cells and proof sizes |
 
-Byte-for-byte report re-rendering currently covers SP1 and Airbender, with OpenVM and Pico next. Reference configurations and reports are copied verbatim from [ethereum/soundcalc](https://github.com/ethereum/soundcalc) (pinned at [`809896f`](https://github.com/ethereum/soundcalc/commit/809896fb8d3aba4fd8f657c781601e3ef2b968dd)).
+Byte-for-byte report re-rendering currently covers SP1 and Airbender, with OpenVM and Pico next. Reference configurations and reports are copied verbatim from [ethereum/soundcalc](https://github.com/ethereum/soundcalc) (pinned at [`d9078d6`](https://github.com/ethereum/soundcalc/commit/d9078d64c9c3ae15b0931f6d249b2dc073194f15)).
 
 The security regimes — UDR (Unique Decoding, `θ ≤ (1 − ρ)/2`) and JBR (Johnson Bound, `θ` up to `1 − √ρ`) — are parameters of the soundness analysis, not of the prover or verifier; see soundcalc's [background section](https://github.com/ethereum/soundcalc#background) for an explanation.
 

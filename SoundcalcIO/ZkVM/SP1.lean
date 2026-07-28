@@ -44,6 +44,8 @@ def SP1_core_jagged : JaggedCfg where
   numConstraints  := 3412
   airMaxDegree    := 3
   lookups         := [SP1_core_lookup_lookup]
+  isUDR           := true
+  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 
@@ -125,6 +127,8 @@ def SP1_compress_jagged : JaggedCfg where
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [SP1_compress_lookup_lookup]
+  isUDR           := true
+  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 
@@ -205,6 +209,8 @@ def SP1_shrink_jagged : JaggedCfg where
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [SP1_shrink_lookup_lookup]
+  isUDR           := true
+  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 

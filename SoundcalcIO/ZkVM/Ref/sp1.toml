@@ -3,12 +3,12 @@
 
 [zkevm]
 name = "SP1"
-protocol_family = "JAGGED"
 field = "KoalaBear^4"
 version = "6.1.0"
 hash_size_bits = 248
 
 [[circuits]]
+protocol_family = "JAGGED"
 name = "core"
 udr_only = true
 blowup_factor = 4
@@ -43,6 +43,7 @@ multilinear_fingerprint = true
 
 
 [[circuits]]
+protocol_family = "JAGGED"
 name = "compress"
 udr_only = true
 blowup_factor = 4
@@ -77,6 +78,7 @@ multilinear_fingerprint = true
 
 
 [[circuits]]
+protocol_family = "JAGGED"
 name = "shrink"
 udr_only = true
 blowup_factor = 8

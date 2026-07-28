@@ -414,7 +414,7 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
   let zkvm_circs ← orExit (getArray tbl "circuits")
 
   /-  List of Circuits contained within the ZkVM -/
-  let mut circuit_list : List CircuitVM := []
+  let mut circuit_list : List Circuit := []
 
   /- We parse all the [[circuits]] -/
   for circ in zkvm_circs do
@@ -439,24 +439,22 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
 
       /- The last boolean parameter signals the FRIConfig should be parsed
       as per a Jagged circuit. (i.e., dense FRI params) -/
-      let friConfig ← match circ_protocol_family with
-      | "JAGGED"    => parseFRIConfig circ_tab zkvm_tab true
-      | "FRI_STARK" => parseFRIConfig circ_tab zkvm_tab false
+      let (friConfig, circuit) ← match circ_protocol_family with
+      | "JAGGED"    => let fcfg ← parseFRIConfig circ_tab zkvm_tab true
+                       let jaggedCirc ← (parseJaggedCfg circ_tab zkvm_tab lookup_list fcfg)
+                       pure (fcfg, .jagged jaggedCirc)
+      | "FRI_STARK" => let fcfg ← parseFRIConfig circ_tab zkvm_tab false
+                       let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list fcfg)
+                       pure (fcfg, .deepali deepAliCirc)
       | _           =>  IO.eprintln "Unsupported circuit family."; IO.Process.exit 1
 
-      let circuitVM ← match circ_protocol_family with
-      | "JAGGED"    => let jaggedCirc ← (parseJaggedCfg circ_tab zkvm_tab lookup_list friConfig)
-                       pure (.jagged jaggedCirc)
-      | "FRI_STARK" => let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list friConfig)
-                       pure (.deepali deepAliCirc)
-      | _           =>  IO.eprintln "Unsupported circuit family."; IO.Process.exit 1
 
-      circuit_list := circuit_list.concat circuitVM
+      circuit_list := circuit_list.concat circuit
     | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
 
   /- We compute a proof showing that the fields contained in all the
       circuits of the zkVM are consistent with each other. -/
-  let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
+  let h_circuits_lifted : PLift (circuit_list.all (·.toGenericCircuit.field == zkvm_field) = true) ←
     match decEq (circuit_list.all (·.toGenericCircuit.field == zkvm_field)) true with
     | .isTrue h  => pure (PLift.up h)
     | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1

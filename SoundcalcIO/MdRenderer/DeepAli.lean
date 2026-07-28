@@ -7,7 +7,7 @@ open SoundcalcIO
 open SoundcalcIO.MdRenderer
 
 /-
-  We work in the `Soundcalc` namespace to extend `CircuitVM` with appropriate rendering methods.
+  We work in the `Soundcalc` namespace to extend `Circuit` with appropriate rendering methods.
   These methods are defined here (as opposed to being defined in directly in `Soundcalc`),
   as are exclusively related to the `MdRenderer`.
  -/

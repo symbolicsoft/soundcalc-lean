@@ -1,6 +1,6 @@
 import Soundcalc
 import SoundcalcIO.TomlParser
-import SoundcalcIO.MdRenderer.CircuitVM
+import SoundcalcIO.MdRenderer.Circuit
 
 open Soundcalc
 open SoundcalcIO
@@ -10,9 +10,9 @@ namespace SoundcalcIO.MdRenderer
 
 /--
   Renders the markdown security table of a generic
-  CircuitVM, following soundcalc's reference.
+  Circuit, following soundcalc's reference.
 -/
-private def renderSecurityLevels (c: CircuitVM) : IO String := do
+private def renderSecurityLevels (c: Circuit) : IO String := do
   let mut headerStr := "| regime "
   let mut sepStr := "| --- "
   let mut secbitsUDRStr := "| UDR "
@@ -91,7 +91,7 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
     /-
       We identify the circuit that has the worst overall secBits, following `soundcalc`'s semantics:
       - If no global regime is found, each circuit contributes to the overall zkVM with its best regime.
-        This yields a "Mixed" regime.
+        This yields a "mixed" regime.
       - If exactly one global regime is found, we output the circuit with the worst security bits for that regime.
       - If both global regimes are found, we output the circuit with the worst security bits for the best regime.
       Ref: https://github.com/ethereum/soundcalc/blob/cee252916d6d9f8579c3d41b2eddb946c329d743/soundcalc/report_md.py#L86
@@ -109,21 +109,21 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
 
     let (worstRegimeCirc, bestRegimeSecBits, bestRegime) := match vm_globalUDR, vm_globalJBR with
       /- If no global regime is supported, each circuit contributes with its best regime.
-         The final regime is denoted as "Mixed".-/
+         The final regime is denoted as "mixed".-/
       | false, false =>
         let worstCirc := vm_circuits.foldl
-          (fun (worst c: CircuitVM) =>
+          (fun (worst c: Circuit) =>
             if max c.totalSecBitsUDR c.totalSecBitsJBR < max worst.totalSecBitsUDR worst.totalSecBitsJBR then c
             else worst)
           vm_firstCirc -- first circuit to accumulate over: always exists due to `hne`!
 
         let bestRegimeSecBits := max (worstCirc.totalSecBitsUDR) (worstCirc.totalSecBitsJBR)
-        (worstCirc, bestRegimeSecBits, "Mixed")
+        (worstCirc, bestRegimeSecBits, "mixed")
       /- In what's below, at least one global regime is defined. -/
       | globalUDR, globalJBR =>
         /- Evaluates the circuit with the worst overall secBits using UDR. -/
         let worstCircUDR := vm_circuits.foldl
-          (fun (worst c: CircuitVM) =>
+          (fun (worst c: Circuit) =>
             if c.totalSecBitsUDR < worst.totalSecBitsUDR then c
             else worst)
           vm_firstCirc
@@ -132,7 +132,7 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
 
         /- Evaluates the circuit with the worst overall secBits using JBR. -/
         let worstCircJBR := vm_circuits.foldl
-          (fun (worst c: CircuitVM) =>
+          (fun (worst c: Circuit) =>
             if c.totalSecBitsJBR < worst.totalSecBitsJBR then c
             else worst)
           vm_firstCirc

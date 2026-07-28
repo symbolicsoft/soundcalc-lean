@@ -1,5 +1,5 @@
 import Soundcalc.Field
-import Soundcalc.Circuit.CircuitVM
+import Soundcalc.Circuit.Circuit
 
 open Soundcalc
 
@@ -7,7 +7,7 @@ open Soundcalc
   # `Soundcalc.ZkVM`
   Specification of a zkVM structure containing generic circuits.
 
-  Supported circuits are specified in `Soundcalc.Circuit.CircuitVM`.
+  Supported circuits are specified in `Soundcalc.Circuit.Circuit`.
 -/
 
 namespace Soundcalc
@@ -16,7 +16,7 @@ structure ZkVM where
   name        : String
   version     : Option String
   field       : FieldParams
-  circuits    : List CircuitVM := [] -- eterogeneous list of circuits
+  circuits    : List Circuit := [] -- eterogeneous list of circuits
   /- Every circuit included in the zkVM must run over the same field. -/
   h_circuits_field : circuits.all (·.toGenericCircuit.field == field) = true := by decide
 

@@ -1,6 +1,7 @@
 import Mathlib
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
+import Soundcalc.Circuit.GenericCircuit
 
 open Soundcalc
 
@@ -23,20 +24,11 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 -/
 
 /-- Parameters for a jagged circuit instance. -/
-structure JaggedCfg where
-  name           : String
-  field          : FieldParams
-  proofSystName  : String
-  /- The three fields below expand the `JaggedPCS` structure. -/
-  densePCS       : FRIConfig
+structure JaggedCfg extends GenericCircuit where
   traceLength    : N    -- e.g. 2^22 (one gotcha: use trace length, not FRI dimension)
   traceWidth     : N    -- e.g. 3741
   numConstraints : N    -- e.g. 3412
   airMaxDegree   : N    -- e.g. 3
-  lookups        : List LookupCfg := []
-  /-- Every sub-protocol must run over the same field as the jagged circuit itself. -/
-  h_densePCS_field : densePCS.field = field := by rfl
-  h_lookups_field  : lookups.all (·.field == field) = true := by decide
 
 /-- Reduction soundness error.
 
@@ -53,7 +45,6 @@ over `⌈log₂ H⌉` variables. -/
 def JaggedCfg.zerocheckErr (c : JaggedCfg) : Q :=
   ((c.numConstraints : Q) + (c.airMaxDegree + 2) * Nat.clog 2 c.traceLength)
   / (c.field.card : Q)
-
 
 /--
   Enumerates all the soundness errors of a Jagged circuit.

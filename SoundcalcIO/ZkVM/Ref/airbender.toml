@@ -24,12 +24,12 @@
 
 [zkevm]
 name = "Airbender"
-protocol_family = "FRI_STARK"
 field = "M31^4"
 hash_size_bits = 256
 
 
 [[circuits]]
+protocol_family = "FRI_STARK"
 name = "generalized_circuit"
 rho = 0.5
 trace_length = 16777216

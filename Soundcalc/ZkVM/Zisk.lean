@@ -189,6 +189,8 @@ def ziskDmaDeepAli : DeepAliCfg where
                      ziskDmaRangeCheckGsum103,
                      ziskDmaRangeCheckGsum104]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaJBR) :
@@ -278,6 +280,8 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
                      ziskDmaMemCpyRangeCheckGsum102,
                      ziskDmaMemCpyRangeCheckGsum104]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaMemCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaMemCpyJBR) :
@@ -367,6 +371,8 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
                      ziskDmaInputCpyRangeCheckGsum104,
                      ziskDmaInputCpyRangeCheckGsum105]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaInputCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaInputCpyJBR) :
@@ -456,6 +462,8 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
                      ziskDma64AlignedRangeCheckGsum102,
                      ziskDma64AlignedRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDma64AlignedDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDma64AlignedJBR) :
@@ -545,6 +553,8 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedInputCpyRangeCheckGsum102,
                      ziskDma64AlignedInputCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDma64AlignedInputCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDma64AlignedInputCpyJBR) :
@@ -624,6 +634,8 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemSetPermutationGsum10,
                      ziskDma64AlignedMemSetRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDma64AlignedMemSetDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemSetJBR) :
@@ -703,6 +715,8 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemPermutationGsum10,
                      ziskDma64AlignedMemRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDma64AlignedMemDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemJBR) :
@@ -782,6 +796,8 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemCpyPermutationGsum10,
                      ziskDma64AlignedMemCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDma64AlignedMemCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemCpyJBR) :
@@ -866,6 +882,8 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
                      ziskDmaUnalignedPermutationGsum10,
                      ziskDmaUnalignedRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaUnalignedDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaUnalignedJBR) :
@@ -945,6 +963,8 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
                      ziskDmaPrePostPermutationGsum10,
                      ziskDmaPrePostPermutationGsum8000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaPrePostDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaPrePostJBR) :
@@ -1019,6 +1039,8 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostMemCpyPermutationGsum10,
                      ziskDmaPrePostMemCpyPermutationGsum8000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaPrePostMemCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaPrePostMemCpyJBR) :
@@ -1091,6 +1113,8 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostInputCpyPermutationGsum10,
                      ziskDmaPrePostInputCpyPermutationGsum8000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaPrePostInputCpyDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaPrePostInputCpyJBR) :
@@ -1173,6 +1197,8 @@ def ziskMainDeepAli : DeepAliCfg where
                      ziskMainRangeCheckGsum102,
                      ziskMainRangeCheckGsum106]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMainDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMainJBR) :
@@ -1232,6 +1258,8 @@ def ziskRomDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRomLookupGsum7890]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskRomDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskRomJBR) :
@@ -1305,6 +1333,8 @@ def ziskMemDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskMemDirectGsum11, ziskMemPermutationGsum10, ziskMemRangeCheckGsum102, ziskMemRangeCheckGsum103, ziskMemRangeCheckGsum104]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMemDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMemJBR) :
@@ -1372,6 +1402,8 @@ def ziskRomDataDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRomDataDirectGsum11, ziskRomDataPermutationGsum10, ziskRomDataRangeCheckGsum102]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskRomDataDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskRomDataJBR) :
@@ -1441,6 +1473,8 @@ def ziskInputDataDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskInputDataDirectGsum11, ziskInputDataPermutationGsum10, ziskInputDataRangeCheckGsum102, ziskInputDataRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskInputDataDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskInputDataJBR) :
@@ -1506,6 +1540,8 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskMemAlignLookupGsum133, ziskMemAlignPermutationGsum10, ziskMemAlignRangeCheckGsum107]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMemAlignDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMemAlignJBR) :
@@ -1583,6 +1619,8 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
                      ziskMemAlignByteRangeCheckGsum103,
                      ziskMemAlignByteRangeCheckGsum107]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMemAlignByteDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMemAlignByteJBR) :
@@ -1657,6 +1695,8 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
                      ziskMemAlignReadBytePermutationGsum10,
                      ziskMemAlignReadByteRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMemAlignReadByteDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMemAlignReadByteJBR) :
@@ -1734,6 +1774,8 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
                      ziskMemAlignWriteByteRangeCheckGsum103,
                      ziskMemAlignWriteByteRangeCheckGsum107]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskMemAlignWriteByteDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskMemAlignWriteByteJBR) :
@@ -1801,6 +1843,8 @@ def ziskArithDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithLookupGsum330, ziskArithLookupGsum331, ziskArithLookupGsum5000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskArithDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskArithJBR) :
@@ -1866,6 +1910,8 @@ def ziskBinaryDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBinaryDirectGsum5000, ziskBinaryLookupGsum125, ziskBinaryLookupGsum5000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskBinaryDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskBinaryJBR) :
@@ -1931,6 +1977,8 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBinaryAddDirectGsum5000, ziskBinaryAddLookupGsum5000, ziskBinaryAddRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskBinaryAddDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskBinaryAddJBR) :
@@ -2003,6 +2051,8 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
                      ziskBinaryExtensionLookupGsum5000,
                      ziskBinaryExtensionRangeCheckGsum102]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskBinaryExtensionDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskBinaryExtensionJBR) :
@@ -2068,6 +2118,8 @@ def ziskAdd256DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskAdd256LookupGsum5000, ziskAdd256PermutationGsum10, ziskAdd256RangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskAdd256DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskAdd256JBR) :
@@ -2150,6 +2202,8 @@ def ziskArithEqDeepAli : DeepAliCfg where
                      ziskArithEqRangeCheckGsum103,
                      ziskArithEqRangeCheckGsum108]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskArithEqDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskArithEqJBR) :
@@ -2234,6 +2288,8 @@ def ziskArithEq384DeepAli : DeepAliCfg where
                      ziskArithEq384RangeCheckGsum103,
                      ziskArithEq384RangeCheckGsum108]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskArithEq384DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskArithEq384JBR) :
@@ -2301,6 +2357,8 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskKeccakfLookupGsum126, ziskKeccakfLookupGsum5000, ziskKeccakfPermutationGsum10]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskKeccakfDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskKeccakfJBR) :
@@ -2366,6 +2424,8 @@ def ziskSha256fDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskSha256fLookupGsum5000, ziskSha256fPermutationGsum10, ziskSha256fRangeCheckGsum109]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskSha256fDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskSha256fJBR) :
@@ -2427,6 +2487,8 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskPoseidon2LookupGsum5000, ziskPoseidon2PermutationGsum10]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskPoseidon2DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskPoseidon2JBR) :
@@ -2496,6 +2558,8 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBlake2brLookupGsum5000, ziskBlake2brPermutationGsum10, ziskBlake2brPermutationGsum127, ziskBlake2brRangeCheckGsum103]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskBlake2brDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskBlake2brJBR) :
@@ -2578,6 +2642,8 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
                      ziskSpecifiedRangesLookupGsum108_109,
                      ziskSpecifiedRangesLookupGsum108]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskSpecifiedRangesDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskSpecifiedRangesJBR) :
@@ -2662,6 +2728,8 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
                      ziskVirtualTable0LookupGsum330,
                      ziskVirtualTable0LookupGsum5002_88_77_8003_126]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskVirtualTable0DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskVirtualTable0JBR) :
@@ -2721,6 +2789,8 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskVirtualTable1LookupGsum5000]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskVirtualTable1DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskVirtualTable1JBR) :
@@ -2778,6 +2848,8 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskDmaPrePostCompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskDmaPrePostCompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskDmaPrePostCompressorJBR) :
@@ -2835,6 +2907,8 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithEqCompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskArithEqCompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskArithEqCompressorJBR) :
@@ -2892,6 +2966,8 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithEq384CompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskArithEq384CompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskArithEq384CompressorJBR) :
@@ -2949,6 +3025,8 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskKeccakfCompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskKeccakfCompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskKeccakfCompressorJBR) :
@@ -3006,6 +3084,8 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskSha256fCompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskSha256fCompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskSha256fCompressorJBR) :
@@ -3063,6 +3143,8 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBlake2brCompressorConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskBlake2brCompressorDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskBlake2brCompressorJBR) :
@@ -3120,6 +3202,8 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRecursive2ConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskRecursive2DeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskRecursive2JBR) :
@@ -3177,6 +3261,8 @@ def ziskFinalDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskFinalConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskFinalDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskFinalJBR) :
@@ -3234,6 +3320,8 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskFinalCompressedConnectionGprod1]
   h_lookups_field := by native_decide
+  isUDR          := true
+  isJBR          := true
 
 theorem ziskFinalCompressedDeepAli_multiPoint_ok (R : Regime)
     (hR : R = ziskUDR ∨ R = ziskFinalCompressedJBR) :

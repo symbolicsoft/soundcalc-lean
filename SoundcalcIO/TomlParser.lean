@@ -152,7 +152,7 @@ private def mapStrToFieldParams : List (String × FieldParams) := [
 private def strToFieldParams (map : List (String × FieldParams)) (s : String) : Except String FieldParams :=
   match map.lookup s with
   | some fp => .ok fp
-  | none    => .error s!"no FieldParams defined for '{s}')"
+  | none    => .error s!"no FieldParams defined for '{s}'"
 
 /--
   Returns a `FRIConfig` from a circuit table `circTab` contained
@@ -324,6 +324,8 @@ private def parseJaggedCfg (circTab : Table)
     lookups           := lookupList
     h_densePCS_field  := PLift.down (α := friConfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
+    isUDR             := true   -- **TODO** generalize
+    isJBR             := false  -- **TODO** generalize
   }
 
   pure jcfg
@@ -387,15 +389,17 @@ private def parseDeepAliCfg (circTab : Table)
     lookups           := lookupList
     h_densePCS_field  := PLift.down (α := friConfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
+    isUDR             := true   -- **TODO** generalize
+    isJBR             := true   -- **TODO** generalize
   }
 
   pure dacfg
 
 /--
-  Parse a `JaggedVM` from an input `.toml` file.
+  Parse a `ZkVM` from an input `.toml` file.
   If the `.toml` is invalid, the process errors out with an error message.
 -/
-def tomlToJaggedVM (inTomlFile: String) : IO JaggedVM := do
+def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
   let inToml ← IO.FS.readFile inTomlFile
   let ictx : InputContext := mkInputContext inToml inTomlFile
   let .ok tbl ← (loadToml ictx).toIO' | IO.eprintln "Parse failed"; IO.Process.exit 1
@@ -406,140 +410,62 @@ def tomlToJaggedVM (inTomlFile: String) : IO JaggedVM := do
   let zkvm_name ← orExit (getString zkvm_tab "name")
   let zkvm_field ← orExit (getString zkvm_tab "field")
   let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
-  let zkvm_protocol_family ← orExit (getString zkvm_tab "protocol_family")
   let zkvm_version ← orExit (getOptString zkvm_tab "version")
+  let zkvm_circs ← orExit (getArray tbl "circuits")
 
-  match zkvm_protocol_family with
-  | "JAGGED"    =>
-    let zkvm_circs ← orExit (getArray tbl "circuits")
+  /-  List of Circuits contained within the ZkVM -/
+  let mut circuit_list : List Circuit := []
 
-    /-  List of Jagged circuits contained within the ZkVM -/
-    let mut circuit_list : List JaggedCfg := []
+  /- We parse all the [[circuits]] -/
+  for circ in zkvm_circs do
+    match circ with
+    | .table' _ circ_tab =>
+      /-
+        We loop over all the [[circuit.lookups]]
+        If no lookups are defined, we return an empty array instead of an error.
+        If lookups is defined not as an array, we still error out.
+      -/
+      let circ_lookups ← orExit (getArrayD circ_tab "lookups" #[])
+      let mut lookup_list : List LookupCfg := []
 
-    /- We parse all the [[circuits]] -/
-    for circ in zkvm_circs do
-      match circ with
-      | .table' _ circ_tab =>
-        /-
-          We loop over all the [[circuit.lookups]]
-          If no lookups are defined, we return an empty array instead of an error.
-          If lookups is defined not as an array, we still error out.
-        -/
-        let circ_lookups ← orExit (getArrayD circ_tab "lookups" #[])
-        let mut lookup_list : List LookupCfg := []
+      for lookup in circ_lookups do
+        match lookup with
+        | .table' _ lookup_tab =>
+          let lookupcfg ← parseLookupCfg lookup_tab zkvm_tab
+          lookup_list := lookup_list.concat lookupcfg
+        |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
 
-        for lookup in circ_lookups do
-          match lookup with
-          | .table' _ lookup_tab =>
-            let lookupcfg ← parseLookupCfg lookup_tab zkvm_tab
-            lookup_list := lookup_list.concat lookupcfg
-          |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
+      let circ_protocol_family ← orExit (getString circ_tab "protocol_family")
 
-        /- The last boolean parameter signals the FRIConfig should be parsed
-           as per a Jagged circuit. (i.e., dense FRI params) -/
-        let friConfig ← parseFRIConfig circ_tab zkvm_tab true
-        let jaggedCfg ← parseJaggedCfg circ_tab zkvm_tab lookup_list friConfig
-        circuit_list := circuit_list.concat jaggedCfg
-      | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
-
-    /- We compute a proof showing that the fields contained in all the
-       circuits of the zkVM are consistent with each other. -/
-    let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
-      match decEq (circuit_list.all (·.field == zkvm_field)) true with
-      | .isTrue h  => pure (PLift.up h)
-      | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
-
-    let jaggedVM: JaggedVM := {
-      name             := zkvm_name
-      field            := zkvm_field
-      version          := zkvm_version
-      circuits         := circuit_list
-      h_circuits_field := PLift.down (α := circuit_list.all (·.field == zkvm_field) = true) h_circuits_lifted
-    }
-
-    return jaggedVM
-  | _           => IO.eprintln "The input toml does not contain a JAGGED zkVM."; IO.Process.exit 1
-
-/--
-  Parse a `DeepAliVM` from an input `.toml` file.
-  If the `.toml` is invalid, the process errors out with an error message.
--/
-def tomlToDeepAliVM (inTomlFile: String) : IO DeepAliVM := do
-  let inToml ← IO.FS.readFile inTomlFile
-  let ictx : InputContext := mkInputContext inToml inTomlFile
-  let .ok tbl ← (loadToml ictx).toIO' | IO.eprintln "Parse failed"; IO.Process.exit 1
-
-  /- Parsing [zkevm]-/
-  let zkvm_tab ← orExit (getTable tbl "zkevm")
-
-  let zkvm_name ← orExit (getString zkvm_tab "name")
-  let zkvm_field ← orExit (getString zkvm_tab "field")
-  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
-  let zkvm_protocol_family ← orExit (getString zkvm_tab "protocol_family")
-  let zkvm_version ← orExit (getOptString zkvm_tab "version")
-
-  match zkvm_protocol_family with
-  | "FRI_STARK"    =>
-    let zkvm_circs ← orExit (getArray tbl "circuits")
-
-    /-  List of DeepAli circuits contained within the ZkVM -/
-    let mut circuit_list : List DeepAliCfg := []
-
-    /- We parse all the [[circuits]] -/
-    for circ in zkvm_circs do
-      match circ with
-      | .table' _ circ_tab =>
-        /-
-          We loop over all the [[circuit.lookups]]
-          If no lookups are defined, we return an empty array instead of an error.
-          If lookups is defined not as an array, we still error out.
-        -/
-        let circ_lookups ← orExit (getArrayD circ_tab "lookups" #[])
-        let mut lookup_list : List LookupCfg := []
-
-        for lookup in circ_lookups do
-          match lookup with
-          | .table' _ lookup_tab =>
-            let lookupcfg ← parseLookupCfg lookup_tab zkvm_tab
-            lookup_list := lookup_list.concat lookupcfg
-          |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
-
-        let friConfig ← parseFRIConfig circ_tab zkvm_tab false
-        let deepAliCfg ← parseDeepAliCfg circ_tab zkvm_tab lookup_list friConfig
-        circuit_list := circuit_list.concat deepAliCfg
-      | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
-
-    /- We compute a proof showing that the fields contained in all the
-       circuits of the zkVM are consistent with each other. -/
-    let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
-      match decEq (circuit_list.all (·.field == zkvm_field)) true with
-      | .isTrue h  => pure (PLift.up h)
-      | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
-
-    let deepAliVM: DeepAliVM := {
-      name         := zkvm_name
-      version      := zkvm_version
-      field        := zkvm_field
-      circuits     := circuit_list
-      h_circuits_field := PLift.down (α := circuit_list.all (·.field == zkvm_field) = true) h_circuits_lifted
-    }
-    return deepAliVM
-  | _           => IO.eprintln "The input toml does not contain a DEEP-ALI (FRI-STARK) zkVM."; IO.Process.exit 1
+      /- The last boolean parameter signals the FRIConfig should be parsed
+      as per a Jagged circuit. (i.e., dense FRI params) -/
+      let (friConfig, circuit) ← match circ_protocol_family with
+      | "JAGGED"    => let fcfg ← parseFRIConfig circ_tab zkvm_tab true
+                       let jaggedCirc ← (parseJaggedCfg circ_tab zkvm_tab lookup_list fcfg)
+                       pure (fcfg, .jagged jaggedCirc)
+      | "FRI_STARK" => let fcfg ← parseFRIConfig circ_tab zkvm_tab false
+                       let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list fcfg)
+                       pure (fcfg, .deepali deepAliCirc)
+      | _           =>  IO.eprintln "Unsupported circuit family."; IO.Process.exit 1
 
 
-/--
-  Returns the zkVM family from an input `.toml` file.
+      circuit_list := circuit_list.concat circuit
+    | _ => IO.eprintln "Unexpected non-table circuit item"; IO.Process.exit 1
 
-  Errors out if the `.toml` is malformed.
--/
-def tomlToVMFamily (inTomlFile: String) : IO String := do
-  let inToml ← IO.FS.readFile inTomlFile
-  let ictx : InputContext := mkInputContext inToml inTomlFile
-  let .ok tbl ← (loadToml ictx).toIO' | IO.eprintln "Parse failed"; IO.Process.exit 1
+  /- We compute a proof showing that the fields contained in all the
+      circuits of the zkVM are consistent with each other. -/
+  let h_circuits_lifted : PLift (circuit_list.all (·.toGenericCircuit.field == zkvm_field) = true) ←
+    match decEq (circuit_list.all (·.toGenericCircuit.field == zkvm_field)) true with
+    | .isTrue h  => pure (PLift.up h)
+    | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
 
-  let zkvm_tab ← orExit (getTable tbl "zkevm")
-  let zkvm_protocol_family ← orExit (getString zkvm_tab "protocol_family")
-
-  pure zkvm_protocol_family
+  let zkVM : ZkVM := {
+    name             := zkvm_name
+    field            := zkvm_field
+    version          := zkvm_version
+    circuits         := circuit_list
+    h_circuits_field := PLift.down (α := circuit_list.all (·.toGenericCircuit.field == zkvm_field) = true) h_circuits_lifted
+  }
+  pure zkVM
 
 end SoundcalcIO

@@ -196,6 +196,8 @@ def picoRiscvDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [picoRiscvAlu, picoRiscvByte, picoRiscvGlobalType, picoRiscvMemory,
                      picoRiscvPoseidon2, picoRiscvProgram, picoRiscvSyscall]
+  isUDR          := true
+  isJBR          := true
 
 def picoConvertDeepAli : DeepAliCfg where
   name           := "convert"
@@ -207,6 +209,8 @@ def picoConvertDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoConvertMemory]
+  isUDR          := true
+  isJBR          := true
 
 def picoCombineDeepAli : DeepAliCfg where
   name           := "combine"
@@ -218,6 +222,8 @@ def picoCombineDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoCombineMemory]
+  isUDR          := true
+  isJBR          := true
 
 def picoCompressDeepAli : DeepAliCfg where
   name           := "compress"
@@ -229,6 +235,8 @@ def picoCompressDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoCompressMemory]
+  isUDR          := true
+  isJBR          := true
 
 def picoEmbedDeepAli : DeepAliCfg where
   name           := "embed"
@@ -240,6 +248,8 @@ def picoEmbedDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoEmbedMemory]
+  isUDR          := true
+  isJBR          := true
 
 /-- Pico's `riscv`/`convert`/`combine`/`compress`/`embed` circuits satisfy the
     DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`) in both regimes. -/

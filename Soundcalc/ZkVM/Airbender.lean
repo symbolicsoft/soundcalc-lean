@@ -96,6 +96,8 @@ def airbenderDeepAli : DeepAliCfg where
                      airbenderRangeCheck16,
                      airbenderRangeCheck19,
                      airbenderDecoder]
+  isUDR          := true
+  isJBR          := true
 
 /-- Airbender satisfies the DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`)
     in both regimes. -/

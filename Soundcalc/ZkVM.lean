@@ -1,32 +1,23 @@
-import Mathlib
 import Soundcalc.Field
-import Soundcalc.Circuit.Jagged
-import Soundcalc.Circuit.DeepAli
+import Soundcalc.Circuit.Circuit
 
 open Soundcalc
 
 /-!
   # `Soundcalc.ZkVM`
-  A specification of supported zkVM configurations.
-  Current support: JaggedVM, DeepAliVM.
+  Specification of a zkVM structure containing generic circuits.
+
+  Supported circuits are specified in `Soundcalc.Circuit.Circuit`.
 -/
 
 namespace Soundcalc
 
-structure JaggedVM where
+structure ZkVM where
   name        : String
   version     : Option String
   field       : FieldParams
-  circuits    : List JaggedCfg := []
-  /-- Every circuit must run over the same field as the zkVM itself
-    (same guard as `JaggedCfg.h_densePCS_field` / `h_lookups_field`). -/
-  h_circuits_field : circuits.all (·.field == field) = true := by decide
-
-structure DeepAliVM where
-  name        : String
-  version     : Option String
-  field       : FieldParams
-  circuits    : List DeepAliCfg := []
-  h_circuits_field : circuits.all (·.field == field) = true := by decide
+  circuits    : List Circuit := [] -- eterogeneous list of circuits
+  /- Every circuit included in the zkVM must run over the same field. -/
+  h_circuits_field : circuits.all (·.toGenericCircuit.field == field) = true := by decide
 
 end Soundcalc

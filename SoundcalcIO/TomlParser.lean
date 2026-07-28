@@ -435,9 +435,6 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
           lookup_list := lookup_list.concat lookupcfg
         |_ => IO.eprintln "Unexpected non-table lookup item"; IO.Process.exit 1
 
-
-      /- **TODO** Moving target: shift .toml files to support specific protocol families.
-         This comes from a later soundcalc commit as opposed to our pin. -/
       let circ_protocol_family ← orExit (getString circ_tab "protocol_family")
 
       /- The last boolean parameter signals the FRIConfig should be parsed

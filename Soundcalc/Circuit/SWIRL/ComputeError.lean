@@ -1,4 +1,5 @@
 import Soundcalc.Circuit.SWIRL.Circuit
+import Soundcalc.Circuit.SWIRL.ProofSize  -- proofSizeBits, for the bundled ExitCriteria
 import Soundcalc.Common.Sqrt  -- sqrtLB / sqrtUB (list-decoding √ρ estimates)
 
 open Soundcalc
@@ -190,6 +191,16 @@ def SWIRLCfg.listErrs (c : SWIRLCfg) : List ℚ :=
 
 /-- Total soundness error: the max over all components (⇒ min security bits). -/
 def SWIRLCfg.totalErr (c : SWIRLCfg) : ℚ := (c.listErrs).foldr max 0
+
+/-- Bundles a SWIRL circuit's exit criteria for report validation (mirroring
+`DeepAliCfg.ExitCriteria`): the full per-cell security row (`(listErrs).map secBits`, in
+`listErrs` column order), the total (min bits), and the proof size in KiB (expected = worst).
+One `native_decide` on this `Prop` replaces the per-circuit proof-size / row / total examples;
+the regime is fixed by the config's `explicitM`, so no `Regime` argument is needed. -/
+def SWIRLCfg.ExitCriteria (c : SWIRLCfg) (rowBits : List ℕ) (totalBits proofSizeKib : ℕ) : Prop :=
+  (c.listErrs).map secBits = rowBits ∧
+  secBits c.totalErr = totalBits ∧
+  c.proofSizeBits / KIB = proofSizeKib
 
 end Soundcalc
 

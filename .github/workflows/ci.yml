@@ -12,8 +12,8 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v7
-            
-            # If the Lean cache already exists from a previous 
+
+            # If the Lean cache already exists from a previous
             # successful CI run, restore it. Same as ArkLib.
             - name: Restore Lean cache
               uses: actions/cache/restore@v6
@@ -23,7 +23,7 @@ jobs:
                 key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json') }}
                 restore-keys: |
                   ${{ runner.os }}-lean-ci-
-            
+
             # Set up Lean and expand individual
             # operations manually (build, cache, ...)
             - name: Set up Lean environment
@@ -42,19 +42,24 @@ jobs:
             # Build against the committed golden `SP1.lean`
             # generated from `leanemitter`.
             - name: Build with committed golden SP1.lean
-              run: lake build
-            
-            # Regenerate `SP1.lean` (default exe param) 
+              run: |
+                  lake build
+                  for f in $(find Soundcalc SoundcalcIO -name '*.lean'); do
+                    [ -f ".lake/build/lib/lean/${f%.lean}.olean" ] || { echo "not built: $f"; fail=1; }
+                  done
+                  [ -z "$fail" ]
+
+            # Regenerate `SP1.lean` (default exe param)
             - name: Regenerate SP1.lean
               run: |
                 lake exe leanemitter
 
             # Reproduce soundcalc's`.md files (default exe param).
-            # Current support: {sp1, airbender}.md. 
+            # Current support: {sp1, airbender}.md.
             - name: Reproduce soundcalc's .md files
               run: |
                 lake exe mdrenderer
-            
+
             # Check whether the regenerated `SP1.lean` contains
             # mismatches with the committed golden `SP1.lean`
             # (exit code > 0 if any changes occur)

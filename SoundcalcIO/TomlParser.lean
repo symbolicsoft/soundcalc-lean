@@ -302,7 +302,7 @@ private def parseJaggedCfg (circTab : Table)
 
   /- Proofs of consistency ensuring that the `FieldParams` within
      the Jagged circuit are coherent with each other. -/
-  let h_lookups_lifted : PLift (lookup_list.all (·.field == zkvm_field) = true) ←
+  let h_lookups_lifted : PLift (lookupList.all (·.field == zkvm_field) = true) ←
   match decEq (lookupList.all (·.field == zkvm_field)) true with
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "Lookup field mismatch: not all lookups share the circuit's field"; IO.Process.exit 1
@@ -367,7 +367,7 @@ private def parseDeepAliCfg (circTab : Table)
 
   /- Proofs of consistency ensuring that the `FieldParams` within
      the DEEP-ALI circuit are coherent with each other. -/
-  let h_lookups_lifted : PLift (lookup_list.all (·.field == zkvm_field) = true) ←
+  let h_lookups_lifted : PLift (lookupList.all (·.field == zkvm_field) = true) ←
   match decEq (lookupList.all (·.field == zkvm_field)) true with
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "Lookup field mismatch: not all lookups share the circuit's field"; IO.Process.exit 1

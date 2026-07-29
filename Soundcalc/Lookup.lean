@@ -46,10 +46,6 @@ def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   (1/2 * nm * (3 * nm + 1) / F.card)
 
 /-- Returns `R`, the soundness multiplier induced by column aggregation.
-/--
-  Data export from https://github.com/ethereum/soundcalc/blob/809896fb8d3aba4fd8f657c781601e3ef2b968dd/soundcalc/zkvms/airbender/airbender.toml#L69
-  and https://github.com/ethereum/soundcalc/blob/main/reports/airbender.md
--/
 
     - Multivariate (`multilinear = true`):  `R = max(⌈log₂ S⌉, 1)` (SP1 path).
     - Univariate   (`multilinear = false`): `R = S`                 (Airbender logup path). -/

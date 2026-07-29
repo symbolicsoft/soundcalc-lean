@@ -5,22 +5,31 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
+
+# Newer pushes to the same branch/PR supersede in-flight runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
     build:
         runs-on: ubuntu-latest
+        timeout-minutes: 60
         steps:
             - name: Checkout repository
               uses: actions/checkout@v7
 
             # If the Lean cache already exists from a previous
             # successful CI run, restore it. Same as ArkLib.
+            # The key includes the toolchain so a Lean bump never
+            # reuses oleans built by a different compiler.
             - name: Restore Lean cache
               uses: actions/cache/restore@v6
               id: lake-cache
               with:
                 path: ./.lake
-                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json') }}
+                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
                 restore-keys: |
                   ${{ runner.os }}-lean-ci-
 
@@ -36,48 +45,77 @@ jobs:
                 use-github-cache: false
                 use-mathlib-cache: false
 
-            - name: Fetch dependency cache
+            - name: Fetch Mathlib dependency cache
               run: lake exe cache get
 
-            # Build against the committed golden `SP1.lean`
-            # generated from `leanemitter`.
+            # Build against the committed golden `SP1.lean` generated from
+            # `leanemitter`. `lake build` checks every theorem; the loop then
+            # verifies every module actually took part in the build, so a
+            # file not reachable from any root import fails CI instead of
+            # being silently skipped (this caught OpenVM2.lean).
             - name: Build with committed golden SP1.lean
               run: |
-                  lake build
+                  lake build 2>&1 | tee "$RUNNER_TEMP/lake-build.log"
+                  test "${PIPESTATUS[0]}" -eq 0
                   for f in $(find Soundcalc SoundcalcIO -name '*.lean'); do
                     [ -f ".lake/build/lib/lean/${f%.lean}.olean" ] || { echo "not built: $f"; fail=1; }
                   done
                   [ -z "$fail" ]
 
+            # `lake build` only *warns* on `sorry`; fail on that warning.
+            # (Any file containing a sorry necessarily re-elaborates in the
+            # run that introduces it, so the warning is always in this log;
+            # the axiom guard below is the semantic check for the theorems
+            # it pins.)
+            - name: Check for sorry
+              run: |
+                ! grep -F "declaration uses 'sorry'" "$RUNNER_TEMP/lake-build.log"
+
+            # TCB guard: the structural theory (secBits characterization,
+            # sqrt/log enclosures, JBR conservativity, all field primality
+            # certificates incl. the Goldilocks Pratt certificate) must
+            # depend only on Lean's three standard axioms — no sorryAx, no
+            # native_decide — and the native_decide TCB extension for the
+            # numeric report cells stays pinned to exactly ofReduceBool.
+            - name: Check axiom hygiene (TCB guard)
+              run: lake env lean scripts/AxiomsGuard.lean
+
             # Regenerate `SP1.lean` (default exe param)
             - name: Regenerate SP1.lean
-              run: |
-                lake exe leanemitter
+              run: lake exe leanemitter
 
-            # Reproduce soundcalc's`.md files (default exe param).
-            # Current support: {sp1, airbender}.md.
+            # Reproduce soundcalc's `.md` reports (default exe param):
+            # every golden in `SoundcalcIO/ZkVM/Ref/` is checked below.
             - name: Reproduce soundcalc's .md files
-              run: |
-                lake exe mdrenderer
+              run: lake exe mdrenderer
 
-            # Check whether the regenerated `SP1.lean` contains
-            # mismatches with the committed golden `SP1.lean`
-            # (exit code > 0 if any changes occur)
+            # Any drift in a tracked file after regeneration — the golden
+            # `SP1.lean` first of all — fails CI (exit code > 0 on changes).
             - name: Check regenerated SP1.lean matches committed golden
               run: git diff --exit-code
 
-            # Check whether the reproduced .md files match their
-            # .md counterparts produced by the original `soundcalc`.
-            # Current support: {sp1, airbender}.md.
+            # Compare every reference report in `Ref/` against its
+            # re-rendered counterpart. The list is derived from `Ref/*.md`,
+            # so adding a new golden automatically extends this check; a
+            # golden the renderer cannot reproduce yet fails loudly.
             - name: Check reproduced .md files against soundcalc's golden .md files
               run: |
-                files=("sp1.md" "airbender.md")
+                shopt -s nullglob
+                refs=(SoundcalcIO/ZkVM/Ref/*.md)
+                [ ${#refs[@]} -gt 0 ] || { echo "no golden .md files found in Ref/"; exit 1; }
                 failed=()
 
-                for f in "${files[@]}"; do
-                    if cmp -s "SoundcalcIO/ZkVM/$f" "SoundcalcIO/ZkVM/Ref/$f"; then
+                for ref in "${refs[@]}"; do
+                    f=$(basename "$ref")
+                    gen="SoundcalcIO/ZkVM/$f"
+                    if [ ! -f "$gen" ]; then
+                        echo "$f: not re-rendered (missing $gen)"
+                        failed+=("$f")
+                    elif cmp -s "$gen" "$ref"; then
                         echo "$f regenerated correctly."
                     else
+                        echo "$f differs from the golden:"
+                        diff "$ref" "$gen" | head -50
                         failed+=("$f")
                     fi
                 done
@@ -88,6 +126,18 @@ jobs:
                     echo "Mismatches: ${failed[*]}"
                     exit 1
                 fi
+
+            # The regeneration steps may only produce the re-rendered
+            # reports; any other new file is an error.
+            - name: Check for unexpected generated files
+              run: |
+                unexpected=$(git status --porcelain | grep -v '^?? SoundcalcIO/ZkVM/[^/]*\.md$' || true)
+                if [ -n "$unexpected" ]; then
+                    echo "Unexpected working-tree changes:"
+                    echo "$unexpected"
+                    exit 1
+                fi
+
             # Cache a successful build, unless a cache already exists.
             # Same pattern as ArkLib.
             - name: Save Lean cache
@@ -95,4 +145,4 @@ jobs:
               uses: actions/cache/save@v6
               with:
                 path: ./.lake
-                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json') }}
+                key: ${{ runner.os }}-lean-ci-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}

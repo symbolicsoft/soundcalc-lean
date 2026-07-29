@@ -1,11 +1,9 @@
 import Mathlib
 
 /-!
-# secBits, and one cell of `reports/sp1.md`
+# secBits — bits of security of a rational error
 
-Milestone M0 seed. This `secBits` handles only the shapes the example needs;
-the library version will be total, specified by `le_secBits_iff`, and proved
-against it.
+`secBits` is total, specified by `le_secBits_iff`, and proved against it below.
 
 ## Shared proof strategy (read this once)
 
@@ -89,7 +87,7 @@ theorem le_secBits_if (ε : ℚ) (hε : ε > 0) (hε1 : ε ≤ 1) (k : ℕ) :
   have h2 : ε.num.toNat * 2 ^ k ≤ ε.den :=
     calc ε.num.toNat * 2 ^ k
         -- multiply `h1` on the left by num
-        ≤ ε.num.toNat * (ε.den / ε.num.toNat) := mul_le_mul_left' h1 _
+        ≤ ε.num.toNat * (ε.den / ε.num.toNat) := Nat.mul_le_mul le_rfl h1
         -- commute the product
       _ = (ε.den / ε.num.toNat) * ε.num.toNat := Nat.mul_comm _ _
         -- standard floor fact: ⌊a/b⌋ * b ≤ a

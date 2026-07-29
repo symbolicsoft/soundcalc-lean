@@ -14,7 +14,9 @@ model; total security = min bits = **max error `ε`**.
 `calculator.py` uses float `log₂`-bits; we carry each `ε : ℚ` and take `secBits ε`. Since every
 bits formula is `challenge_field_bits − log₂(D) − log₂(list) + effpow` and `challenge_field_bits =
 log₂(card)`, `ε = D·list·2^(−effpow)/card` with no irrational `log₂ p`. Unique-decoding
-(`explicitM = none`) is exact;
+(`explicitM = none`) is exact; the list-decoding path (`explicitM = some m`) replaces each `√ρ`
+by the `sqrtLB`/`sqrtUB` enclosure in whichever direction makes the resulting error an upper
+bound (see the per-definition docstrings below).
 -/
 
 namespace Soundcalc

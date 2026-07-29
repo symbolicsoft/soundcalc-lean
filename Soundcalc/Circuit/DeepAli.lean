@@ -51,7 +51,7 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
     Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
     true window — if the guard passes here it passes with the exact θ. -/
 def DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
-  let traceLength := c.densePCS.traceLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+  let traceLength := c.densePCS.denseLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
   ((traceLength : Q) + (c.maxCombo : Q)) <
     (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q))
 

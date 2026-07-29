@@ -8,16 +8,20 @@ travels as a *proof* and every size is an exact `ℕ` — no floats.
 
 * `prime` — `by norm_num` (kernel-checked, axiom-clean) for KoalaBear's 31-bit
   prime.
-* `twoAdicity` — the field's max power-of-2 root-of-unity exponent. It is
-  *stored*, not derived: across presets it is `v₂(p-1)` for the NTT fields but
-  `v₂(pᵉ-1)` for Mersenne31 (whose `v₂(p-1)` is only 1), so no single formula
-  reproduces it. It is certified by `twoAdicity_spec`, which is characterized
-  by two conjuncts:
+* `twoAdicity` — stored and certified as exactly `v₂(p - 1)`, the base field's
+  max power-of-2 root-of-unity exponent, by `twoAdicity_spec`:
   - `2 ^ twoAdicity ∣ p - 1` ensures `2 ^ twoAdicity` divides `p-1` (i.e., a
-    `2^twoAdicity`-th root of unity exists in `F`);
+    `2^twoAdicity`-th root of unity exists in `𝔽_p`);
   - `¬ 2 ^ (twoAdicity + 1) ∣ p - 1` ensures `2 ^ (twoAdicity+1)` does *not*
     divide `p-1`, enforcing maximality of `twoAdicity`.
-  The above capture the one invariant true for every preset (`v₂(p-1)`).
+  **Known deviation from the Python:** soundcalc's `fields.py` stores `v₂(p-1)`
+  for the NTT fields (Goldilocks 32, BabyBear 27, KoalaBear 24 — same values as
+  here) but `v₂(pᵉ-1) = 33` for `M31_4` (whose `v₂(p-1)` is only 1, the value
+  stored here), despite its own comment claiming `v₂(p-1)`; no single formula
+  reproduces the Python values. Consumers mirroring Python semantics against
+  `two_adicity` (e.g. `WHIRConfig.h_twoAdicity`) will diverge for Mersenne31
+  until that is reconciled; today `twoAdicity`'s only consumer is WHIR over
+  Goldilocks, where the two agree.
 * The Python's `F : float` field is intentionally dropped — `card : ℕ` is its
   exact replacement. (`name : String` for the S9 renderer can be added later.)
 -/

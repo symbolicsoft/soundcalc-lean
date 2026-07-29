@@ -26,6 +26,8 @@ soundcalc-lean is meant to replace soundcalc, which evaluates the concrete secur
 | [Airbender](https://github.com/matter-labs/zksync-airbender) | DEEP-ALI over FRI | Mersenne31⁴ | UDR, JBR | all [`airbender.md`](https://github.com/ethereum/soundcalc/blob/main/reports/airbender.md) cells and proof sizes; report re-rendered byte-for-byte |
 | [OpenVM](https://github.com/openvm-org/openvm) — app, leaf, internal | DEEP-ALI over FRI | BabyBear⁴ | UDR, JBR | all [`openvm.md`](https://github.com/ethereum/soundcalc/blob/main/reports/openvm.md) cells and proof sizes |
 | [Pico](https://github.com/brevis-network/pico) — riscv, convert, combine, compress, embed | DEEP-ALI over FRI | KoalaBear⁴ | UDR, JBR | all [`pico.md`](https://github.com/ethereum/soundcalc/blob/main/reports/pico.md) cells and proof sizes |
+| [ZisK](https://github.com/0xPolygonHermez/zisk) — 44 circuits (Dma…Final_Compressed) | DEEP-ALI over FRI | Goldilocks³ | UDR, JBR (pinned `gap_to_radius`) | all [`zisk.md`](https://github.com/ethereum/soundcalc/blob/main/reports/zisk.md) cells and proof sizes |
+| [OpenVM2](https://github.com/openvm-org/openvm) — app, leaf, internal×2, hook, root | SWIRL over WHIR | BabyBear⁴ | unique, list (`m` = 1, 2) | all [`openvm2.md`](https://github.com/ethereum/soundcalc/blob/main/reports/openvm2.md) rows, totals, and proof sizes |
 
 Byte-for-byte report re-rendering currently covers SP1 and Airbender, with OpenVM and Pico next. Reference configurations and reports are copied verbatim from [ethereum/soundcalc](https://github.com/ethereum/soundcalc) (pinned at [`d9078d6`](https://github.com/ethereum/soundcalc/commit/d9078d64c9c3ae15b0931f6d249b2dc073194f15)).
 
@@ -59,17 +61,19 @@ Pinned to Lean `v4.30.0` / Mathlib `v4.30.0`. There is no separate test suite: t
 | `Soundcalc/Common/Sqrt.lean`, `Common/Log.lean` | rational `√·` and `log₂` enclosures, proved against `Real.sqrt` / `Real.logb` | (floats in Python) |
 | `Soundcalc/Common/Utils.lean` | Merkle proof and multi-proof size accounting | `common/utils.py` |
 | `Soundcalc/PCS/FRI.lean` | `FRIConfig`; batching, commit, and query errors; BCS proof sizes (expected and worst-case) | `pcs/fri.py` |
+| `Soundcalc/PCS/WHIR.lean` | `WHIRConfig` with certified shape invariants; per-iteration fold/OOD/shift/query errors; proof sizes | `pcs/whir.py` |
+| `Soundcalc/Circuit/SWIRL/` | SWIRL circuit (LogUp-GKR + ZeroCheck + stacked reduction over WHIR): config, soundness errors, proof size | `circuits/swirl/` |
 | `Soundcalc/Circuit/Jagged.lean` | jagged reduction and zerocheck errors; per-circuit error rows, totals, proof sizes | `circuits/jagged.py` |
 | `Soundcalc/Circuit/DeepAli.lean` | ALI and DEEP errors, multi-point side condition, per-circuit rows and totals | `circuits/deep_ali.py` |
 | `Soundcalc/Lookup.lean` | LogUp (univariate and multivariate) and GKR error upper bounds | `lookups/` |
-| `Soundcalc/ZkVM.lean`, `Soundcalc/ZkVM/*.lean` | zkVM-level structures; literal SP1, Airbender, OpenVM, and Pico instances with per-cell theorems | `zkvms/` |
+| `Soundcalc/ZkVM.lean`, `Soundcalc/ZkVM/*.lean` | zkVM-level structures; literal SP1, Airbender, OpenVM, OpenVM2, Pico, and ZisK instances with per-cell theorems | `zkvms/` |
 | `SoundcalcIO/*.lean` | TOML parser, Lean emitter, Markdown renderer | `report_md.py` |
 | `SoundcalcIO/ZkVM/` | TOML configs, the committed emitted golden, and reference reports (`Ref/`) from soundcalc | `zkvms/`, `reports/` |
 
 ## Trusted computing base
 
 - **No `sorry`.** The structural theory — the `secBits` characterization, the enclosure lemmas, JBR conservativity — consists of ordinary kernel-checked proofs against Mathlib, with no axioms beyond Lean's standard ones.
-- **Primality by `norm_num`.** The 31-bit field primes are certified kernel-only; `native_decide` is deliberately kept out of the primality path. (Goldilocks-scale primes are planned via `lucas_primality` Pratt certificates.)
+- **Primality without `native_decide`.** The 31-bit field primes are certified kernel-only by `norm_num`; Goldilocks' 64-bit prime carries a kernel-checked `lucas_primality` Pratt certificate (`Soundcalc/Field.lean`). `native_decide` is deliberately kept out of the primality path, and CI pins the axiom footprint of the structural theorems via `scripts/AxiomsGuard.lean`.
 - **`native_decide` for the numeric cells.** Evaluating, say, a JBR numerator of order `(m + ½)⁵` over a field of size `≈ 2¹²⁴` with `2⁴⁰`-granularity enclosures is far beyond kernel `decide`. Those closed numeric goals are discharged by `native_decide`, which extends the TCB by the Lean compiler for exactly those facts; everything else stays kernel-checked.
 
 ## References

@@ -1,4 +1,5 @@
 import Soundcalc.Circuit.SWIRL.ComputeError  -- SWIRLCfg + proofSizeBits + listErrs + ExitCriteria
+import Soundcalc.Field.BabyBear               -- babyBear4 preset (OpenVM2 fields)
 
 open Soundcalc
 
@@ -106,7 +107,6 @@ example : openvm2InternalRecursive.ExitCriteria
     (totalBits := 100) (proofSizeKib := 2393) := by
   unfold SWIRLCfg.ExitCriteria; native_decide
 
-/-! ## hook — list-decoding, `m = 1` (no `soundness_*` overrides: actual = envelope) -/
 def openvm2Hook : SWIRLCfg where
   name := "hook"
   whir :=
@@ -129,7 +129,6 @@ example : openvm2Hook.ExitCriteria
     (totalBits := 100) (proofSizeKib := 1330) := by
   unfold SWIRLCfg.ExitCriteria; native_decide
 
-/-! ## root — list-decoding, `m = 1` (STARK-to-SNARK aggregation; actual = envelope) -/
 def openvm2Root : SWIRLCfg where
   name := "root"
   whir :=

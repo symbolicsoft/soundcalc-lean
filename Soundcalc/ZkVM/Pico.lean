@@ -1,7 +1,7 @@
 import Soundcalc.Circuit.DeepAli
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
-import Soundcalc.Field
+import Soundcalc.Field.KoalaBear
 
 /-!
 # Pico soundness configuration

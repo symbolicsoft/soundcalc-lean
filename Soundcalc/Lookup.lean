@@ -1,4 +1,4 @@
-import Soundcalc.Field
+import Soundcalc.Field.Core
 import Soundcalc.Common.Log
 
 /-!

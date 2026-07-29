@@ -1,5 +1,5 @@
 import Mathlib
-import Soundcalc.Field
+import Soundcalc.Field.Core
 import Soundcalc.Common.Sqrt
 
 namespace Soundcalc

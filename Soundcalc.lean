@@ -5,10 +5,16 @@ import Soundcalc.Circuit.Circuit
 import Soundcalc.Circuit.DeepAli
 import Soundcalc.Circuit.GenericCircuit
 import Soundcalc.Circuit.Jagged
-import Soundcalc.Field
+import Soundcalc.Field.Core
+import Soundcalc.Field.Pratt
+import Soundcalc.Field.KoalaBear
+import Soundcalc.Field.Mersenne31
+import Soundcalc.Field.BabyBear
+import Soundcalc.Field.Goldilocks
 import Soundcalc.Lookup
 import Soundcalc.Common.Utils
 import Soundcalc.Common.Log
+import Soundcalc.Common.Sqrt
 import Soundcalc.ZkVM
 import Soundcalc.ZkVM.SP1
 import Soundcalc.ZkVM.Airbender

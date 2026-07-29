@@ -12,6 +12,7 @@ structure GenericCircuit where
   field            : FieldParams
   proofSystName    : String
   densePCS         : FRIConfig
+  gapToRadius      : Option ℚ       := none -- gapToRadius is defined at circuit level
   lookups          : List LookupCfg := []
   /- Flags for supported regimes -/
   isUDR            : Bool

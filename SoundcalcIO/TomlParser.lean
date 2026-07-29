@@ -93,6 +93,12 @@ private def getFloat (tbl : Table) (key : String) : Except String Float :=
   | some _              => .error s!"key '{key}' exists but is not a float"
   | none                => .error s!"key '{key}' not found"
 
+private def getOptFloat (tbl : Table) (key : String) : Except String (Option Float) :=
+  match tbl.find? (.mkSimple key) with
+  | some (.float _ f)   => .ok f
+  | some _              => .error s!"key '{key}' exists but is not a float"
+  | none                => .ok none
+
 private def getArray (tbl : Table) (key : String) : Except String (Array Value) :=
   match tbl.find? (.mkSimple key) with
   | some (.array _ a)   => .ok a
@@ -144,6 +150,8 @@ private def getTable (tbl : Table) (key : String) : Except String (RBDict Name V
 private def mapStrToFieldParams : List (String × FieldParams) := [
   ("KoalaBear^4", koalaBear4),
   ("M31^4", mersenne31_4),
+  ("BabyBear^4", babyBear4),
+  ("Goldilocks^3", goldilocks3),
 ]
 
 /--
@@ -312,6 +320,9 @@ private def parseJaggedCfg (circTab : Table)
   | .isTrue h  => pure (PLift.up h : PLift (friConfig.field = zkvm_field))
   | .isFalse _ => IO.eprintln "FRI field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
 
+  let circ_gap_to_radius_cond ← orExit (getOptFloat circTab "gap_to_radius")
+  let circ_gap_to_radius ← orExit (gapToRadiusRat circ_gap_to_radius_cond)
+
   let jcfg: JaggedCfg := {
     name              := circ_name
     field             := zkvm_field
@@ -326,6 +337,7 @@ private def parseJaggedCfg (circTab : Table)
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
     isUDR             := true   -- **TODO** generalize
     isJBR             := false  -- **TODO** generalize
+    gapToRadius       := circ_gap_to_radius
   }
 
   pure jcfg
@@ -377,6 +389,9 @@ private def parseDeepAliCfg (circTab : Table)
   | .isTrue h  => pure (PLift.up h : PLift (friConfig.field = zkvm_field))
   | .isFalse _ => IO.eprintln "FRI field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
 
+  let circ_gap_to_radius_cond ← orExit (getOptFloat circTab "gap_to_radius")
+  let circ_gap_to_radius ← orExit (gapToRadiusRat circ_gap_to_radius_cond)
+
   let dacfg: DeepAliCfg := {
     name              := circ_name
     field             := zkvm_field
@@ -391,6 +406,7 @@ private def parseDeepAliCfg (circTab : Table)
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
     isUDR             := true   -- **TODO** generalize
     isJBR             := true   -- **TODO** generalize
+    gapToRadius       := circ_gap_to_radius
   }
 
   pure dacfg

@@ -138,26 +138,6 @@ def openvmInternalDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-/-- OpenVM's `app`/`leaf`/`internal` circuits satisfy the DEEP-ALI multi-point
-    side condition (`DeepAliCfg.multiPointOk`) in both regimes. -/
-theorem openvmAppDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = openvmUDR ∨ R = openvmAppJBR) :
-    openvmAppDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem openvmLeafDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = openvmUDR ∨ R = openvmLeafJBR) :
-    openvmLeafDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem openvmInternalDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = openvmUDR ∨ R = openvmInternalJBR) :
-    openvmInternalDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 /-! ## Exit criteria (bundled)
 
 Row entries: batching | commit×rounds | query | ALI | DEEP | lookups (internal only).

@@ -50,7 +50,7 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
 /-- Multi-point side condition: the decode window `(1 − θUB) · D` exceeds `H + m_max`.
     Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
     true window — if the guard passes here it passes with the exact θ. -/
-def DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
+abbrev DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
   let traceLength := c.densePCS.denseLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
   ((traceLength : Q) + (c.maxCombo : Q)) <
     (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q))
@@ -97,14 +97,16 @@ def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
 
 /-! ## Exit criteria (bundled) -/
 
-/-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the ALI/DEEP cells,
-    the (regime-independent) lookup cells, the full per-cell row, the regime total, and
-    the (regime-independent) proof sizes in KiB. One instance of this `Prop`, discharged
-    by `native_decide`, replaces the scattered per-circuit `example`s previously written
-    by hand for each of Airbender/OpenVM/etc. -/
+/-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the multi-point FRI
+    precondition (`multiPointOk`), the ALI/DEEP cells, the (regime-independent) lookup
+    cells, the full per-cell row, the regime total, and the (regime-independent) proof
+    sizes in KiB. One instance of this `Prop`, discharged by `native_decide`, replaces the
+    scattered per-circuit `example`s (and `_multiPoint_ok` theorems) previously written by
+    hand for each of Airbender/OpenVM/etc. -/
 def DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
     (aliBits deepBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
     (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
+  c.multiPointOk R ∧
   secBits (c.aliErr R) = aliBits ∧
   secBits (c.deepErr R) = deepBits ∧
   (c.lookups.map (·.errUB)).map secBits = lookupBits ∧

@@ -192,12 +192,6 @@ def ziskDmaDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDmaDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaJBR) :
-    ziskDmaDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDmaDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -282,12 +276,6 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDmaMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaMemCpyJBR) :
-    ziskDmaMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- DmaMemCpy: 679 KiB (expected) / 1072 KiB (worst case).
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
@@ -374,12 +362,6 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDmaInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaInputCpyJBR) :
-    ziskDmaInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaInputCpy: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -464,12 +446,6 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDma64AlignedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedJBR) :
-    ziskDma64AlignedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Dma64Aligned: 838 KiB (expected) / 1233 KiB (worst case).
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
@@ -556,12 +532,6 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDma64AlignedInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedInputCpyJBR) :
-    ziskDma64AlignedInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -636,12 +606,6 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDma64AlignedMemSetDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemSetJBR) :
-    ziskDma64AlignedMemSetDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Dma64AlignedMemSet: 662 KiB (expected) / 1056 KiB (worst case).
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
@@ -718,12 +682,6 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDma64AlignedMemDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemJBR) :
-    ziskDma64AlignedMemDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Dma64AlignedMem: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -798,12 +756,6 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDma64AlignedMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDma64AlignedMemCpyJBR) :
-    ziskDma64AlignedMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Dma64AlignedMemCpy: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
@@ -885,12 +837,6 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDmaUnalignedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaUnalignedJBR) :
-    ziskDmaUnalignedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaUnaligned: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -966,12 +912,6 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDmaPrePostDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostJBR) :
-    ziskDmaPrePostDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePost: 951 KiB (expected) / 1346 KiB (worst case).
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -1042,12 +982,6 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskDmaPrePostMemCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostMemCpyJBR) :
-    ziskDmaPrePostMemCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- DmaPrePostMemCpy: 881 KiB (expected) / 1276 KiB (worst case).
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 168)
@@ -1115,12 +1049,6 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDmaPrePostInputCpyDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostInputCpyJBR) :
-    ziskDmaPrePostInputCpyDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- DmaPrePostInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
@@ -1200,12 +1128,6 @@ def ziskMainDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskMainDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMainJBR) :
-    ziskMainDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Main: 890 KiB (expected) / 1292 KiB (worst case).
 example : ziskMainDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 167)
@@ -1260,12 +1182,6 @@ def ziskRomDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskRomDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRomJBR) :
-    ziskRomDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Rom: 635 KiB (expected) / 1019 KiB (worst case).
 example : ziskRomDeepAli.ExitCriteria ziskUDR
@@ -1336,12 +1252,6 @@ def ziskMemDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskMemDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemJBR) :
-    ziskMemDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Mem: 718 KiB (expected) / 1120 KiB (worst case).
 example : ziskMemDeepAli.ExitCriteria ziskUDR
     (aliBits := 186) (deepBits := 167)
@@ -1404,12 +1314,6 @@ def ziskRomDataDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskRomDataDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRomDataJBR) :
-    ziskRomDataDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- RomData: 603 KiB (expected) / 997 KiB (worst case).
 example : ziskRomDataDeepAli.ExitCriteria ziskUDR
@@ -1476,12 +1380,6 @@ def ziskInputDataDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskInputDataDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskInputDataJBR) :
-    ziskInputDataDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- InputData: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskInputDataDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 168)
@@ -1542,12 +1440,6 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskMemAlignDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignJBR) :
-    ziskMemAlignDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- MemAlign: 821 KiB (expected) / 1217 KiB (worst case).
 example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
@@ -1622,12 +1514,6 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskMemAlignByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignByteJBR) :
-    ziskMemAlignByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlignByte: 694 KiB (expected) / 1093 KiB (worst case).
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
     (aliBits := 187) (deepBits := 167)
@@ -1697,12 +1583,6 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskMemAlignReadByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignReadByteJBR) :
-    ziskMemAlignReadByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- MemAlignReadByte: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
@@ -1777,12 +1657,6 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskMemAlignWriteByteDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskMemAlignWriteByteJBR) :
-    ziskMemAlignWriteByteDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- MemAlignWriteByte: 683 KiB (expected) / 1082 KiB (worst case).
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1846,12 +1720,6 @@ def ziskArithDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskArithDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithJBR) :
-    ziskArithDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Arith: 848 KiB (expected) / 1244 KiB (worst case).
 example : ziskArithDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 168)
@@ -1913,12 +1781,6 @@ def ziskBinaryDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskBinaryDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryJBR) :
-    ziskBinaryDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Binary: 826 KiB (expected) / 1227 KiB (worst case).
 example : ziskBinaryDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -1979,12 +1841,6 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskBinaryAddDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryAddJBR) :
-    ziskBinaryAddDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- BinaryAdd: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
@@ -2054,12 +1910,6 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskBinaryExtensionDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBinaryExtensionJBR) :
-    ziskBinaryExtensionDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- BinaryExtension: 777 KiB (expected) / 1179 KiB (worst case).
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
     (aliBits := 188) (deepBits := 167)
@@ -2120,12 +1970,6 @@ def ziskAdd256DeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskAdd256DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskAdd256JBR) :
-    ziskAdd256DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Add256: 816 KiB (expected) / 1165 KiB (worst case).
 example : ziskAdd256DeepAli.ExitCriteria ziskUDR
@@ -2204,12 +2048,6 @@ def ziskArithEqDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskArithEqDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEqJBR) :
-    ziskArithEqDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- ArithEq: 2994 KiB (expected) / 3346 KiB (worst case).
 example : ziskArithEqDeepAli.ExitCriteria ziskUDR
@@ -2291,12 +2129,6 @@ def ziskArithEq384DeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskArithEq384DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEq384JBR) :
-    ziskArithEq384DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq384: 3366 KiB (expected) / 3720 KiB (worst case).
 example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 169)
@@ -2360,12 +2192,6 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskKeccakfDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskKeccakfJBR) :
-    ziskKeccakfDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Keccakf: 20975 KiB (expected) / 21244 KiB (worst case).
 example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
     (aliBits := 180) (deepBits := 172)
@@ -2427,12 +2253,6 @@ def ziskSha256fDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskSha256fDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSha256fJBR) :
-    ziskSha256fDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Sha256f: 7215 KiB (expected) / 7549 KiB (worst case).
 example : ziskSha256fDeepAli.ExitCriteria ziskUDR
     (aliBits := 185) (deepBits := 171)
@@ -2489,12 +2309,6 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskPoseidon2DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskPoseidon2JBR) :
-    ziskPoseidon2DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Poseidon2: 682 KiB (expected) / 832 KiB (worst case).
 example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
@@ -2560,12 +2374,6 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskBlake2brDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBlake2brJBR) :
-    ziskBlake2brDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Blake2br: 3874 KiB (expected) / 4207 KiB (worst case).
 example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
@@ -2644,12 +2452,6 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskSpecifiedRangesDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSpecifiedRangesJBR) :
-    ziskSpecifiedRangesDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- SpecifiedRanges: 1020 KiB (expected) / 1369 KiB (worst case).
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
@@ -2731,12 +2533,6 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskVirtualTable0DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskVirtualTable0JBR) :
-    ziskVirtualTable0DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- VirtualTable0: 875 KiB (expected) / 1270 KiB (worst case).
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
     (aliBits := 189) (deepBits := 168)
@@ -2792,12 +2588,6 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskVirtualTable1DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskVirtualTable1JBR) :
-    ziskVirtualTable1DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- VirtualTable1: 989 KiB (expected) / 1384 KiB (worst case).
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
     (aliBits := 189) (deepBits := 168)
@@ -2850,12 +2640,6 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskDmaPrePostCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskDmaPrePostCompressorJBR) :
-    ziskDmaPrePostCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- DmaPrePost-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
@@ -2910,12 +2694,6 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskArithEqCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEqCompressorJBR) :
-    ziskArithEqCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- ArithEq-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -2968,12 +2746,6 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskArithEq384CompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskArithEq384CompressorJBR) :
-    ziskArithEq384CompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- ArithEq384-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
@@ -3028,12 +2800,6 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskKeccakfCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskKeccakfCompressorJBR) :
-    ziskKeccakfCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Keccakf-compressor: 771 KiB (expected) / 940 KiB (worst case).
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 169)
@@ -3086,12 +2852,6 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskSha256fCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskSha256fCompressorJBR) :
-    ziskSha256fCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Sha256f-compressor: 743 KiB (expected) / 892 KiB (worst case).
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
@@ -3146,12 +2906,6 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskBlake2brCompressorDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskBlake2brCompressorJBR) :
-    ziskBlake2brCompressorDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Blake2br-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 171)
@@ -3204,12 +2958,6 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskRecursive2DeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskRecursive2JBR) :
-    ziskRecursive2DeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Recursive2: 398 KiB (expected) / 487 KiB (worst case).
 example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
@@ -3264,12 +3012,6 @@ def ziskFinalDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-theorem ziskFinalDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskFinalJBR) :
-    ziskFinalDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 -- Final: 253 KiB (expected) / 292 KiB (worst case).
 example : ziskFinalDeepAli.ExitCriteria ziskUDR
     (aliBits := 184) (deepBits := 172)
@@ -3322,12 +3064,6 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   h_lookups_field := by native_decide
   isUDR          := true
   isJBR          := true
-
-theorem ziskFinalCompressedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = ziskUDR ∨ R = ziskFinalCompressedJBR) :
-    ziskFinalCompressedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
 
 -- Final_Compressed: 269 KiB (expected) / 313 KiB (worst case).
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR

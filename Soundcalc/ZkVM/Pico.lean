@@ -251,39 +251,8 @@ def picoEmbedDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-/-- Pico's `riscv`/`convert`/`combine`/`compress`/`embed` circuits satisfy the
-    DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`) in both regimes. -/
-theorem picoRiscvDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoRiscvJBR) :
-    picoRiscvDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoConvertDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoConvertJBR) :
-    picoConvertDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoCombineDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoCombineJBR) :
-    picoCombineDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoCompressDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoCompressJBR) :
-    picoCompressDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-theorem picoEmbedDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = picoUDR ∨ R = picoEmbedJBR) :
-    picoEmbedDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
-/-! ## Exit criteria (bundled)
+/-
+# Exit criteria (bundled)
 
 Row entries: batching | commit×rounds | query | ALI | DEEP | lookups.
 Lookup cells and proof sizes are regime-independent, hence identical across the

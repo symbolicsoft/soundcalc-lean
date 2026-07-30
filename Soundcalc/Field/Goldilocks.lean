@@ -5,18 +5,14 @@ import Soundcalc.Field.Pratt
 # Goldilocks — `p = 2^64 - 2^32 + 1`; ZisK uses its degree-3 extension.
 
 The 64-bit prime is out of reach for kernel `decide`/`norm_num` (trial division to √p ≈ 2^32),
-and we avoid `native_decide`. The `Goldilocks` namespace below proves primality with a **Pratt
+and we avoid `native_decide`. `goldilocks_prime` below proves primality with a **Pratt
 certificate** (`lucas_primality`, primitive root 7, `p - 1 = 2^32 · 3 · 5 · 17 · 257 · 65537`):
-each modular exponentiation is discharged by `decide` over `Soundcalc.Pratt.modPow`, a
-square-and-multiply *structural in an explicit `fuel`* so the kernel reduces it in `O(fuel)` steps
-(see `Soundcalc.Field.Pratt`). Kernel-checked, `native_decide`-free.
+each modular exponentiation is discharged by `decide` over `modPow`, a square-and-multiply
+*structural in an explicit `fuel`* so the kernel reduces it in `O(fuel)` steps (see
+`Soundcalc.Field.Pratt`). Kernel-checked, `native_decide`-free.
 -/
 
 namespace Soundcalc
-
-namespace Goldilocks
-
-open Soundcalc.Pratt
 
 /-- Bridge: `(7 : ZMod m) ^ E = ↑(modPow m 64 7 E)` for any `E < 2^64`. -/
 private theorem zmod_pow_eq (m E : ℕ) (hE : E < 2 ^ 64) :
@@ -67,14 +63,12 @@ theorem goldilocks_prime : Nat.Prime (2 ^ 64 - 2 ^ 32 + 1) := by
     · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h65537]
       exact hne _ (by norm_num) (by decide)
 
-end Goldilocks
-
 /-- Goldilocks, `p = 2^64 - 2^32 + 1`; ZisK uses its degree-3 extension. -/
 def goldilocks3 : FieldParams where
   p               := 2 ^ 64 - 2 ^ 32 + 1
   e               := 3
   twoAdicity      := 32
-  prime           := Goldilocks.goldilocks_prime   -- kernel-clean Pratt cert (`Goldilocks` above)
+  prime           := goldilocks_prime   -- kernel-clean Pratt cert (above)
   epos            := by decide
   twoAdicity_spec := by decide
 

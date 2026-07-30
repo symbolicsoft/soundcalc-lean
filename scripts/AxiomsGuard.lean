@@ -49,8 +49,8 @@ If a refactor makes one of these acquire a new axiom (or `sorry`), the
 /-- info: 'Soundcalc.babyBear4' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.babyBear4
 
-/-- info: 'Soundcalc.Goldilocks.goldilocks_prime' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in #print axioms Soundcalc.Goldilocks.goldilocks_prime
+/-- info: 'Soundcalc.goldilocks_prime' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.goldilocks_prime
 
 /-- info: 'Soundcalc.goldilocks3' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.goldilocks3

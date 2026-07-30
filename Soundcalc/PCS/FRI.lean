@@ -44,9 +44,6 @@ structure FRIConfig where
   grindQuery     : N             -- = 16
   grindBatch     : N             := 0
   grindCommit    : N             := 0        -- = 5 for Airbender; 0 keeps SP1 configs valid
-  -- ZisK's per-circuit `gap_to_radius` is not stored here: it parametrises the
-  -- soundness *analysis*, so it enters through `JBR`'s `gapToRadius : Option ℚ`
-  -- (see `Soundcalc/ZkVM/Zisk.lean`), keeping `FRIConfig` float-free.
   /-- After all folds, the residual domain size equals `earlyStopDeg`. -/
   h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
                    = (earlyStopDeg : Q) := by native_decide

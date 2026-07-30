@@ -53,6 +53,6 @@ def Circuit.totalSecBitsUDR : Circuit → ℕ
    we keep `g = 2^40` as the sqrt granularity in JBR. -/
 def Circuit.totalSecBitsJBR : Circuit → ℕ
   | .jagged _  => 0                     -- unsupported; *TODO* ìmprove representation.
-  | .deepali c => secBits (c.totalErr (JBR c.field (2^40)))
+  | .deepali c => secBits (c.totalErr (JBR c.field (2^40) c.gapToRadius))
 
 end Soundcalc

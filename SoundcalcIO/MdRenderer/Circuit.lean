@@ -32,6 +32,6 @@ def Circuit.secParamsUDR : Circuit → IO (List (String × Nat))
 -/
 def Circuit.secParamsJBR : Circuit → IO (List (String × Nat))
   | .jagged _ => pure []         -- unsupported; *TODO* ìmprove representation.
-  | .deepali c => c.getSecurityLevels (JBR c.field (2^40))
+  | .deepali c => c.getSecurityLevels (JBR c.field (2^40) c.gapToRadius)
 
 end Soundcalc

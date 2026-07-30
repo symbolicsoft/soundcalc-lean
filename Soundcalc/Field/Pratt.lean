@@ -10,7 +10,7 @@ for primes out of reach of `decide`/`norm_num` (trial division to √p) and with
 Any field whose modulus needs such a certificate can reuse `modPow`/`modPow_eq` from here.
 -/
 
-namespace Soundcalc.Pratt
+namespace Soundcalc
 
 /-- Modular exponentiation `base ^ e % m` by square-and-multiply, with an explicit `fuel`
     bound. Recursion is structural in `fuel`, so the kernel evaluates it in `O(fuel)` steps
@@ -56,4 +56,4 @@ theorem modPow_eq (m : ℕ) :
           _ = base ^ e % m := by rw [show 2 * (e / 2) + 1 = e from by omega]
       · rw [if_neg hpar, hr, hsq, show 2 * (e / 2) = e from by omega]
 
-end Soundcalc.Pratt
+end Soundcalc

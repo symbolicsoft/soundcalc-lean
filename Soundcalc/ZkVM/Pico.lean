@@ -37,7 +37,7 @@ namespace Soundcalc
 def picoRiscvFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2 ^ 22
   denseLen       := 2 ^ 22          -- trace length = FRI dimension
   batchSize      := 1435
@@ -53,7 +53,7 @@ def picoRiscvFRI : FRIConfig where
 def picoConvertFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2 ^ 20
   denseLen       := 2 ^ 20
   batchSize      := 485
@@ -69,7 +69,7 @@ def picoConvertFRI : FRIConfig where
 def picoCombineFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2 ^ 18
   denseLen       := 2 ^ 18
   batchSize      := 485
@@ -85,7 +85,7 @@ def picoCombineFRI : FRIConfig where
 def picoCompressFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1/16, by norm_num, by norm_num⟩
+  ρ              := Rate.sixteenth
   traceLen       := 2 ^ 17
   denseLen       := 2 ^ 17
   batchSize      := 485
@@ -101,7 +101,7 @@ def picoCompressFRI : FRIConfig where
 def picoEmbedFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1/16, by norm_num, by norm_num⟩
+  ρ              := Rate.sixteenth
   traceLen       := 2 ^ 15
   denseLen       := 2 ^ 15
   batchSize      := 485

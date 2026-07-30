@@ -82,13 +82,8 @@ def goldilocks3 : FieldParams where
 example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := by
   unfold FieldParams.card goldilocks3; norm_num
 
-theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 := by
-  show Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) = 64
-  have hle : Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) ≤ 64 := by
-    rw [Nat.clog_le_iff_le_pow] <;> norm_num
-  have hlt : 63 < Nat.clog 2 (2 ^ 64 - 2 ^ 32 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
-  omega
+theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 :=
+  goldilocks3.baseElementSizeBits_eq 64 (by norm_num [goldilocks3]) (by norm_num [goldilocks3])
 
 theorem goldilocks3_elementBits : goldilocks3.elementSizeBits = 192 := by
   rw [FieldParams.elementSizeBits, goldilocks3_baseBits]; rfl

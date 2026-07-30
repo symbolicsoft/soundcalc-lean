@@ -125,7 +125,7 @@ abbrev ziskFinalCompressedJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (10 / 3
 def ziskDmaFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 46
@@ -215,7 +215,7 @@ example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
 def ziskDmaMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 33
@@ -300,7 +300,7 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
 def ziskDmaInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 27
@@ -385,7 +385,7 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
 def ziskDma64AlignedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 62
@@ -470,7 +470,7 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
 def ziskDma64AlignedInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 44
@@ -555,7 +555,7 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJ
 def ziskDma64AlignedMemSetFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 30
@@ -630,7 +630,7 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
 def ziskDma64AlignedMemFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 46
@@ -705,7 +705,7 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
 def ziskDma64AlignedMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 52
@@ -780,7 +780,7 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
 def ziskDmaUnalignedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 52
@@ -860,7 +860,7 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
 def ziskDmaPrePostFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 83
@@ -935,7 +935,7 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
 def ziskDmaPrePostMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 70
@@ -1003,7 +1003,7 @@ example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskDmaPrePostMemCpyJBR
 def ziskDmaPrePostInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 44
@@ -1071,7 +1071,7 @@ example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskDmaPrePostInputCpyJBR
 def ziskMainFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 61
@@ -1151,7 +1151,7 @@ example : ziskMainDeepAli.ExitCriteria ziskMainJBR
 def ziskRomFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
@@ -1204,7 +1204,7 @@ example : ziskRomDeepAli.ExitCriteria ziskRomJBR
 def ziskMemFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 29
@@ -1275,7 +1275,7 @@ example : ziskMemDeepAli.ExitCriteria ziskMemJBR
 def ziskRomDataFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 19
@@ -1336,7 +1336,7 @@ example : ziskRomDataDeepAli.ExitCriteria ziskRomDataJBR
 def ziskInputDataFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 27
@@ -1401,7 +1401,7 @@ example : ziskInputDataDeepAli.ExitCriteria ziskInputDataJBR
 def ziskMemAlignFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 59
@@ -1462,7 +1462,7 @@ example : ziskMemAlignDeepAli.ExitCriteria ziskMemAlignJBR
 def ziskMemAlignByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 25
@@ -1537,7 +1537,7 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
 def ziskMemAlignReadByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
@@ -1605,7 +1605,7 @@ example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskMemAlignReadByteJBR
 def ziskMemAlignWriteByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 23
@@ -1680,7 +1680,7 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
 def ziskArithFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 64
@@ -1741,7 +1741,7 @@ example : ziskArithDeepAli.ExitCriteria ziskArithJBR
 def ziskBinaryFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 49
@@ -1802,7 +1802,7 @@ example : ziskBinaryDeepAli.ExitCriteria ziskBinaryJBR
 def ziskBinaryAddFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
@@ -1863,7 +1863,7 @@ example : ziskBinaryAddDeepAli.ExitCriteria ziskBinaryAddJBR
 def ziskBinaryExtensionFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 40
@@ -1931,7 +1931,7 @@ example : ziskBinaryExtensionDeepAli.ExitCriteria ziskBinaryExtensionJBR
 def ziskAdd256FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 69
@@ -1992,7 +1992,7 @@ example : ziskAdd256DeepAli.ExitCriteria ziskAdd256JBR
 def ziskArithEqFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 470
@@ -2072,7 +2072,7 @@ example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
 def ziskArithEq384FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 536
@@ -2152,7 +2152,7 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
 def ziskKeccakfFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 131072
   denseLen       := 131072
   batchSize      := 4065
@@ -2213,7 +2213,7 @@ example : ziskKeccakfDeepAli.ExitCriteria ziskKeccakfJBR
 def ziskSha256fFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 1265
@@ -2274,7 +2274,7 @@ example : ziskSha256fDeepAli.ExitCriteria ziskSha256fJBR
 def ziskPoseidon2FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 131072
   denseLen       := 131072
   batchSize      := 182
@@ -2331,7 +2331,7 @@ example : ziskPoseidon2DeepAli.ExitCriteria ziskPoseidon2JBR
 def ziskBlake2brFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 651
@@ -2396,7 +2396,7 @@ example : ziskBlake2brDeepAli.ExitCriteria ziskBlake2brJBR
 def ziskSpecifiedRangesFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 107
@@ -2476,7 +2476,7 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
 def ziskVirtualTable0FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 69
@@ -2556,7 +2556,7 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
 def ziskVirtualTable1FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 90
@@ -2609,7 +2609,7 @@ example : ziskVirtualTable1DeepAli.ExitCriteria ziskVirtualTable1JBR
 def ziskDmaPrePostCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
@@ -2662,7 +2662,7 @@ example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskDmaPrePostCompressorJ
 def ziskArithEqCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
@@ -2715,7 +2715,7 @@ example : ziskArithEqCompressorDeepAli.ExitCriteria ziskArithEqCompressorJBR
 def ziskArithEq384CompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
@@ -2768,7 +2768,7 @@ example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskArithEq384CompressorJ
 def ziskKeccakfCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 198
@@ -2821,7 +2821,7 @@ example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskKeccakfCompressorJBR
 def ziskSha256fCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 524288
   denseLen       := 524288
   batchSize      := 198
@@ -2874,7 +2874,7 @@ example : ziskSha256fCompressorDeepAli.ExitCriteria ziskSha256fCompressorJBR
 def ziskBlake2brCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
@@ -2927,7 +2927,7 @@ example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskBlake2brCompressorJBR
 def ziskRecursive2FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/8, by norm_num, by norm_num⟩
+  ρ              := Rate.eighth
   traceLen       := 131072
   denseLen       := 131072
   batchSize      := 145
@@ -2980,7 +2980,7 @@ example : ziskRecursive2DeepAli.ExitCriteria ziskRecursive2JBR
 def ziskFinalFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/32, by norm_num, by norm_num⟩
+  ρ              := Rate.thirtysecond
   traceLen       := 65536
   denseLen       := 65536
   batchSize      := 139
@@ -3033,7 +3033,7 @@ example : ziskFinalDeepAli.ExitCriteria ziskFinalJBR
 def ziskFinalCompressedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
-  ρ              := ⟨1/16, by norm_num, by norm_num⟩
+  ρ              := Rate.sixteenth
   traceLen       := 32768
   denseLen       := 32768
   batchSize      := 145

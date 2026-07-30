@@ -1,4 +1,4 @@
-import Soundcalc.Field
+import Soundcalc.Field.Goldilocks
 import Soundcalc.Regime
 import Soundcalc.SecBits
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits, KIB

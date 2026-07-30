@@ -1,7 +1,7 @@
 import Mathlib
 import Soundcalc.Regime        -- brings in Rate, Regime, UDR (and Field transitively)
 import Soundcalc.Common.Utils  -- getSizeOfMerkleMultiProofBits
-import Soundcalc.Field         -- certified koalaBear4.elementSizeBits (= 124)
+import Soundcalc.Field.KoalaBear   -- certified koalaBear4.elementSizeBits (= 124)
 import Soundcalc.Common.Log
 
 open Soundcalc

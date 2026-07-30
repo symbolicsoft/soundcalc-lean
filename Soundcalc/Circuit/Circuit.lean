@@ -1,4 +1,4 @@
-import Soundcalc.Field
+import Soundcalc.Field.Core
 import Soundcalc.Circuit.GenericCircuit
 import Soundcalc.Circuit.Jagged
 import Soundcalc.Circuit.DeepAli

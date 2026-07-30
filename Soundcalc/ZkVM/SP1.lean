@@ -2,7 +2,7 @@ import Soundcalc.Circuit.Jagged
 import Soundcalc.SecBits
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
-import Soundcalc.Field
+import Soundcalc.Field.KoalaBear
 import Soundcalc.ZkVM
 
 namespace Soundcalc

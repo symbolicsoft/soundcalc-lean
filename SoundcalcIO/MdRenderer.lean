@@ -280,6 +280,10 @@ def main (args: List String): IO Unit := do
     let relPath := "./SoundcalcIO/ZkVM"
     renderMd s!"{relPath}/Ref/sp1.toml" s!"{relPath}/sp1.md"
     renderMd s!"{relPath}/Ref/airbender.toml" s!"{relPath}/airbender.md"
+    renderMd s!"{relPath}/Ref/openvm.toml" s!"{relPath}/openvm.md"
+    renderMd s!"{relPath}/Ref/pico.toml" s!"{relPath}/pico.md"
+    renderMd s!"{relPath}/Ref/zisk.toml" s!"{relPath}/zisk.md"
+    renderMd s!"{relPath}/Ref/venus.toml" s!"{relPath}/venus.md"
 
   /- Extended usage: specify and render one specific zkVM. -/
   else if h: args.length = 2 then

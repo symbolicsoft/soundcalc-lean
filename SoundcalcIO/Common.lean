@@ -35,10 +35,11 @@ def orExit {T : Type} (e : Except String T) : IO T :=
   The reverse map in `MdRenderer.lean`.
 -/
 def mapFloatToRate : List (Float × Rate) := [
-  (0.5,    ⟨1/2, by norm_num⟩),
-  (0.25,   ⟨1/4, by norm_num⟩),
-  (0.125,  ⟨1/8, by norm_num⟩),
-  (0.0625, ⟨1/16, by norm_num⟩),
+  (0.5,      ⟨1/2, by norm_num⟩),
+  (0.25,     ⟨1/4, by norm_num⟩),
+  (0.125,    ⟨1/8, by norm_num⟩),
+  (0.0625,   ⟨1/16, by norm_num⟩),
+  (0.031250, ⟨1/32, by norm_num⟩),
 ]
 
 /--
@@ -58,4 +59,23 @@ def rateToFloat (map : List (Float × Rate))
   | some (f, _) => .ok f
   | none        => .error s!"no entry for '{rate}'"
 
+/--
+  Maps an Option Float f representing a `gap_to_radius` to its exact ℚ counterpart.
+
+  Valid `gap_to_radius` are multiples of `1/3000`, in line with
+  with `Soundcalc/ZkVM/ZisK` (currently the only zkVM leveraging this field).
+-/
+def gapToRadiusRat (f: Option Float) : Except String (Option Rat) := Id.run do
+  match f with
+    | some f =>
+    /- Parsing mismatches between soundcalc's .toml float representation
+       and Lean's float representation are handled as separate explicit cases.  -/
+    if f == 0.003333333333333333 then return .ok (some ((10: ℚ)/3000))
+    if f == 0.005999999999999999 then return .ok (some ((18: ℚ)/3000))
+    if f == 0.006666666666666666 then return .ok (some ((20: ℚ)/3000))
+
+    for i in List.range 3000 do
+      if ((i : ℚ)/3000).toFloat == f then return .ok (some ((i : ℚ)/3000))
+    return .error s!"Invalid gap-to-radius"
+    | none => .ok none
 end SoundcalcIO

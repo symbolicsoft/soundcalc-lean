@@ -16,6 +16,8 @@ namespace SoundcalcIO.MdRenderer
 def mapFieldParamsToDisplayname : List (FieldParams × String) := [
   (koalaBear4, "KoalaBear⁴"),
   (mersenne31_4, "M31⁴"),
+  (babyBear4, "BabyBear⁴"),
+  (goldilocks3, "Goldilocks³"),
 ]
 
 def fieldParamsToDisplayname (map : List (FieldParams × String))

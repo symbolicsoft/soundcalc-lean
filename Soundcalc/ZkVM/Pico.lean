@@ -38,7 +38,6 @@ def picoRiscvFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.half
-  traceLen       := 2 ^ 22
   denseLen       := 2 ^ 22          -- trace length = FRI dimension
   batchSize      := 1435
   powerBatch     := true            -- Pico uses power batching
@@ -54,7 +53,6 @@ def picoConvertFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.half
-  traceLen       := 2 ^ 20
   denseLen       := 2 ^ 20
   batchSize      := 485
   powerBatch     := true
@@ -70,7 +68,6 @@ def picoCombineFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.half
-  traceLen       := 2 ^ 18
   denseLen       := 2 ^ 18
   batchSize      := 485
   powerBatch     := true
@@ -86,7 +83,6 @@ def picoCompressFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.sixteenth
-  traceLen       := 2 ^ 17
   denseLen       := 2 ^ 17
   batchSize      := 485
   powerBatch     := true
@@ -102,7 +98,6 @@ def picoEmbedFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.sixteenth
-  traceLen       := 2 ^ 15
   denseLen       := 2 ^ 15
   batchSize      := 485
   powerBatch     := true
@@ -189,7 +184,7 @@ def picoRiscvDeepAli : DeepAliCfg where
   name           := "riscv"
   proofSystName  := "DEEP-ALI"
   field          := picoRiscvFRI.field
-  densePCS       := picoRiscvFRI
+  densePCS       := .fri picoRiscvFRI
   numConstraints := 4729
   airMaxDegree   := 3
   maxCombo       := 2
@@ -203,7 +198,7 @@ def picoConvertDeepAli : DeepAliCfg where
   name           := "convert"
   proofSystName  := "DEEP-ALI"
   field          := picoConvertFRI.field
-  densePCS       := picoConvertFRI
+  densePCS       := .fri picoConvertFRI
   numConstraints := 323
   airMaxDegree   := 3
   maxCombo       := 2
@@ -216,7 +211,7 @@ def picoCombineDeepAli : DeepAliCfg where
   name           := "combine"
   proofSystName  := "DEEP-ALI"
   field          := picoCombineFRI.field
-  densePCS       := picoCombineFRI
+  densePCS       := .fri picoCombineFRI
   numConstraints := 323
   airMaxDegree   := 3
   maxCombo       := 2
@@ -229,7 +224,7 @@ def picoCompressDeepAli : DeepAliCfg where
   name           := "compress"
   proofSystName  := "DEEP-ALI"
   field          := picoCompressFRI.field
-  densePCS       := picoCompressFRI
+  densePCS       := .fri picoCompressFRI
   numConstraints := 323
   airMaxDegree   := 3
   maxCombo       := 2
@@ -242,7 +237,7 @@ def picoEmbedDeepAli : DeepAliCfg where
   name           := "embed"
   proofSystName  := "DEEP-ALI"
   field          := picoEmbedFRI.field
-  densePCS       := picoEmbedFRI
+  densePCS       := .fri picoEmbedFRI
   numConstraints := 323
   airMaxDegree   := 3
   maxCombo       := 2

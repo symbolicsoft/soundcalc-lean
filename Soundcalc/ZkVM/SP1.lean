@@ -59,7 +59,6 @@ def sp1CoreFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
   ρ              := Rate.quarter
-  traceLen       := 2 ^ 22
   denseLen       := 2 ^ 21
   batchSize      := 193
   powerBatch     := false
@@ -95,7 +94,6 @@ Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
 def sp1CompressFRI : FRIConfig where
   hashBits        := 248
   ρ               := Rate.quarter
-  traceLen        := 2097152
   field           := koalaBear4
   denseLen        := 1048576
   batchSize       := 128
@@ -110,7 +108,6 @@ def sp1CompressFRI : FRIConfig where
 def sp1ShrinkFRI : FRIConfig where
   hashBits        := 248
   ρ               := Rate.eighth
-  traceLen        := 524288
   field           := koalaBear4
   denseLen        := 262144
   batchSize       := 128
@@ -180,7 +177,7 @@ def sp1CoreJagged : JaggedCfg where
   name           := "core"
   field          := koalaBear4
   proofSystName  := "Jagged"
-  densePCS       := sp1CoreFRI
+  densePCS       := .fri sp1CoreFRI
   traceWidth     := 3741
   traceLength    := 2 ^ 22
   numConstraints := 3412
@@ -213,7 +210,7 @@ def sp1CompressJagged : JaggedCfg where
   name            := "compress"
   field           := koalaBear4
   proofSystName   := "Jagged"
-  densePCS        := sp1CompressFRI
+  densePCS        := .fri sp1CompressFRI
   traceLength     := 2097152
   traceWidth      := 326
   numConstraints  := 204
@@ -226,7 +223,7 @@ def sp1ShrinkJagged : JaggedCfg where
   name            := "shrink"
   field           := koalaBear4
   proofSystName   := "Jagged"
-  densePCS        := sp1ShrinkFRI
+  densePCS        := .fri sp1ShrinkFRI
   traceLength     := 524288
   traceWidth      := 326
   numConstraints  := 204
@@ -234,6 +231,12 @@ def sp1ShrinkJagged : JaggedCfg where
   lookups         := [sp1ShrinkLookup]
   isUDR          := true
   isJBR          := false
+
+/-!
+  S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits.
+  Used within `scripts/AxiomsGuard.lean`
+-/
+theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
 
 /-! ## Jagged exit criteria (bundled)
 
@@ -244,8 +247,8 @@ lookup. Cross-checked against <https://github.com/ethereum/soundcalc/blob/main/r
 -- core: 918 KiB (expected) / 1479 KiB (worst case)
 example : sp1CoreJagged.ExitCriteria
     (reduceBits := 116) (zerocheckBits := 112) (lookupBits := [100])
-    (rowBits := [100, 104, 116, 112, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
-                  114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100])
+    (rowBits := [116, 112, 104, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
+                  114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 100])
     (totalBits := 100)
     (proofSizeExpKib := 918) (proofSizeWorstKib := 1479) := by
   unfold JaggedCfg.ExitCriteria; native_decide
@@ -253,17 +256,18 @@ example : sp1CoreJagged.ExitCriteria
 -- compress: 735 KiB (expected) / 1267 KiB (worst case)
 example : sp1CompressJagged.ExitCriteria
     (reduceBits := 116) (zerocheckBits := 115) (lookupBits := [107])
-    (rowBits := [100, 105, 116, 115, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
-                  115, 116, 117, 118, 119, 120, 121, 121, 122, 107])
+    (rowBits := [116, 115, 105, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+                  115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 107])
     (totalBits := 100)
     (proofSizeExpKib := 735) (proofSizeWorstKib := 1267) := by
   unfold JaggedCfg.ExitCriteria; native_decide
 
+
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
 example : sp1ShrinkJagged.ExitCriteria
     (reduceBits := 116) (zerocheckBits := 115) (lookupBits := [109])
-    (rowBits := [100, 106, 116, 115, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
-                  116, 117, 118, 119, 120, 120, 121, 109])
+    (rowBits := [116, 115, 106, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+                  116, 117, 118, 119, 120, 120, 121, 100, 109])
     (totalBits := 100)
     (proofSizeExpKib := 529) (proofSizeWorstKib := 887) := by
   unfold JaggedCfg.ExitCriteria; native_decide

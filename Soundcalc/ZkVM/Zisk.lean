@@ -126,7 +126,6 @@ def ziskDmaFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 46
   powerBatch     := true
@@ -175,7 +174,7 @@ def ziskDmaDeepAli : DeepAliCfg where
   name           := "Dma"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaFRI
+  densePCS       := .fri ziskDmaFRI
   numConstraints := 49
   airMaxDegree   := 3
   maxCombo       := 3
@@ -216,7 +215,6 @@ def ziskDmaMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 33
   powerBatch     := true
@@ -261,7 +259,7 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
   name           := "DmaMemCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaMemCpyFRI
+  densePCS       := .fri ziskDmaMemCpyFRI
   numConstraints := 22
   airMaxDegree   := 3
   maxCombo       := 3
@@ -301,7 +299,6 @@ def ziskDmaInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 27
   powerBatch     := true
@@ -346,7 +343,7 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
   name           := "DmaInputCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaInputCpyFRI
+  densePCS       := .fri ziskDmaInputCpyFRI
   numConstraints := 20
   airMaxDegree   := 3
   maxCombo       := 3
@@ -386,7 +383,6 @@ def ziskDma64AlignedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 62
   powerBatch     := true
@@ -431,7 +427,7 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
   name           := "Dma64Aligned"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDma64AlignedFRI
+  densePCS       := .fri ziskDma64AlignedFRI
   numConstraints := 88
   airMaxDegree   := 3
   maxCombo       := 3
@@ -471,7 +467,6 @@ def ziskDma64AlignedInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 44
   powerBatch     := true
@@ -516,7 +511,7 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedInputCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDma64AlignedInputCpyFRI
+  densePCS       := .fri ziskDma64AlignedInputCpyFRI
   numConstraints := 52
   airMaxDegree   := 3
   maxCombo       := 3
@@ -556,7 +551,6 @@ def ziskDma64AlignedMemSetFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 30
   powerBatch     := true
@@ -593,7 +587,7 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemSet"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDma64AlignedMemSetFRI
+  densePCS       := .fri ziskDma64AlignedMemSetFRI
   numConstraints := 62
   airMaxDegree   := 3
   maxCombo       := 3
@@ -631,7 +625,6 @@ def ziskDma64AlignedMemFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 46
   powerBatch     := true
@@ -668,7 +661,7 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMem"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDma64AlignedMemFRI
+  densePCS       := .fri ziskDma64AlignedMemFRI
   numConstraints := 81
   airMaxDegree   := 3
   maxCombo       := 3
@@ -706,7 +699,6 @@ def ziskDma64AlignedMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 52
   powerBatch     := true
@@ -743,7 +735,7 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDma64AlignedMemCpyFRI
+  densePCS       := .fri ziskDma64AlignedMemCpyFRI
   numConstraints := 69
   airMaxDegree   := 3
   maxCombo       := 3
@@ -781,7 +773,6 @@ def ziskDmaUnalignedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 52
   powerBatch     := true
@@ -822,7 +813,7 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
   name           := "DmaUnaligned"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaUnalignedFRI
+  densePCS       := .fri ziskDmaUnalignedFRI
   numConstraints := 75
   airMaxDegree   := 3
   maxCombo       := 3
@@ -861,7 +852,6 @@ def ziskDmaPrePostFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 83
   powerBatch     := true
@@ -898,7 +888,7 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
   name           := "DmaPrePost"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaPrePostFRI
+  densePCS       := .fri ziskDmaPrePostFRI
   numConstraints := 69
   airMaxDegree   := 3
   maxCombo       := 3
@@ -936,7 +926,6 @@ def ziskDmaPrePostMemCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 70
   powerBatch     := true
@@ -969,7 +958,7 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostMemCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaPrePostMemCpyFRI
+  densePCS       := .fri ziskDmaPrePostMemCpyFRI
   numConstraints := 38
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1004,7 +993,6 @@ def ziskDmaPrePostInputCpyFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 44
   powerBatch     := true
@@ -1037,7 +1025,7 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostInputCpy"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaPrePostInputCpyFRI
+  densePCS       := .fri ziskDmaPrePostInputCpyFRI
   numConstraints := 20
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1072,7 +1060,6 @@ def ziskMainFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 61
   powerBatch     := true
@@ -1113,7 +1100,7 @@ def ziskMainDeepAli : DeepAliCfg where
   name           := "Main"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMainFRI
+  densePCS       := .fri ziskMainFRI
   numConstraints := 144
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1152,7 +1139,6 @@ def ziskRomFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
   powerBatch     := true
@@ -1173,7 +1159,7 @@ def ziskRomDeepAli : DeepAliCfg where
   name           := "Rom"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskRomFRI
+  densePCS       := .fri ziskRomFRI
   numConstraints := 3
   airMaxDegree   := 2
   maxCombo       := 3
@@ -1205,7 +1191,6 @@ def ziskMemFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 29
   powerBatch     := true
@@ -1242,7 +1227,7 @@ def ziskMemDeepAli : DeepAliCfg where
   name           := "Mem"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMemFRI
+  densePCS       := .fri ziskMemFRI
   numConstraints := 34
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1276,7 +1261,6 @@ def ziskRomDataFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 19
   powerBatch     := true
@@ -1305,7 +1289,7 @@ def ziskRomDataDeepAli : DeepAliCfg where
   name           := "RomData"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskRomDataFRI
+  densePCS       := .fri ziskRomDataFRI
   numConstraints := 23
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1337,7 +1321,6 @@ def ziskInputDataFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 27
   powerBatch     := true
@@ -1370,7 +1353,7 @@ def ziskInputDataDeepAli : DeepAliCfg where
   name           := "InputData"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskInputDataFRI
+  densePCS       := .fri ziskInputDataFRI
   numConstraints := 30
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1402,7 +1385,6 @@ def ziskMemAlignFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 59
   powerBatch     := true
@@ -1431,7 +1413,7 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   name           := "MemAlign"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMemAlignFRI
+  densePCS       := .fri ziskMemAlignFRI
   numConstraints := 40
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1463,7 +1445,6 @@ def ziskMemAlignByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 25
   powerBatch     := true
@@ -1500,7 +1481,7 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
   name           := "MemAlignByte"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMemAlignByteFRI
+  densePCS       := .fri ziskMemAlignByteFRI
   numConstraints := 16
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1538,7 +1519,6 @@ def ziskMemAlignReadByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
   powerBatch     := true
@@ -1571,7 +1551,7 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
   name           := "MemAlignReadByte"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMemAlignReadByteFRI
+  densePCS       := .fri ziskMemAlignReadByteFRI
   numConstraints := 10
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1606,7 +1586,6 @@ def ziskMemAlignWriteByteFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 23
   powerBatch     := true
@@ -1643,7 +1622,7 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
   name           := "MemAlignWriteByte"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskMemAlignWriteByteFRI
+  densePCS       := .fri ziskMemAlignWriteByteFRI
   numConstraints := 15
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1681,7 +1660,6 @@ def ziskArithFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 64
   powerBatch     := true
@@ -1710,7 +1688,7 @@ def ziskArithDeepAli : DeepAliCfg where
   name           := "Arith"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskArithFRI
+  densePCS       := .fri ziskArithFRI
   numConstraints := 65
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1742,7 +1720,6 @@ def ziskBinaryFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 49
   powerBatch     := true
@@ -1771,7 +1748,7 @@ def ziskBinaryDeepAli : DeepAliCfg where
   name           := "Binary"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskBinaryFRI
+  densePCS       := .fri ziskBinaryFRI
   numConstraints := 14
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1803,7 +1780,6 @@ def ziskBinaryAddFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 18
   powerBatch     := true
@@ -1832,7 +1808,7 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   name           := "BinaryAdd"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskBinaryAddFRI
+  densePCS       := .fri ziskBinaryAddFRI
   numConstraints := 9
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1864,7 +1840,6 @@ def ziskBinaryExtensionFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 4194304
   denseLen       := 4194304
   batchSize      := 40
   powerBatch     := true
@@ -1897,7 +1872,7 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
   name           := "BinaryExtension"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskBinaryExtensionFRI
+  densePCS       := .fri ziskBinaryExtensionFRI
   numConstraints := 8
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1932,7 +1907,6 @@ def ziskAdd256FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 69
   powerBatch     := true
@@ -1961,7 +1935,7 @@ def ziskAdd256DeepAli : DeepAliCfg where
   name           := "Add256"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskAdd256FRI
+  densePCS       := .fri ziskAdd256FRI
   numConstraints := 36
   airMaxDegree   := 3
   maxCombo       := 3
@@ -1993,7 +1967,6 @@ def ziskArithEqFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 470
   powerBatch     := true
@@ -2034,7 +2007,7 @@ def ziskArithEqDeepAli : DeepAliCfg where
   name           := "ArithEq"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskArithEqFRI
+  densePCS       := .fri ziskArithEqFRI
   numConstraints := 103
   airMaxDegree   := 3
   maxCombo       := 36
@@ -2073,7 +2046,6 @@ def ziskArithEq384FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 536
   powerBatch     := true
@@ -2114,7 +2086,7 @@ def ziskArithEq384DeepAli : DeepAliCfg where
   name           := "ArithEq384"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskArithEq384FRI
+  densePCS       := .fri ziskArithEq384FRI
   numConstraints := 76
   airMaxDegree   := 3
   maxCombo       := 54
@@ -2153,7 +2125,6 @@ def ziskKeccakfFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 131072
   denseLen       := 131072
   batchSize      := 4065
   powerBatch     := true
@@ -2182,7 +2153,7 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   name           := "Keccakf"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskKeccakfFRI
+  densePCS       := .fri ziskKeccakfFRI
   numConstraints := 2432
   airMaxDegree   := 3
   maxCombo       := 26
@@ -2214,7 +2185,6 @@ def ziskSha256fFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 1265
   powerBatch     := true
@@ -2243,7 +2213,7 @@ def ziskSha256fDeepAli : DeepAliCfg where
   name           := "Sha256f"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskSha256fFRI
+  densePCS       := .fri ziskSha256fFRI
   numConstraints := 115
   airMaxDegree   := 3
   maxCombo       := 87
@@ -2275,7 +2245,6 @@ def ziskPoseidon2FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 131072
   denseLen       := 131072
   batchSize      := 182
   powerBatch     := true
@@ -2300,7 +2269,7 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   name           := "Poseidon2"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskPoseidon2FRI
+  densePCS       := .fri ziskPoseidon2FRI
   numConstraints := 85
   airMaxDegree   := 4
   maxCombo       := 17
@@ -2332,7 +2301,6 @@ def ziskBlake2brFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 651
   powerBatch     := true
@@ -2365,7 +2333,7 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   name           := "Blake2br"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskBlake2brFRI
+  densePCS       := .fri ziskBlake2brFRI
   numConstraints := 189
   airMaxDegree   := 3
   maxCombo       := 29
@@ -2397,7 +2365,6 @@ def ziskSpecifiedRangesFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 107
   powerBatch     := true
@@ -2438,7 +2405,7 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
   name           := "SpecifiedRanges"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskSpecifiedRangesFRI
+  densePCS       := .fri ziskSpecifiedRangesFRI
   numConstraints := 16
   airMaxDegree   := 3
   maxCombo       := 3
@@ -2477,7 +2444,6 @@ def ziskVirtualTable0FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 69
   powerBatch     := true
@@ -2518,7 +2484,7 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
   name           := "VirtualTable0"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskVirtualTable0FRI
+  densePCS       := .fri ziskVirtualTable0FRI
   numConstraints := 6
   airMaxDegree   := 3
   maxCombo       := 3
@@ -2557,7 +2523,6 @@ def ziskVirtualTable1FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.half
-  traceLen       := 2097152
   denseLen       := 2097152
   batchSize      := 90
   powerBatch     := true
@@ -2578,7 +2543,7 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   name           := "VirtualTable1"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskVirtualTable1FRI
+  densePCS       := .fri ziskVirtualTable1FRI
   numConstraints := 6
   airMaxDegree   := 3
   maxCombo       := 3
@@ -2610,7 +2575,6 @@ def ziskDmaPrePostCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
   powerBatch     := true
@@ -2631,7 +2595,7 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   name           := "DmaPrePost-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskDmaPrePostCompressorFRI
+  densePCS       := .fri ziskDmaPrePostCompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2663,7 +2627,6 @@ def ziskArithEqCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
   powerBatch     := true
@@ -2684,7 +2647,7 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   name           := "ArithEq-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskArithEqCompressorFRI
+  densePCS       := .fri ziskArithEqCompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2716,7 +2679,6 @@ def ziskArithEq384CompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
   powerBatch     := true
@@ -2737,7 +2699,7 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   name           := "ArithEq384-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskArithEq384CompressorFRI
+  densePCS       := .fri ziskArithEq384CompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2769,7 +2731,6 @@ def ziskKeccakfCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 1048576
   denseLen       := 1048576
   batchSize      := 198
   powerBatch     := true
@@ -2790,7 +2751,7 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   name           := "Keccakf-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskKeccakfCompressorFRI
+  densePCS       := .fri ziskKeccakfCompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2822,7 +2783,6 @@ def ziskSha256fCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 524288
   denseLen       := 524288
   batchSize      := 198
   powerBatch     := true
@@ -2843,7 +2803,7 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   name           := "Sha256f-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskSha256fCompressorFRI
+  densePCS       := .fri ziskSha256fCompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2875,7 +2835,6 @@ def ziskBlake2brCompressorFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.quarter
-  traceLen       := 262144
   denseLen       := 262144
   batchSize      := 198
   powerBatch     := true
@@ -2896,7 +2855,7 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   name           := "Blake2br-compressor"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskBlake2brCompressorFRI
+  densePCS       := .fri ziskBlake2brCompressorFRI
   numConstraints := 179
   airMaxDegree   := 5
   maxCombo       := 6
@@ -2928,7 +2887,6 @@ def ziskRecursive2FRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.eighth
-  traceLen       := 131072
   denseLen       := 131072
   batchSize      := 145
   powerBatch     := true
@@ -2949,7 +2907,7 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   name           := "Recursive2"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskRecursive2FRI
+  densePCS       := .fri ziskRecursive2FRI
   numConstraints := 158
   airMaxDegree   := 8
   maxCombo       := 4
@@ -2981,7 +2939,6 @@ def ziskFinalFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.thirtysecond
-  traceLen       := 65536
   denseLen       := 65536
   batchSize      := 139
   powerBatch     := true
@@ -3002,7 +2959,7 @@ def ziskFinalDeepAli : DeepAliCfg where
   name           := "Final"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskFinalFRI
+  densePCS       := .fri ziskFinalFRI
   numConstraints := 154
   airMaxDegree   := 8
   maxCombo       := 4
@@ -3034,7 +2991,6 @@ def ziskFinalCompressedFRI : FRIConfig where
   hashBits       := 256
   field          := goldilocks3
   ρ              := Rate.sixteenth
-  traceLen       := 32768
   denseLen       := 32768
   batchSize      := 145
   powerBatch     := true
@@ -3055,7 +3011,7 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   name           := "Final_Compressed"
   proofSystName  := "DEEP-ALI"
   field          := goldilocks3
-  densePCS       := ziskFinalCompressedFRI
+  densePCS       := .fri ziskFinalCompressedFRI
   numConstraints := 158
   airMaxDegree   := 8
   maxCombo       := 4

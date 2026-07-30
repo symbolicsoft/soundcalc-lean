@@ -23,31 +23,37 @@ def JaggedCfg.renderCircParams (c: JaggedCfg) : IO String := do
   let floatRate ← orExit (rateToFloat mapFloatToRate c.densePCS.ρ)
   let floatRateStr := floatToFloatstr floatRate
 
-  /- Conditional strings -/
-  let batchingStr := if c.densePCS.powerBatch then "Powers" else "Affine"
-  let grindcommitStr :=
-    if c.densePCS.grindCommit > 0 then
-      s!"- Grinding commit phase (bits): {c.densePCS.grindCommit}\n"
-    else s!""
+  /- Currently-supported PCS: FRI
+    **FEAT TODO** Extend soundcalc to decouple Jagged+FRI. -/
 
-  outStr := outStr ++
-  s!"- Proof system: {c.proofSystName}\n" ++
-  s!"- PCS: FRI\n" ++
-  s!"- Hash size (bits): {c.densePCS.hashBits}\n" ++
-  s!"- Number of queries: {c.densePCS.numQueries}\n" ++
-  s!"- Grinding query phase (bits): {c.densePCS.grindQuery}\n" ++
-  /- Conditional grinding string -/
-  s!"{grindcommitStr}" ++
-  s!"- Field: {fieldDisplayName}\n" ++
-  s!"- Rate (ρ): {floatRateStr}\n" ++
-  s!"- Dense trace length: $2^\{{c.densePCS.h}}$\n" ++
-  s!"- Trace length: {c.traceLength}\n" ++
-  s!"- Trace width: {c.traceWidth}\n" ++
-  s!"- FRI rounds: {c.densePCS.rounds}\n" ++
-  s!"- FRI folding factors: {c.densePCS.foldingFactors}\n" ++
-  s!"- FRI early stop degree: {c.densePCS.earlyStopDeg}\n" ++
-  s!"- Dense batch size: {c.densePCS.batchSize}\n" ++
-  s!"- Batching: {batchingStr}\n"
+  match c.densePCS with
+  | .fri fcfg =>
+    /- Conditional strings -/
+    let batchingStr := if fcfg.powerBatch then "Powers" else "Affine"
+    let grindcommitStr :=
+      if fcfg.grindCommit > 0 then
+        s!"- Grinding commit phase (bits): {fcfg.grindCommit}\n"
+      else s!""
+
+    outStr := outStr ++
+    s!"- Proof system: {c.proofSystName}\n" ++
+    s!"- PCS: FRI\n" ++
+    s!"- Hash size (bits): {fcfg.hashBits}\n" ++
+    s!"- Number of queries: {fcfg.numQueries}\n" ++
+    s!"- Grinding query phase (bits): {fcfg.grindQuery}\n" ++
+    /- Conditional grinding string -/
+    s!"{grindcommitStr}" ++
+    s!"- Field: {fieldDisplayName}\n" ++
+    s!"- Rate (ρ): {floatRateStr}\n" ++
+    s!"- Dense trace length: $2^\{{fcfg.h}}$\n" ++
+    s!"- Trace length: {c.traceLength}\n" ++
+    s!"- Trace width: {c.traceWidth}\n" ++
+    s!"- FRI rounds: {fcfg.rounds}\n" ++
+    s!"- FRI folding factors: {fcfg.foldingFactors}\n" ++
+    s!"- FRI early stop degree: {fcfg.earlyStopDeg}\n" ++
+    s!"- Dense batch size: {fcfg.batchSize}\n" ++
+    s!"- Batching: {batchingStr}\n"
+  | .whir _ => IO.eprintln "Unsupported PCS scheme (WHIR)."; IO.Process.exit 1
 
   for lookup in c.lookups do
     outStr := outStr ++
@@ -68,19 +74,22 @@ def JaggedCfg.getSecurityLevels (c: JaggedCfg) : IO (List (String × Nat)) := do
   for lookup in c.lookups do
     l := l ++ [(lookup.name, (secBits lookup.errUB))]
 
+  /- Currently-supported PCS: FRI
+    **FEAT TODO** Extend soundcalc to decouple Jagged+FRI. -/
+  match c.densePCS with
+  | .fri fcfg =>
   /- FRIConfig secBits: batching, commit round {i}, query phase -/
-  let fcfg := c.densePCS
-  l := l ++ [("batching", (secBits (fcfg.batchingErr (UDR fcfg.field))))]
+    l := l ++ [("batching", (secBits (fcfg.batchingErr (UDR fcfg.field))))]
 
-  for i in rangeAlph fcfg.rounds do
-    let roundLabel := s!"commit round {i}"
-    l := l ++ [(roundLabel, (secBits (fcfg.commitErr (UDR fcfg.field) (i-1))))]
-  l := l ++ [("query phase", (secBits (fcfg.queryErr (UDR fcfg.field))))]
+    for i in rangeAlph fcfg.rounds do
+      let roundLabel := s!"commit round {i}"
+      l := l ++ [(roundLabel, (secBits (fcfg.commitErr (UDR fcfg.field) (i-1))))]
+    l := l ++ [("query phase", (secBits (fcfg.queryErr (UDR fcfg.field))))]
+  | .whir _ => IO.eprintln "Unsupported PCS scheme (WHIR)."; IO.Process.exit 1
 
   /- Circuit secBits: reduce to dense PCS, zerocheck -/
   l := l ++ [("reduce to dense PCS", (secBits c.reduceErr))]
   l := l ++ [("zerocheck", (secBits c.zerocheckErr))]
-
   pure l
 
 end Soundcalc

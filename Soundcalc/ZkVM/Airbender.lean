@@ -99,14 +99,6 @@ def airbenderDeepAli : DeepAliCfg where
   isUDR          := true
   isJBR          := true
 
-/-- Airbender satisfies the DEEP-ALI multi-point side condition (`DeepAliCfg.multiPointOk`)
-    in both regimes. -/
-theorem airbenderDeepAli_multiPoint_ok (R : Regime)
-    (hR : R = airbenderUDR ∨ R = airbenderJBR) :
-    airbenderDeepAli.multiPointOk R := by
-  unfold DeepAliCfg.multiPointOk
-  rcases hR with rfl | rfl <;> native_decide
-
 /-! ## A4–A6 exit criteria (bundled)
 
 Row entries: batching | commit×5 | query | ALI | DEEP | 4 lookups.

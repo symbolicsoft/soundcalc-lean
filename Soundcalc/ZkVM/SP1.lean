@@ -168,11 +168,6 @@ def sp1ShrinkLookup : LookupCfg where
   numLookupsM     := 53
   grindBitsLookup := 12
 
-/-! S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits. -/
-theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
-theorem sp1_compress_lookup_bits : secBits sp1CompressLookup.errUB = 107 := by native_decide
-theorem sp1_shrink_lookup_bits : secBits sp1ShrinkLookup.errUB = 109 := by native_decide
-
 /-! ## Jagged -/
 
 /-!
@@ -195,14 +190,10 @@ def sp1CoreJagged : JaggedCfg where
   isJBR          := false
 
 /-!
-Exit criteria: `secBits (sp1Core.reduceErr) = 116` and `secBits (sp1Core.zerocheckErr) = 112`.
-
-Derivation sketch:
+Core cell derivation (asserted below in `sp1CoreJagged.ExitCriteria`):
 * `ℓ = 29`, numerator of `reduceErr = 12 + 58 + 120 = 190`, `secBits = ⌊log₂(|F|/190)⌋ = 116`
 * numerator of `zerocheckErr = 3412 + 5·22 = 3522`, `secBits = ⌊log₂(|F|/3522)⌋ = 112`
 -/
-example : secBits sp1CoreJagged.reduceErr = 116 := by native_decide
-example : secBits sp1CoreJagged.zerocheckErr = 112 := by native_decide
 
 /-! ## Jagged proof sizes
 
@@ -244,15 +235,38 @@ def sp1ShrinkJagged : JaggedCfg where
   isUDR          := true
   isJBR          := false
 
+/-! ## Jagged exit criteria (bundled)
+
+One `JaggedCfg.ExitCriteria` per circuit replaces the scattered reduce/zerocheck, lookup-bit,
+and proof-size `example`s. Row entries: query | batching | reduce | zerocheck | commit×folds |
+lookup. Cross-checked against <https://github.com/ethereum/soundcalc/blob/main/reports/sp1.md>. -/
+
 -- core: 918 KiB (expected) / 1479 KiB (worst case)
-example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide
-example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide
+example : sp1CoreJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 112) (lookupBits := [100])
+    (rowBits := [100, 104, 116, 112, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113,
+                  114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100])
+    (totalBits := 100)
+    (proofSizeExpKib := 918) (proofSizeWorstKib := 1479) := by
+  unfold JaggedCfg.ExitCriteria; native_decide
+
 -- compress: 735 KiB (expected) / 1267 KiB (worst case)
-example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide
-example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide
+example : sp1CompressJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 115) (lookupBits := [107])
+    (rowBits := [100, 105, 116, 115, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114,
+                  115, 116, 117, 118, 119, 120, 121, 121, 122, 107])
+    (totalBits := 100)
+    (proofSizeExpKib := 735) (proofSizeWorstKib := 1267) := by
+  unfold JaggedCfg.ExitCriteria; native_decide
+
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
-example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide
-example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide
+example : sp1ShrinkJagged.ExitCriteria
+    (reduceBits := 116) (zerocheckBits := 115) (lookupBits := [109])
+    (rowBits := [100, 106, 116, 115, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
+                  116, 117, 118, 119, 120, 120, 121, 109])
+    (totalBits := 100)
+    (proofSizeExpKib := 529) (proofSizeWorstKib := 887) := by
+  unfold JaggedCfg.ExitCriteria; native_decide
 
 /-! ## SP1 (all circuits)
 

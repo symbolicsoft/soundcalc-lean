@@ -1,4 +1,5 @@
 import Mathlib
+import Soundcalc.SecBits
 import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
 import Soundcalc.Circuit.GenericCircuit
@@ -126,5 +127,23 @@ def JaggedCfg.proofSizeExp (c: JaggedCfg) : ℕ :=
 
 def JaggedCfg.proofSizeWorst (c: JaggedCfg) : ℕ :=
   getJaggedProofSizeBits c false
+
+/-! ## Exit criteria (bundled) -/
+
+/-- Bundles a `JaggedCfg` circuit's exit criteria: the reduce/zerocheck cells, the lookup
+    cells, the full per-cell row, the total, and the expected/worst proof sizes in KiB. One
+    instance of this `Prop`, discharged by `native_decide`, replaces the scattered per-circuit
+    `example`s previously written by hand. Jagged is UDR-only, so — unlike
+    `DeepAliCfg.ExitCriteria` — it takes no `Regime`. -/
+def JaggedCfg.ExitCriteria (c : JaggedCfg)
+    (reduceBits zerocheckBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
+    (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
+  secBits c.reduceErr = reduceBits ∧
+  secBits c.zerocheckErr = zerocheckBits ∧
+  (c.lookups.map (·.errUB)).map secBits = lookupBits ∧
+  c.listErrs.map secBits = rowBits ∧
+  secBits c.totalErr = totalBits ∧
+  c.proofSizeExp / KIB = proofSizeExpKib ∧
+  c.proofSizeWorst / KIB = proofSizeWorstKib
 
 end Soundcalc

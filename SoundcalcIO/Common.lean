@@ -35,10 +35,11 @@ def orExit {T : Type} (e : Except String T) : IO T :=
   The reverse map in `MdRenderer.lean`.
 -/
 def mapFloatToRate : List (Float × Rate) := [
-  (0.5,    Rate.half),
-  (0.25,   Rate.quarter),
-  (0.125,  Rate.eighth),
-  (0.0625, Rate.sixteenth),
+  (0.5,      Rate.half),
+  (0.25,     Rate.quarter),
+  (0.125,    Rate.eighth),
+  (0.0625,   Rate.sixteenth),
+  (0.031250, Rate.thirtysecond),
 ]
 
 /--

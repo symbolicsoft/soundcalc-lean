@@ -31,7 +31,7 @@ namespace Soundcalc
 def openvmAppFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2 ^ 23
   denseLen       := 2 ^ 23          -- trace length = FRI dimension
   batchSize      := 80000
@@ -47,7 +47,7 @@ def openvmAppFRI : FRIConfig where
 def openvmLeafFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2 ^ 23
   denseLen       := 2 ^ 23
   batchSize      := 80000
@@ -63,7 +63,7 @@ def openvmLeafFRI : FRIConfig where
 def openvmInternalFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
-  ρ              := ⟨1/4, by norm_num, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 2 ^ 21
   denseLen       := 2 ^ 21
   batchSize      := 4000

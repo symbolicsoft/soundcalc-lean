@@ -22,17 +22,8 @@ example : koalaBear4.card = (2 ^ 31 - 2 ^ 24 + 1) ^ 4 := by
 /-- Reusable pattern for evaluating `Nat.clog` without `decide`/`native_decide`
 (it is well-founded recursion, so it does not reduce in the kernel): bound it
 both ways via the characterization lemmas, then `omega`. -/
-theorem koalaBear4_baseBits : koalaBear4.baseElementSizeBits = 31 := by
-  show Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) = 31
-  have hle : Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow]
-    norm_num
-    norm_num
-  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 2 ^ 24 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt]
-    norm_num
-    norm_num
-  omega
+theorem koalaBear4_baseBits : koalaBear4.baseElementSizeBits = 31 :=
+  koalaBear4.baseElementSizeBits_eq 31 (by norm_num [koalaBear4]) (by norm_num [koalaBear4])
 
 /-- An extension-field element of KoalaBear⁴ is 124 bits (`31 · 4`). -/
 theorem koalaBear4_elementBits : koalaBear4.elementSizeBits = 124 := by

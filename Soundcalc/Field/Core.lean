@@ -54,4 +54,14 @@ def FieldParams.baseElementSizeBits (F : FieldParams) : ℕ := Nat.clog 2 F.p
 `extension_field_element_size_bits = base * field_extension_degree`). -/
 def FieldParams.elementSizeBits (F : FieldParams) : ℕ := F.baseElementSizeBits * F.e
 
+/-- Evaluate `baseElementSizeBits` (`= ⌈log₂ p⌉`) by sandwiching: `2^(n-1) < p ≤ 2^n ⟹ = n`.
+`Nat.clog` is well-founded recursion so it does not reduce in the kernel; each preset discharges
+`hlo`/`hhi` with `norm_num` instead. -/
+theorem FieldParams.baseElementSizeBits_eq (F : FieldParams) (n : ℕ)
+    (hlo : 2 ^ (n - 1) < F.p) (hhi : F.p ≤ 2 ^ n) : F.baseElementSizeBits = n := by
+  have hle : Nat.clog 2 F.p ≤ n := (Nat.clog_le_iff_le_pow (by norm_num)).mpr hhi
+  have hlt : n - 1 < Nat.clog 2 F.p := (Nat.lt_clog_iff_pow_lt (by norm_num)).mpr hlo
+  show Nat.clog 2 F.p = n
+  omega
+
 end Soundcalc

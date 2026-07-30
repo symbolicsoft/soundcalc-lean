@@ -17,13 +17,8 @@ def babyBear4 : FieldParams where
 example : babyBear4.card = (2 ^ 31 - 2 ^ 27 + 1) ^ 4 := by
   unfold FieldParams.card babyBear4; norm_num
 
-theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 := by
-  show Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) = 31
-  have hle : Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) ≤ 31 := by
-    rw [Nat.clog_le_iff_le_pow] <;> norm_num
-  have hlt : 30 < Nat.clog 2 (2 ^ 31 - 2 ^ 27 + 1) := by
-    rw [Nat.lt_clog_iff_pow_lt] <;> norm_num
-  omega
+theorem babyBear4_baseBits : babyBear4.baseElementSizeBits = 31 :=
+  babyBear4.baseElementSizeBits_eq 31 (by norm_num [babyBear4]) (by norm_num [babyBear4])
 
 theorem babyBear4_elementBits : babyBear4.elementSizeBits = 124 := by
   rw [FieldParams.elementSizeBits, babyBear4_baseBits]; rfl

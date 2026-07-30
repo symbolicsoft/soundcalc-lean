@@ -39,7 +39,7 @@ namespace Soundcalc
 def airbenderFRI : FRIConfig where
   hashBits       := 256
   field          := mersenne31_4
-  ρ              := ⟨1/2, by norm_num, by norm_num⟩
+  ρ              := Rate.half
   traceLen       := 2^24
   denseLen       := 2^24          -- trace length = FRI dimension
   batchSize      := 1225

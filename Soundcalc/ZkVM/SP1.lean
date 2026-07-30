@@ -32,7 +32,7 @@ Parameters:
     `(3/8 · 2^23 + 1) / |F| · 8`.
 
     Derivation: `θ = (1 - 1/4)/2 = 3/8`, `dim / ρ = 2^21 / (1/4) = 2^23`, `⌈log₂ 193⌉ = 8`. -/
-example : (UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
+example : (UDR koalaBear4).errMultilinear Rate.quarter (2 ^ 21) 193
     = (3 / 8 * (2 : ℚ) ^ 23 + 1) / (koalaBear4.card : ℚ) * 8 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
@@ -43,7 +43,7 @@ example : (UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193
 
     Note: the 104-bit claim in SP1 belongs to `batchingErr`, which divides
     `errMultilinear` by `2 ^ grindBatch = 32`, adding 5 bits (99 + 5 = 104). -/
-example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 21) 193) = 99 := by
+example : secBits ((UDR koalaBear4).errMultilinear Rate.quarter (2 ^ 21) 193) = 99 := by
   have hlog : Nat.clog 2 193 = 8 := by decide
   simp only [UDR, hlog]
   push_cast
@@ -58,7 +58,7 @@ example : secBits ((UDR koalaBear4).errMultilinear ⟨1/4, by norm_num⟩ (2 ^ 2
 def sp1CoreFRI : FRIConfig where
   hashBits       := 248
   field          := koalaBear4
-  ρ              := ⟨1 / 4, by norm_num⟩
+  ρ              := Rate.quarter
   traceLen       := 2 ^ 22
   denseLen       := 2 ^ 21
   batchSize      := 193
@@ -94,7 +94,7 @@ Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
 
 def sp1CompressFRI : FRIConfig where
   hashBits        := 248
-  ρ               := ⟨1/4, by norm_num⟩
+  ρ               := Rate.quarter
   traceLen        := 2097152
   field           := koalaBear4
   denseLen        := 1048576
@@ -109,7 +109,7 @@ def sp1CompressFRI : FRIConfig where
 
 def sp1ShrinkFRI : FRIConfig where
   hashBits        := 248
-  ρ               := ⟨1/8, by norm_num⟩
+  ρ               := Rate.eighth
   traceLen        := 524288
   field           := koalaBear4
   denseLen        := 262144

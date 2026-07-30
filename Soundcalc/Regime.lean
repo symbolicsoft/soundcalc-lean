@@ -24,6 +24,18 @@ therefore part of the type, not a side-condition on each call.
       errors. -/
 abbrev Rate := {ρ : ℚ // 0 < ρ ∧ ρ < 1}
 
+/-- The inverse-power-of-two rates used across the zkVM configs, named once so their
+    `0 < ρ ∧ ρ < 1` proof is written here rather than inline at every `FRIConfig` (and reused
+    by `SoundcalcIO.Common.mapFloatToRate`). Defined as direct `abbrev`s — not a map lookup —
+    so they stay transparent to `ring`/`push_cast`/`native_decide`: a `List.lookup` accessor is
+    opaque to `ring` (`↑Rate.quarter` would not reduce to `1/4`), which breaks the symbolic
+    `errMultilinear` proofs in `ZkVM.SP1`. -/
+abbrev Rate.half         : Rate := ⟨1/2, by norm_num⟩
+abbrev Rate.quarter      : Rate := ⟨1/4, by norm_num⟩
+abbrev Rate.eighth       : Rate := ⟨1/8, by norm_num⟩
+abbrev Rate.sixteenth    : Rate := ⟨1/16, by norm_num⟩
+abbrev Rate.thirtysecond : Rate := ⟨1/32, by norm_num⟩
+
 /-!
 ## The Regime structure
 

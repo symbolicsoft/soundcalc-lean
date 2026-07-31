@@ -63,21 +63,23 @@ theorem goldilocks_prime : Nat.Prime (2 ^ 64 - 2 ^ 32 + 1) := by
     · rw [(Nat.prime_dvd_prime_iff_eq hq (by norm_num)).mp h65537]
       exact hne _ (by norm_num) (by decide)
 
-/-- Goldilocks, `p = 2^64 - 2^32 + 1`; ZisK uses its degree-3 extension. -/
-def goldilocks3 : FieldParams where
+/-- The Goldilocks prime field, `p = 2^64 - 2^32 + 1` (primality by the Pratt cert above). -/
+def goldilocks : PrimeField where
   p               := 2 ^ 64 - 2 ^ 32 + 1
-  e               := 3
-  twoAdicity      := 32
   prime           := goldilocks_prime   -- kernel-clean Pratt cert (above)
-  epos            := by decide
+  twoAdicity      := 32
   twoAdicity_spec := by decide
+
+/-- Goldilocks degree-3 extension; ZisK uses it. -/
+def goldilocks3 : FieldParams := goldilocks.extension 3
 
 /-- `|F|` matches the Python `GOLDILOCKS_3.F`. -/
 example : goldilocks3.card = (2 ^ 64 - 2 ^ 32 + 1) ^ 3 := by
-  unfold FieldParams.card goldilocks3; norm_num
+  norm_num [FieldParams.card, goldilocks3, PrimeField.extension, goldilocks]
 
 theorem goldilocks3_baseBits : goldilocks3.baseElementSizeBits = 64 :=
-  goldilocks3.baseElementSizeBits_eq 64 (by norm_num [goldilocks3]) (by norm_num [goldilocks3])
+  goldilocks3.baseElementSizeBits_eq 64 (by norm_num [goldilocks3, PrimeField.extension, goldilocks])
+    (by norm_num [goldilocks3, PrimeField.extension, goldilocks])
 
 theorem goldilocks3_elementBits : goldilocks3.elementSizeBits = 192 := by
   rw [FieldParams.elementSizeBits, goldilocks3_baseBits]; rfl

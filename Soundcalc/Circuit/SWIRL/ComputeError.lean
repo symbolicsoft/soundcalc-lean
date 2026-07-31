@@ -199,7 +199,7 @@ def SWIRLCfg.totalErr (c : SWIRLCfg) : ℚ := (c.listErrs).foldr max 0
 `listErrs` column order), the total (min bits), and the proof size in KiB (expected = worst).
 One `native_decide` on this `Prop` replaces the per-circuit proof-size / row / total examples;
 the regime is fixed by the config's `explicitM`, so no `Regime` argument is needed. -/
-def SWIRLCfg.ExitCriteria (c : SWIRLCfg) (rowBits : List ℕ) (totalBits proofSizeKib : ℕ) : Prop :=
+abbrev SWIRLCfg.ExitCriteria (c : SWIRLCfg) (rowBits : List ℕ) (totalBits proofSizeKib : ℕ) : Prop :=
   (c.listErrs).map secBits = rowBits ∧
   secBits c.totalErr = totalBits ∧
   c.proofSizeBits / KIB = proofSizeKib

@@ -251,7 +251,7 @@ example : sp1CoreJagged.ExitCriteria
                   114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 100])
     (totalBits := 100)
     (proofSizeExpKib := 918) (proofSizeWorstKib := 1479) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 -- compress: 735 KiB (expected) / 1267 KiB (worst case)
 example : sp1CompressJagged.ExitCriteria
@@ -260,7 +260,7 @@ example : sp1CompressJagged.ExitCriteria
                   115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 107])
     (totalBits := 100)
     (proofSizeExpKib := 735) (proofSizeWorstKib := 1267) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
@@ -270,7 +270,7 @@ example : sp1ShrinkJagged.ExitCriteria
                   116, 117, 118, 119, 120, 120, 121, 100, 109])
     (totalBits := 100)
     (proofSizeExpKib := 529) (proofSizeWorstKib := 887) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## SP1 (all circuits)
 

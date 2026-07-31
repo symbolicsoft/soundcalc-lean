@@ -187,9 +187,12 @@ def SWIRLCfg.stackedReductionErr (c : SWIRLCfg) : ℚ :=
 total security is `secBits` of the max of this list. -/
 def SWIRLCfg.listErrs (c : SWIRLCfg) : List ℚ :=
   let w := c.whirErrs
+  -- `w_stack = 1` ⇒ no μ-batching challenge (error 0, infinite security), so — like the Python
+  -- calculator — the `whir_mu_batching` cell is dropped from the row entirely.
   [c.logupErr, c.gkrSumcheckErr, c.gkrBatchingErr, c.zerocheckErr, c.constraintBatchingErr,
-   c.stackedReductionErr, w.muBatching, w.foldRbr, w.proxGaps, w.sumcheck, w.shiftRbr, w.query,
-   w.gammaBatching, w.ood, w.rbr]
+   c.stackedReductionErr]
+  ++ (if c.wStack ≤ 1 then [] else [w.muBatching])
+  ++ [w.foldRbr, w.proxGaps, w.sumcheck, w.shiftRbr, w.query, w.gammaBatching, w.ood, w.rbr]
 
 /-- Total soundness error: the max over all components (⇒ min security bits). -/
 def SWIRLCfg.totalErr (c : SWIRLCfg) : ℚ := (c.listErrs).foldr max 0

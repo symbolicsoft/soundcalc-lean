@@ -27,148 +27,141 @@ ZisK is a DEEP-ALI zkVM (over Goldilocks³), so — like Pico — it only needs
 
 namespace Soundcalc
 
+/-! ## Zisk config constructors
+
+Each circuit's `FRIConfig`/`LookupCfg`/`JBR` regime shares the same Goldilocks constants; these
+helpers bake those in so every instance below is a one-liner. Each call still produces a *separate*
+object, free to diverge later. -/
+
+/-- `JBR` over Goldilocks, `g = 2^40`, `gap = n/3000`. -/
+abbrev ziskJBR (n : ℕ) : Regime := JBR goldilocks3 (2 ^ 40) (some (n / 3000))
+
+/-- Univariate-logup lookup over Goldilocks, no grinding. -/
+abbrev ziskLookup (name : String) (rowsT rowsL numColumnsS numLookupsM : ℕ) : LookupCfg where
+  name := name; field := goldilocks3; isLogUpMultivar := false
+  rowsT := rowsT; rowsL := rowsL; numColumnsS := numColumnsS; numLookupsM := numLookupsM
+  grindBitsLookup := 0
+
+/-- FRI over Goldilocks: power batching, 256-bit hash, no batch/commit grinding.
+    `h_earlyStop` is an auto-param, so it is discharged by `native_decide` on the *concrete*
+    arguments at each call site (it cannot be proved from the symbolic parameters here). -/
+abbrev ziskFRI (ρ : Rate) (denseLen batchSize numQueries earlyStopDeg grindQuery : ℕ)
+    (foldingFactors : List ℕ)
+    (h_earlyStop :
+      ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q) = (earlyStopDeg : Q)
+      := by native_decide) : FRIConfig where
+  hashBits := 256; field := goldilocks3; ρ := ρ
+  denseLen := denseLen; batchSize := batchSize; numQueries := numQueries
+  foldingFactors := foldingFactors; earlyStopDeg := earlyStopDeg
+  powerBatch := true; multilinBatch := false
+  grindQuery := grindQuery; grindBatch := 0; grindCommit := 0
+  h_earlyStop := h_earlyStop
+
 /-! ## Regimes -/
 
 abbrev ziskUDR : Regime := UDR goldilocks3
 
 /-- `Dma`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDmaJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDmaJBR := ziskJBR 16
 /-- `DmaMemCpy`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskDmaMemCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskDmaMemCpyJBR := ziskJBR 15
 /-- `DmaInputCpy`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskDmaInputCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskDmaInputCpyJBR := ziskJBR 14
 /-- `Dma64Aligned`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskDma64AlignedJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskDma64AlignedJBR := ziskJBR 17
 /-- `Dma64AlignedInputCpy`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDma64AlignedInputCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDma64AlignedInputCpyJBR := ziskJBR 16
 /-- `Dma64AlignedMemSet`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskDma64AlignedMemSetJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskDma64AlignedMemSetJBR := ziskJBR 15
 /-- `Dma64AlignedMem`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDma64AlignedMemJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDma64AlignedMemJBR := ziskJBR 16
 /-- `Dma64AlignedMemCpy`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDma64AlignedMemCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDma64AlignedMemCpyJBR := ziskJBR 16
 /-- `DmaUnaligned`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDmaUnalignedJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDmaUnalignedJBR := ziskJBR 16
 /-- `DmaPrePost`: gap_to_radius = 0.005999999999999999 = 18/3000. -/
-abbrev ziskDmaPrePostJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (18 / 3000))
+abbrev ziskDmaPrePostJBR := ziskJBR 18
 /-- `DmaPrePostMemCpy`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskDmaPrePostMemCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskDmaPrePostMemCpyJBR := ziskJBR 17
 /-- `DmaPrePostInputCpy`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskDmaPrePostInputCpyJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskDmaPrePostInputCpyJBR := ziskJBR 16
 /-- `Main`: gap_to_radius = 0.006333333333333333 = 19/3000. -/
-abbrev ziskMainJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (19 / 3000))
+abbrev ziskMainJBR := ziskJBR 19
 /-- `Rom`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskRomJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskRomJBR := ziskJBR 15
 /-- `Mem`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskMemJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskMemJBR := ziskJBR 17
 /-- `RomData`: gap_to_radius = 0.004333333333333333 = 13/3000. -/
-abbrev ziskRomDataJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (13 / 3000))
+abbrev ziskRomDataJBR := ziskJBR 13
 /-- `InputData`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskInputDataJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskInputDataJBR := ziskJBR 14
 /-- `MemAlign`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskMemAlignJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskMemAlignJBR := ziskJBR 17
 /-- `MemAlignByte`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskMemAlignByteJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskMemAlignByteJBR := ziskJBR 16
 /-- `MemAlignReadByte`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskMemAlignReadByteJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskMemAlignReadByteJBR := ziskJBR 15
 /-- `MemAlignWriteByte`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskMemAlignWriteByteJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskMemAlignWriteByteJBR := ziskJBR 16
 /-- `Arith`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskArithJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskArithJBR := ziskJBR 17
 /-- `Binary`: gap_to_radius = 0.005999999999999999 = 18/3000. -/
-abbrev ziskBinaryJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (18 / 3000))
+abbrev ziskBinaryJBR := ziskJBR 18
 /-- `BinaryAdd`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskBinaryAddJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskBinaryAddJBR := ziskJBR 15
 /-- `BinaryExtension`: gap_to_radius = 0.005999999999999999 = 18/3000. -/
-abbrev ziskBinaryExtensionJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (18 / 3000))
+abbrev ziskBinaryExtensionJBR := ziskJBR 18
 /-- `Add256`: gap_to_radius = 0.005 = 15/3000. -/
-abbrev ziskAdd256JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (15 / 3000))
+abbrev ziskAdd256JBR := ziskJBR 15
 /-- `ArithEq`: gap_to_radius = 0.007333333333333333 = 22/3000. -/
-abbrev ziskArithEqJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (22 / 3000))
+abbrev ziskArithEqJBR := ziskJBR 22
 /-- `ArithEq384`: gap_to_radius = 0.007666666666666666 = 23/3000. -/
-abbrev ziskArithEq384JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (23 / 3000))
+abbrev ziskArithEq384JBR := ziskJBR 23
 /-- `Keccakf`: gap_to_radius = 0.007333333333333333 = 22/3000. -/
-abbrev ziskKeccakfJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (22 / 3000))
+abbrev ziskKeccakfJBR := ziskJBR 22
 /-- `Sha256f`: gap_to_radius = 0.006666666666666666 = 20/3000. -/
-abbrev ziskSha256fJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (20 / 3000))
+abbrev ziskSha256fJBR := ziskJBR 20
 /-- `Poseidon2`: gap_to_radius = 0.004 = 12/3000. -/
-abbrev ziskPoseidon2JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (12 / 3000))
+abbrev ziskPoseidon2JBR := ziskJBR 12
 /-- `Blake2br`: gap_to_radius = 0.005999999999999999 = 18/3000. -/
-abbrev ziskBlake2brJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (18 / 3000))
+abbrev ziskBlake2brJBR := ziskJBR 18
 /-- `SpecifiedRanges`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskSpecifiedRangesJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskSpecifiedRangesJBR := ziskJBR 16
 /-- `VirtualTable0`: gap_to_radius = 0.005666666666666667 = 17/3000. -/
-abbrev ziskVirtualTable0JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (17 / 3000))
+abbrev ziskVirtualTable0JBR := ziskJBR 17
 /-- `VirtualTable1`: gap_to_radius = 0.005999999999999999 = 18/3000. -/
-abbrev ziskVirtualTable1JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (18 / 3000))
+abbrev ziskVirtualTable1JBR := ziskJBR 18
 /-- `DmaPrePost-compressor`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskDmaPrePostCompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskDmaPrePostCompressorJBR := ziskJBR 14
 /-- `ArithEq-compressor`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskArithEqCompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskArithEqCompressorJBR := ziskJBR 14
 /-- `ArithEq384-compressor`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskArithEq384CompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskArithEq384CompressorJBR := ziskJBR 14
 /-- `Keccakf-compressor`: gap_to_radius = 0.006333333333333333 = 19/3000. -/
-abbrev ziskKeccakfCompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (19 / 3000))
+abbrev ziskKeccakfCompressorJBR := ziskJBR 19
 /-- `Sha256f-compressor`: gap_to_radius = 0.005333333333333333 = 16/3000. -/
-abbrev ziskSha256fCompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (16 / 3000))
+abbrev ziskSha256fCompressorJBR := ziskJBR 16
 /-- `Blake2br-compressor`: gap_to_radius = 0.004666666666666667 = 14/3000. -/
-abbrev ziskBlake2brCompressorJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (14 / 3000))
+abbrev ziskBlake2brCompressorJBR := ziskJBR 14
 /-- `Recursive2`: gap_to_radius = 0.004 = 12/3000. -/
-abbrev ziskRecursive2JBR : Regime := JBR goldilocks3 (2 ^ 40) (some (12 / 3000))
+abbrev ziskRecursive2JBR := ziskJBR 12
 /-- `Final`: gap_to_radius = 0.003333333333333333 = 10/3000. -/
-abbrev ziskFinalJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (10 / 3000))
+abbrev ziskFinalJBR := ziskJBR 10
 /-- `Final_Compressed`: gap_to_radius = 0.003333333333333333 = 10/3000. -/
-abbrev ziskFinalCompressedJBR : Regime := JBR goldilocks3 (2 ^ 40) (some (10 / 3000))
+abbrev ziskFinalCompressedJBR := ziskJBR 10
 
 /-! ## Dma -/
 
-def ziskDmaFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 46
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaFRI := ziskFRI Rate.half 2097152 46 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaLookupGsum77 : LookupCfg where
-  name := "Lookup_gsum_[77]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaLookupGsum8001 : LookupCfg where
-  name := "Lookup_gsum_[8001]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaRangeCheckGsum104 : LookupCfg where
-  name := "Range Check_gsum_[104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDmaLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 2097152 11 1
+def ziskDmaLookupGsum77 := ziskLookup "Lookup_gsum_[77]" 0 2097152 2 1
+def ziskDmaLookupGsum8001 := ziskLookup "Lookup_gsum_[8001]" 0 2097152 7 1
+def ziskDmaPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 1
+def ziskDmaPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 0 2097152 11 2
+def ziskDmaRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 1
+def ziskDmaRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
+def ziskDmaRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 2097152 1 2
 
 def ziskDmaDeepAli : DeepAliCfg where
   name           := "Dma"
@@ -211,49 +204,15 @@ example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
 
 /-! ## DmaMemCpy -/
 
-def ziskDmaMemCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 33
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaMemCpyFRI := ziskFRI Rate.half 2097152 33 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaMemCpyLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaMemCpyLookupGsum77 : LookupCfg where
-  name := "Lookup_gsum_[77]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaMemCpyLookupGsum8001 : LookupCfg where
-  name := "Lookup_gsum_[8001]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaMemCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaMemCpyPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaMemCpyRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaMemCpyRangeCheckGsum104 : LookupCfg where
-  name := "Range Check_gsum_[104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDmaMemCpyLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 2097152 11 1
+def ziskDmaMemCpyLookupGsum77 := ziskLookup "Lookup_gsum_[77]" 0 2097152 2 1
+def ziskDmaMemCpyLookupGsum8001 := ziskLookup "Lookup_gsum_[8001]" 0 2097152 7 1
+def ziskDmaMemCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 1
+def ziskDmaMemCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 0 2097152 11 2
+def ziskDmaMemCpyRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 1
+def ziskDmaMemCpyRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 2097152 1 2
 
 def ziskDmaMemCpyDeepAli : DeepAliCfg where
   name           := "DmaMemCpy"
@@ -295,49 +254,15 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
 
 /-! ## DmaInputCpy -/
 
-def ziskDmaInputCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 27
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaInputCpyFRI := ziskFRI Rate.half 2097152 27 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaInputCpyLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaInputCpyLookupGsum8001 : LookupCfg where
-  name := "Lookup_gsum_[8001]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaInputCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaInputCpyPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaInputCpyRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaInputCpyRangeCheckGsum104 : LookupCfg where
-  name := "Range Check_gsum_[104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaInputCpyRangeCheckGsum105 : LookupCfg where
-  name := "Range Check_gsum_[105]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskDmaInputCpyLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 2097152 11 1
+def ziskDmaInputCpyLookupGsum8001 := ziskLookup "Lookup_gsum_[8001]" 0 2097152 7 1
+def ziskDmaInputCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 1
+def ziskDmaInputCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 0 2097152 11 2
+def ziskDmaInputCpyRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 1
+def ziskDmaInputCpyRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 2097152 1 1
+def ziskDmaInputCpyRangeCheckGsum105 := ziskLookup "Range Check_gsum_[105]" 0 2097152 1 1
 
 def ziskDmaInputCpyDeepAli : DeepAliCfg where
   name           := "DmaInputCpy"
@@ -379,49 +304,15 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
 
 /-! ## Dma64Aligned -/
 
-def ziskDma64AlignedFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 62
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDma64AlignedFRI := ziskFRI Rate.half 2097152 62 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDma64AlignedDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedDirectGsum8200 : LookupCfg where
-  name := "Direct_gsum_[8200]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDma64AlignedPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 9
-  grindBitsLookup := 0
-def ziskDma64AlignedRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskDma64AlignedRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDma64AlignedDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDma64AlignedDirectGsum8200 := ziskLookup "Direct_gsum_[8200]" 2097152 2097152 10 1
+def ziskDma64AlignedLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDma64AlignedLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 4
+def ziskDma64AlignedPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 9
+def ziskDma64AlignedRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 8
+def ziskDma64AlignedRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDma64AlignedDeepAli : DeepAliCfg where
   name           := "Dma64Aligned"
@@ -463,49 +354,15 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
 
 /-! ## Dma64AlignedInputCpy -/
 
-def ziskDma64AlignedInputCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 44
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDma64AlignedInputCpyFRI := ziskFRI Rate.half 2097152 44 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDma64AlignedInputCpyDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyDirectGsum8200 : LookupCfg where
-  name := "Direct_gsum_[8200]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskDma64AlignedInputCpyRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDma64AlignedInputCpyDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDma64AlignedInputCpyDirectGsum8200 := ziskLookup "Direct_gsum_[8200]" 2097152 2097152 10 1
+def ziskDma64AlignedInputCpyLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDma64AlignedInputCpyLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 4
+def ziskDma64AlignedInputCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 4
+def ziskDma64AlignedInputCpyRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 8
+def ziskDma64AlignedInputCpyRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedInputCpy"
@@ -547,41 +404,13 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJ
 
 /-! ## Dma64AlignedMemSet -/
 
-def ziskDma64AlignedMemSetFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 30
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDma64AlignedMemSetFRI := ziskFRI Rate.half 2097152 30 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDma64AlignedMemSetDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemSetDirectGsum8200 : LookupCfg where
-  name := "Direct_gsum_[8200]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemSetLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemSetPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskDma64AlignedMemSetRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDma64AlignedMemSetDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDma64AlignedMemSetDirectGsum8200 := ziskLookup "Direct_gsum_[8200]" 2097152 2097152 10 1
+def ziskDma64AlignedMemSetLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDma64AlignedMemSetPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 8
+def ziskDma64AlignedMemSetRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemSet"
@@ -621,41 +450,13 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
 
 /-! ## Dma64AlignedMem -/
 
-def ziskDma64AlignedMemFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 46
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDma64AlignedMemFRI := ziskFRI Rate.half 2097152 46 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDma64AlignedMemDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemDirectGsum8200 : LookupCfg where
-  name := "Direct_gsum_[8200]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 9
-  grindBitsLookup := 0
-def ziskDma64AlignedMemRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDma64AlignedMemDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDma64AlignedMemDirectGsum8200 := ziskLookup "Direct_gsum_[8200]" 2097152 2097152 10 1
+def ziskDma64AlignedMemLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDma64AlignedMemPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 9
+def ziskDma64AlignedMemRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDma64AlignedMemDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMem"
@@ -695,41 +496,13 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
 
 /-! ## Dma64AlignedMemCpy -/
 
-def ziskDma64AlignedMemCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 52
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDma64AlignedMemCpyFRI := ziskFRI Rate.half 2097152 52 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDma64AlignedMemCpyDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemCpyDirectGsum8200 : LookupCfg where
-  name := "Direct_gsum_[8200]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 10; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemCpyLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDma64AlignedMemCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 17
-  grindBitsLookup := 0
-def ziskDma64AlignedMemCpyRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDma64AlignedMemCpyDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDma64AlignedMemCpyDirectGsum8200 := ziskLookup "Direct_gsum_[8200]" 2097152 2097152 10 1
+def ziskDma64AlignedMemCpyLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDma64AlignedMemCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 17
+def ziskDma64AlignedMemCpyRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemCpy"
@@ -769,45 +542,14 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
 
 /-! ## DmaUnaligned -/
 
-def ziskDmaUnalignedFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 52
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaUnalignedFRI := ziskFRI Rate.half 2097152 52 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaUnalignedDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaUnalignedDirectGsum8201 : LookupCfg where
-  name := "Direct_gsum_[8201]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 18; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaUnalignedLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaUnalignedLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDmaUnalignedPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaUnalignedRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskDmaUnalignedDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 2097152 11 1
+def ziskDmaUnalignedDirectGsum8201 := ziskLookup "Direct_gsum_[8201]" 2097152 2097152 18 1
+def ziskDmaUnalignedLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 11 1
+def ziskDmaUnalignedLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 4
+def ziskDmaUnalignedPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 2097152 2097152 6 2
+def ziskDmaUnalignedRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 2
 
 def ziskDmaUnalignedDeepAli : DeepAliCfg where
   name           := "DmaUnaligned"
@@ -848,41 +590,13 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
 
 /-! ## DmaPrePost -/
 
-def ziskDmaPrePostFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 83
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaPrePostFRI := ziskFRI Rate.half 2097152 83 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaPrePostLookupGsum8002 : LookupCfg where
-  name := "Lookup_gsum_[8002]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPrePostLookupGsum8003 : LookupCfg where
-  name := "Lookup_gsum_[8003]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 3; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPrePostLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 12
-  grindBitsLookup := 0
-def ziskDmaPrePostPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDmaPrePostPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskDmaPrePostLookupGsum8002 := ziskLookup "Lookup_gsum_[8002]" 0 2097152 6 1
+def ziskDmaPrePostLookupGsum8003 := ziskLookup "Lookup_gsum_[8003]" 0 2097152 3 1
+def ziskDmaPrePostLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 12
+def ziskDmaPrePostPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 4
+def ziskDmaPrePostPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 2097152 0 11 1
 
 def ziskDmaPrePostDeepAli : DeepAliCfg where
   name           := "DmaPrePost"
@@ -922,37 +636,12 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
 
 /-! ## DmaPrePostMemCpy -/
 
-def ziskDmaPrePostMemCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 70
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaPrePostMemCpyFRI := ziskFRI Rate.half 2097152 70 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaPrePostMemCpyLookupGsum8002 : LookupCfg where
-  name := "Lookup_gsum_[8002]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPrePostMemCpyLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 12
-  grindBitsLookup := 0
-def ziskDmaPrePostMemCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskDmaPrePostMemCpyPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskDmaPrePostMemCpyLookupGsum8002 := ziskLookup "Lookup_gsum_[8002]" 0 2097152 6 1
+def ziskDmaPrePostMemCpyLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 12
+def ziskDmaPrePostMemCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 4
+def ziskDmaPrePostMemCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 2097152 0 11 1
 
 def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostMemCpy"
@@ -989,37 +678,12 @@ example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskDmaPrePostMemCpyJBR
 
 /-! ## DmaPrePostInputCpy -/
 
-def ziskDmaPrePostInputCpyFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 44
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaPrePostInputCpyFRI := ziskFRI Rate.half 2097152 44 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskDmaPrePostInputCpyLookupGsum8002 : LookupCfg where
-  name := "Lookup_gsum_[8002]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskDmaPrePostInputCpyLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskDmaPrePostInputCpyPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskDmaPrePostInputCpyPermutationGsum8000 : LookupCfg where
-  name := "Permutation_gsum_[8000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskDmaPrePostInputCpyLookupGsum8002 := ziskLookup "Lookup_gsum_[8002]" 0 2097152 6 1
+def ziskDmaPrePostInputCpyLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 2097152 2 8
+def ziskDmaPrePostInputCpyPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 2
+def ziskDmaPrePostInputCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 2097152 0 11 1
 
 def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostInputCpy"
@@ -1056,45 +720,14 @@ example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskDmaPrePostInputCpyJBR
 
 /-! ## Main -/
 
-def ziskMainFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 61
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMainFRI := ziskFRI Rate.half 4194304 61 230 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskMainDirectGsum1000 : LookupCfg where
-  name := "Direct_gsum_[1000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 5; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMainLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMainLookupGsum7890 : LookupCfg where
-  name := "Lookup_gsum_[7890]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMainPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 34
-  grindBitsLookup := 0
-def ziskMainRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 34
-  grindBitsLookup := 0
-def ziskMainRangeCheckGsum106 : LookupCfg where
-  name := "Range Check_gsum_[106]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskMainDirectGsum1000 := ziskLookup "Direct_gsum_[1000]" 4194304 4194304 5 1
+def ziskMainLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 0 4194304 11 1
+def ziskMainLookupGsum7890 := ziskLookup "Lookup_gsum_[7890]" 0 4194304 11 1
+def ziskMainPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 4194304 4194304 6 34
+def ziskMainRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 4194304 1 34
+def ziskMainRangeCheckGsum106 := ziskLookup "Range Check_gsum_[106]" 0 4194304 1 1
 
 def ziskMainDeepAli : DeepAliCfg where
   name           := "Main"
@@ -1135,25 +768,9 @@ example : ziskMainDeepAli.ExitCriteria ziskMainJBR
 
 /-! ## Rom -/
 
-def ziskRomFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 18
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 221
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskRomFRI := ziskFRI Rate.half 4194304 18 221 32 20 [8, 8, 8, 8, 8, 8]
 
-def ziskRomLookupGsum7890 : LookupCfg where
-  name := "Lookup_gsum_[7890]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskRomLookupGsum7890 := ziskLookup "Lookup_gsum_[7890]" 4194304 0 11 1
 
 def ziskRomDeepAli : DeepAliCfg where
   name           := "Rom"
@@ -1187,41 +804,13 @@ example : ziskRomDeepAli.ExitCriteria ziskRomJBR
 
 /-! ## Mem -/
 
-def ziskMemFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 29
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMemFRI := ziskFRI Rate.half 4194304 29 230 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskMemDirectGsum11 : LookupCfg where
-  name := "Direct_gsum_[11]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 0; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 5
-  grindBitsLookup := 0
-def ziskMemRangeCheckGsum104 : LookupCfg where
-  name := "Range Check_gsum_[104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskMemDirectGsum11 := ziskLookup "Direct_gsum_[11]" 4194304 4194304 6 1
+def ziskMemPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 4194304 0 6 1
+def ziskMemRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 4194304 1 1
+def ziskMemRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194304 1 5
+def ziskMemRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 4194304 1 1
 
 def ziskMemDeepAli : DeepAliCfg where
   name           := "Mem"
@@ -1257,33 +846,11 @@ example : ziskMemDeepAli.ExitCriteria ziskMemJBR
 
 /-! ## RomData -/
 
-def ziskRomDataFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 19
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskRomDataFRI := ziskFRI Rate.half 2097152 19 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskRomDataDirectGsum11 : LookupCfg where
-  name := "Direct_gsum_[11]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskRomDataPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskRomDataRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 3
-  grindBitsLookup := 0
+def ziskRomDataDirectGsum11 := ziskLookup "Direct_gsum_[11]" 2097152 2097152 6 1
+def ziskRomDataPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 2097152 0 6 1
+def ziskRomDataRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 3
 
 def ziskRomDataDeepAli : DeepAliCfg where
   name           := "RomData"
@@ -1317,37 +884,12 @@ example : ziskRomDataDeepAli.ExitCriteria ziskRomDataJBR
 
 /-! ## InputData -/
 
-def ziskInputDataFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 27
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskInputDataFRI := ziskFRI Rate.half 2097152 27 229 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskInputDataDirectGsum11 : LookupCfg where
-  name := "Direct_gsum_[11]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskInputDataPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskInputDataRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskInputDataRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 8
-  grindBitsLookup := 0
+def ziskInputDataDirectGsum11 := ziskLookup "Direct_gsum_[11]" 2097152 2097152 6 1
+def ziskInputDataPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 2097152 0 6 1
+def ziskInputDataRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 2097152 1 1
+def ziskInputDataRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097152 1 8
 
 def ziskInputDataDeepAli : DeepAliCfg where
   name           := "InputData"
@@ -1381,33 +923,11 @@ example : ziskInputDataDeepAli.ExitCriteria ziskInputDataJBR
 
 /-! ## MemAlign -/
 
-def ziskMemAlignFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 59
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMemAlignFRI := ziskFRI Rate.half 2097152 59 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskMemAlignLookupGsum133 : LookupCfg where
-  name := "Lookup_gsum_[133]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignRangeCheckGsum107 : LookupCfg where
-  name := "Range Check_gsum_[107]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 1; numLookupsM := 8
-  grindBitsLookup := 0
+def ziskMemAlignLookupGsum133 := ziskLookup "Lookup_gsum_[133]" 0 2097152 6 1
+def ziskMemAlignPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 2097152 6 1
+def ziskMemAlignRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]" 0 2097152 1 8
 
 def ziskMemAlignDeepAli : DeepAliCfg where
   name           := "MemAlign"
@@ -1441,41 +961,13 @@ example : ziskMemAlignDeepAli.ExitCriteria ziskMemAlignJBR
 
 /-! ## MemAlignByte -/
 
-def ziskMemAlignByteFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 25
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMemAlignByteFRI := ziskFRI Rate.half 4194304 25 229 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskMemAlignByteDirectGsum10 : LookupCfg where
-  name := "Direct_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignByteLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignBytePermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskMemAlignByteRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignByteRangeCheckGsum107 : LookupCfg where
-  name := "Range Check_gsum_[107]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskMemAlignByteDirectGsum10 := ziskLookup "Direct_gsum_[10]" 4194304 4194304 6 1
+def ziskMemAlignByteLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 4194304 2 1
+def ziskMemAlignBytePermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 4194304 4194304 6 2
+def ziskMemAlignByteRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194304 1 1
+def ziskMemAlignByteRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]" 0 4194304 1 1
 
 def ziskMemAlignByteDeepAli : DeepAliCfg where
   name           := "MemAlignByte"
@@ -1515,37 +1007,12 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
 
 /-! ## MemAlignReadByte -/
 
-def ziskMemAlignReadByteFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 18
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMemAlignReadByteFRI := ziskFRI Rate.half 4194304 18 229 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskMemAlignReadByteDirectGsum10 : LookupCfg where
-  name := "Direct_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignReadByteLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignReadBytePermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignReadByteRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskMemAlignReadByteDirectGsum10 := ziskLookup "Direct_gsum_[10]" 4194304 4194304 6 1
+def ziskMemAlignReadByteLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 4194304 2 1
+def ziskMemAlignReadBytePermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 4194304 4194304 6 1
+def ziskMemAlignReadByteRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194304 1 1
 
 def ziskMemAlignReadByteDeepAli : DeepAliCfg where
   name           := "MemAlignReadByte"
@@ -1582,41 +1049,13 @@ example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskMemAlignReadByteJBR
 
 /-! ## MemAlignWriteByte -/
 
-def ziskMemAlignWriteByteFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 23
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskMemAlignWriteByteFRI := ziskFRI Rate.half 4194304 23 229 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskMemAlignWriteByteDirectGsum10 : LookupCfg where
-  name := "Direct_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignWriteByteLookupGsum88 : LookupCfg where
-  name := "Lookup_gsum_[88]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignWriteBytePermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 4194304; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskMemAlignWriteByteRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskMemAlignWriteByteRangeCheckGsum107 : LookupCfg where
-  name := "Range Check_gsum_[107]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskMemAlignWriteByteDirectGsum10 := ziskLookup "Direct_gsum_[10]" 4194304 4194304 6 1
+def ziskMemAlignWriteByteLookupGsum88 := ziskLookup "Lookup_gsum_[88]" 0 4194304 2 1
+def ziskMemAlignWriteBytePermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 4194304 4194304 6 2
+def ziskMemAlignWriteByteRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194304 1 1
+def ziskMemAlignWriteByteRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]" 0 4194304 1 1
 
 def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
   name           := "MemAlignWriteByte"
@@ -1656,33 +1095,11 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
 
 /-! ## Arith -/
 
-def ziskArithFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 64
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskArithFRI := ziskFRI Rate.half 2097152 64 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskArithLookupGsum330 : LookupCfg where
-  name := "Lookup_gsum_[330]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 2; numLookupsM := 23
-  grindBitsLookup := 0
-def ziskArithLookupGsum331 : LookupCfg where
-  name := "Lookup_gsum_[331]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 2097152; numColumnsS := 4; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskArithLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 2097152; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskArithLookupGsum330 := ziskLookup "Lookup_gsum_[330]" 0 2097152 2 23
+def ziskArithLookupGsum331 := ziskLookup "Lookup_gsum_[331]" 0 2097152 4 1
+def ziskArithLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 2097152 11 1
 
 def ziskArithDeepAli : DeepAliCfg where
   name           := "Arith"
@@ -1716,33 +1133,11 @@ example : ziskArithDeepAli.ExitCriteria ziskArithJBR
 
 /-! ## Binary -/
 
-def ziskBinaryFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 49
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskBinaryFRI := ziskFRI Rate.half 4194304 49 230 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskBinaryDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBinaryLookupGsum125 : LookupCfg where
-  name := "Lookup_gsum_[125]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 7; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskBinaryLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskBinaryDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 4194304 11 1
+def ziskBinaryLookupGsum125 := ziskLookup "Lookup_gsum_[125]" 0 4194304 7 8
+def ziskBinaryLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 4194304 0 11 1
 
 def ziskBinaryDeepAli : DeepAliCfg where
   name           := "Binary"
@@ -1776,33 +1171,11 @@ example : ziskBinaryDeepAli.ExitCriteria ziskBinaryJBR
 
 /-! ## BinaryAdd -/
 
-def ziskBinaryAddFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 18
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskBinaryAddFRI := ziskFRI Rate.half 4194304 18 229 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskBinaryAddDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBinaryAddLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBinaryAddRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 4
-  grindBitsLookup := 0
+def ziskBinaryAddDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 4194304 11 1
+def ziskBinaryAddLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 4194304 0 11 1
+def ziskBinaryAddRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194304 1 4
 
 def ziskBinaryAddDeepAli : DeepAliCfg where
   name           := "BinaryAdd"
@@ -1836,37 +1209,12 @@ example : ziskBinaryAddDeepAli.ExitCriteria ziskBinaryAddJBR
 
 /-! ## BinaryExtension -/
 
-def ziskBinaryExtensionFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 4194304
-  batchSize      := 40
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskBinaryExtensionFRI := ziskFRI Rate.half 4194304 40 230 32 16 [8, 8, 8, 8, 8, 8]
 
-def ziskBinaryExtensionDirectGsum5000 : LookupCfg where
-  name := "Direct_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBinaryExtensionLookupGsum124 : LookupCfg where
-  name := "Lookup_gsum_[124]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 7; numLookupsM := 8
-  grindBitsLookup := 0
-def ziskBinaryExtensionLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 4194304; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBinaryExtensionRangeCheckGsum102 : LookupCfg where
-  name := "Range Check_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 4194304; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskBinaryExtensionDirectGsum5000 := ziskLookup "Direct_gsum_[5000]" 0 4194304 11 1
+def ziskBinaryExtensionLookupGsum124 := ziskLookup "Lookup_gsum_[124]" 0 4194304 7 8
+def ziskBinaryExtensionLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 4194304 0 11 1
+def ziskBinaryExtensionRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 4194304 1 1
 
 def ziskBinaryExtensionDeepAli : DeepAliCfg where
   name           := "BinaryExtension"
@@ -1903,33 +1251,11 @@ example : ziskBinaryExtensionDeepAli.ExitCriteria ziskBinaryExtensionJBR
 
 /-! ## Add256 -/
 
-def ziskAdd256FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 1048576
-  batchSize      := 69
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskAdd256FRI := ziskFRI Rate.half 1048576 69 229 64 16 [8, 8, 8, 8, 8]
 
-def ziskAdd256LookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskAdd256PermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 6; numLookupsM := 16
-  grindBitsLookup := 0
-def ziskAdd256RangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 16
-  grindBitsLookup := 0
+def ziskAdd256LookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 1048576 0 11 1
+def ziskAdd256PermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 1048576 6 16
+def ziskAdd256RangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 1048576 1 16
 
 def ziskAdd256DeepAli : DeepAliCfg where
   name           := "Add256"
@@ -1963,45 +1289,14 @@ example : ziskAdd256DeepAli.ExitCriteria ziskAdd256JBR
 
 /-! ## ArithEq -/
 
-def ziskArithEqFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 1048576
-  batchSize      := 470
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 231
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskArithEqFRI := ziskFRI Rate.half 1048576 470 231 64 16 [8, 8, 8, 8, 8]
 
-def ziskArithEqLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskArithEqLookupGsum5002 : LookupCfg where
-  name := "Lookup_gsum_[5002]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 2; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskArithEqPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskArithEqRangeCheckGsum103_104 : LookupCfg where
-  name := "Range Check_gsum_[103, 104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 3
-  grindBitsLookup := 0
-def ziskArithEqRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 7
-  grindBitsLookup := 0
-def ziskArithEqRangeCheckGsum108 : LookupCfg where
-  name := "Range Check_gsum_[108]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 6
-  grindBitsLookup := 0
+def ziskArithEqLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 1048576 0 11 1
+def ziskArithEqLookupGsum5002 := ziskLookup "Lookup_gsum_[5002]" 0 1048576 2 2
+def ziskArithEqPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 1048576 6 2
+def ziskArithEqRangeCheckGsum103_104 := ziskLookup "Range Check_gsum_[103, 104]" 0 1048576 1 3
+def ziskArithEqRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 1048576 1 7
+def ziskArithEqRangeCheckGsum108 := ziskLookup "Range Check_gsum_[108]" 0 1048576 1 6
 
 def ziskArithEqDeepAli : DeepAliCfg where
   name           := "ArithEq"
@@ -2042,45 +1337,14 @@ example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
 
 /-! ## ArithEq384 -/
 
-def ziskArithEq384FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 1048576
-  batchSize      := 536
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 232
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskArithEq384FRI := ziskFRI Rate.half 1048576 536 232 64 16 [8, 8, 8, 8, 8]
 
-def ziskArithEq384LookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskArithEq384LookupGsum5002 : LookupCfg where
-  name := "Lookup_gsum_[5002]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 2; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskArithEq384PermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 6; numLookupsM := 2
-  grindBitsLookup := 0
-def ziskArithEq384RangeCheckGsum103_104 : LookupCfg where
-  name := "Range Check_gsum_[103, 104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 3
-  grindBitsLookup := 0
-def ziskArithEq384RangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 7
-  grindBitsLookup := 0
-def ziskArithEq384RangeCheckGsum108 : LookupCfg where
-  name := "Range Check_gsum_[108]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 1048576; numColumnsS := 1; numLookupsM := 6
-  grindBitsLookup := 0
+def ziskArithEq384LookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 1048576 0 11 1
+def ziskArithEq384LookupGsum5002 := ziskLookup "Lookup_gsum_[5002]" 0 1048576 2 2
+def ziskArithEq384PermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 1048576 6 2
+def ziskArithEq384RangeCheckGsum103_104 := ziskLookup "Range Check_gsum_[103, 104]" 0 1048576 1 3
+def ziskArithEq384RangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 1048576 1 7
+def ziskArithEq384RangeCheckGsum108 := ziskLookup "Range Check_gsum_[108]" 0 1048576 1 6
 
 def ziskArithEq384DeepAli : DeepAliCfg where
   name           := "ArithEq384"
@@ -2121,33 +1385,11 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
 
 /-! ## Keccakf -/
 
-def ziskKeccakfFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 131072
-  batchSize      := 4065
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 217
-  foldingFactors := [8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 23
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskKeccakfFRI := ziskFRI Rate.half 131072 4065 217 64 23 [8, 8, 8, 8]
 
-def ziskKeccakfLookupGsum126 : LookupCfg where
-  name := "Lookup_gsum_[126]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 131072; numColumnsS := 4; numLookupsM := 534
-  grindBitsLookup := 0
-def ziskKeccakfLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 131072; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskKeccakfPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 131072; numColumnsS := 6; numLookupsM := 25
-  grindBitsLookup := 0
+def ziskKeccakfLookupGsum126 := ziskLookup "Lookup_gsum_[126]" 0 131072 4 534
+def ziskKeccakfLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 131072 0 11 1
+def ziskKeccakfPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 131072 6 25
 
 def ziskKeccakfDeepAli : DeepAliCfg where
   name           := "Keccakf"
@@ -2181,33 +1423,11 @@ example : ziskKeccakfDeepAli.ExitCriteria ziskKeccakfJBR
 
 /-! ## Sha256f -/
 
-def ziskSha256fFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 262144
-  batchSize      := 1265
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 231
-  foldingFactors := [8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskSha256fFRI := ziskFRI Rate.half 262144 1265 231 32 16 [8, 8, 8, 8, 4]
 
-def ziskSha256fLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSha256fPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 262144; numColumnsS := 6; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSha256fRangeCheckGsum109 : LookupCfg where
-  name := "Range Check_gsum_[109]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 262144; numColumnsS := 1; numLookupsM := 2
-  grindBitsLookup := 0
+def ziskSha256fLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 262144 0 11 1
+def ziskSha256fPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 262144 6 1
+def ziskSha256fRangeCheckGsum109 := ziskLookup "Range Check_gsum_[109]" 0 262144 1 2
 
 def ziskSha256fDeepAli : DeepAliCfg where
   name           := "Sha256f"
@@ -2241,29 +1461,10 @@ example : ziskSha256fDeepAli.ExitCriteria ziskSha256fJBR
 
 /-! ## Poseidon2 -/
 
-def ziskPoseidon2FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 131072
-  batchSize      := 182
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 114
-  foldingFactors := [8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskPoseidon2FRI := ziskFRI Rate.quarter 131072 182 114 32 16 [8, 8, 8, 8, 4]
 
-def ziskPoseidon2LookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 131072; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskPoseidon2PermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 131072; numColumnsS := 6; numLookupsM := 4
-  grindBitsLookup := 0
+def ziskPoseidon2LookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 131072 0 11 1
+def ziskPoseidon2PermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 131072 6 4
 
 def ziskPoseidon2DeepAli : DeepAliCfg where
   name           := "Poseidon2"
@@ -2297,37 +1498,12 @@ example : ziskPoseidon2DeepAli.ExitCriteria ziskPoseidon2JBR
 
 /-! ## Blake2br -/
 
-def ziskBlake2brFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 262144
-  batchSize      := 651
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskBlake2brFRI := ziskFRI Rate.half 262144 651 230 32 16 [8, 8, 8, 8, 4]
 
-def ziskBlake2brLookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 0; numColumnsS := 11; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBlake2brPermutationGsum10 : LookupCfg where
-  name := "Permutation_gsum_[10]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 262144; numColumnsS := 6; numLookupsM := 4
-  grindBitsLookup := 0
-def ziskBlake2brPermutationGsum127 : LookupCfg where
-  name := "Permutation_gsum_[127]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 262144; numColumnsS := 3; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskBlake2brRangeCheckGsum103 : LookupCfg where
-  name := "Range Check_gsum_[103]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 0; rowsL := 262144; numColumnsS := 1; numLookupsM := 12
-  grindBitsLookup := 0
+def ziskBlake2brLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 262144 0 11 1
+def ziskBlake2brPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 262144 6 4
+def ziskBlake2brPermutationGsum127 := ziskLookup "Permutation_gsum_[127]" 262144 262144 3 1
+def ziskBlake2brRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 262144 1 12
 
 def ziskBlake2brDeepAli : DeepAliCfg where
   name           := "Blake2br"
@@ -2361,45 +1537,14 @@ example : ziskBlake2brDeepAli.ExitCriteria ziskBlake2brJBR
 
 /-! ## SpecifiedRanges -/
 
-def ziskSpecifiedRangesFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 1048576
-  batchSize      := 107
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 229
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskSpecifiedRangesFRI := ziskFRI Rate.half 1048576 107 229 64 16 [8, 8, 8, 8, 8]
 
-def ziskSpecifiedRangesLookupGsum102 : LookupCfg where
-  name := "Lookup_gsum_[102]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSpecifiedRangesLookupGsum103_104 : LookupCfg where
-  name := "Lookup_gsum_[103, 104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSpecifiedRangesLookupGsum104_105_106_107_108 : LookupCfg where
-  name := "Lookup_gsum_[104, 105, 106, 107, 108]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSpecifiedRangesLookupGsum104 : LookupCfg where
-  name := "Lookup_gsum_[104]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSpecifiedRangesLookupGsum108_109 : LookupCfg where
-  name := "Lookup_gsum_[108, 109]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskSpecifiedRangesLookupGsum108 : LookupCfg where
-  name := "Lookup_gsum_[108]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 0; numColumnsS := 1; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskSpecifiedRangesLookupGsum102 := ziskLookup "Lookup_gsum_[102]" 1048576 0 1 1
+def ziskSpecifiedRangesLookupGsum103_104 := ziskLookup "Lookup_gsum_[103, 104]" 1048576 0 1 1
+def ziskSpecifiedRangesLookupGsum104_105_106_107_108 := ziskLookup "Lookup_gsum_[104, 105, 106, 107, 108]" 1048576 0 1 1
+def ziskSpecifiedRangesLookupGsum104 := ziskLookup "Lookup_gsum_[104]" 1048576 0 1 1
+def ziskSpecifiedRangesLookupGsum108_109 := ziskLookup "Lookup_gsum_[108, 109]" 1048576 0 1 1
+def ziskSpecifiedRangesLookupGsum108 := ziskLookup "Lookup_gsum_[108]" 1048576 0 1 1
 
 def ziskSpecifiedRangesDeepAli : DeepAliCfg where
   name           := "SpecifiedRanges"
@@ -2440,45 +1585,14 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
 
 /-! ## VirtualTable0 -/
 
-def ziskVirtualTable0FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 69
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskVirtualTable0FRI := ziskFRI Rate.half 2097152 69 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskVirtualTable0LookupGsum124_8001 : LookupCfg where
-  name := "Lookup_gsum_[124, 8001]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskVirtualTable0LookupGsum125_124 : LookupCfg where
-  name := "Lookup_gsum_[125, 124]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskVirtualTable0LookupGsum125 : LookupCfg where
-  name := "Lookup_gsum_[125]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskVirtualTable0LookupGsum126_331_8002_133_125 : LookupCfg where
-  name := "Lookup_gsum_[126, 331, 8002, 133, 125]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 7; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskVirtualTable0LookupGsum330 : LookupCfg where
-  name := "Lookup_gsum_[330]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 2; numLookupsM := 1
-  grindBitsLookup := 0
-def ziskVirtualTable0LookupGsum5002_88_77_8003_126 : LookupCfg where
-  name := "Lookup_gsum_[5002, 88, 77, 8003, 126]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 4; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskVirtualTable0LookupGsum124_8001 := ziskLookup "Lookup_gsum_[124, 8001]" 2097152 0 7 1
+def ziskVirtualTable0LookupGsum125_124 := ziskLookup "Lookup_gsum_[125, 124]" 2097152 0 7 1
+def ziskVirtualTable0LookupGsum125 := ziskLookup "Lookup_gsum_[125]" 2097152 0 7 1
+def ziskVirtualTable0LookupGsum126_331_8002_133_125 := ziskLookup "Lookup_gsum_[126, 331, 8002, 133, 125]" 2097152 0 7 1
+def ziskVirtualTable0LookupGsum330 := ziskLookup "Lookup_gsum_[330]" 2097152 0 2 1
+def ziskVirtualTable0LookupGsum5002_88_77_8003_126 := ziskLookup "Lookup_gsum_[5002, 88, 77, 8003, 126]" 2097152 0 4 1
 
 def ziskVirtualTable0DeepAli : DeepAliCfg where
   name           := "VirtualTable0"
@@ -2519,25 +1633,9 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
 
 /-! ## VirtualTable1 -/
 
-def ziskVirtualTable1FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.half
-  denseLen       := 2097152
-  batchSize      := 90
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 230
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 16
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskVirtualTable1FRI := ziskFRI Rate.half 2097152 90 230 32 16 [8, 8, 8, 8, 8, 4]
 
-def ziskVirtualTable1LookupGsum5000 : LookupCfg where
-  name := "Lookup_gsum_[5000]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 2097152; rowsL := 0; numColumnsS := 8; numLookupsM := 1
-  grindBitsLookup := 0
+def ziskVirtualTable1LookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0 8 1
 
 def ziskVirtualTable1DeepAli : DeepAliCfg where
   name           := "VirtualTable1"
@@ -2571,25 +1669,9 @@ example : ziskVirtualTable1DeepAli.ExitCriteria ziskVirtualTable1JBR
 
 /-! ## DmaPrePost-compressor -/
 
-def ziskDmaPrePostCompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 262144
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskDmaPrePostCompressorFRI := ziskFRI Rate.quarter 262144 198 110 32 20 [8, 8, 8, 8, 8]
 
-def ziskDmaPrePostCompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 262144; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskDmaPrePostCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 262144 262144 2 36
 
 def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   name           := "DmaPrePost-compressor"
@@ -2623,25 +1705,9 @@ example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskDmaPrePostCompressorJ
 
 /-! ## ArithEq-compressor -/
 
-def ziskArithEqCompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 262144
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskArithEqCompressorFRI := ziskFRI Rate.quarter 262144 198 110 32 20 [8, 8, 8, 8, 8]
 
-def ziskArithEqCompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 262144; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskArithEqCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 262144 262144 2 36
 
 def ziskArithEqCompressorDeepAli : DeepAliCfg where
   name           := "ArithEq-compressor"
@@ -2675,25 +1741,9 @@ example : ziskArithEqCompressorDeepAli.ExitCriteria ziskArithEqCompressorJBR
 
 /-! ## ArithEq384-compressor -/
 
-def ziskArithEq384CompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 262144
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskArithEq384CompressorFRI := ziskFRI Rate.quarter 262144 198 110 32 20 [8, 8, 8, 8, 8]
 
-def ziskArithEq384CompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 262144; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskArithEq384CompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 262144 262144 2 36
 
 def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   name           := "ArithEq384-compressor"
@@ -2727,25 +1777,9 @@ example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskArithEq384CompressorJ
 
 /-! ## Keccakf-compressor -/
 
-def ziskKeccakfCompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 1048576
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8, 4]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskKeccakfCompressorFRI := ziskFRI Rate.quarter 1048576 198 110 32 20 [8, 8, 8, 8, 8, 4]
 
-def ziskKeccakfCompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 1048576; rowsL := 1048576; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskKeccakfCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 1048576 1048576 2 36
 
 def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   name           := "Keccakf-compressor"
@@ -2779,25 +1813,9 @@ example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskKeccakfCompressorJBR
 
 /-! ## Sha256f-compressor -/
 
-def ziskSha256fCompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 524288
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 64
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskSha256fCompressorFRI := ziskFRI Rate.quarter 524288 198 110 64 20 [8, 8, 8, 8, 8]
 
-def ziskSha256fCompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 524288; rowsL := 524288; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskSha256fCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 524288 524288 2 36
 
 def ziskSha256fCompressorDeepAli : DeepAliCfg where
   name           := "Sha256f-compressor"
@@ -2831,25 +1849,9 @@ example : ziskSha256fCompressorDeepAli.ExitCriteria ziskSha256fCompressorJBR
 
 /-! ## Blake2br-compressor -/
 
-def ziskBlake2brCompressorFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.quarter
-  denseLen       := 262144
-  batchSize      := 198
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 110
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskBlake2brCompressorFRI := ziskFRI Rate.quarter 262144 198 110 32 20 [8, 8, 8, 8, 8]
 
-def ziskBlake2brCompressorConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 262144; rowsL := 262144; numColumnsS := 2; numLookupsM := 36
-  grindBitsLookup := 0
+def ziskBlake2brCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 262144 262144 2 36
 
 def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   name           := "Blake2br-compressor"
@@ -2883,25 +1885,9 @@ example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskBlake2brCompressorJBR
 
 /-! ## Recursive2 -/
 
-def ziskRecursive2FRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.eighth
-  denseLen       := 131072
-  batchSize      := 145
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 73
-  foldingFactors := [8, 8, 8, 8, 8]
-  earlyStopDeg   := 32
-  grindQuery     := 20
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskRecursive2FRI := ziskFRI Rate.eighth 131072 145 73 32 20 [8, 8, 8, 8, 8]
 
-def ziskRecursive2ConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 131072; rowsL := 131072; numColumnsS := 2; numLookupsM := 27
-  grindBitsLookup := 0
+def ziskRecursive2ConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 131072 131072 2 27
 
 def ziskRecursive2DeepAli : DeepAliCfg where
   name           := "Recursive2"
@@ -2935,25 +1921,9 @@ example : ziskRecursive2DeepAli.ExitCriteria ziskRecursive2JBR
 
 /-! ## Final -/
 
-def ziskFinalFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.thirtysecond
-  denseLen       := 65536
-  batchSize      := 139
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 43
-  foldingFactors := [16, 16, 16, 16]
-  earlyStopDeg   := 32
-  grindQuery     := 22
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskFinalFRI := ziskFRI Rate.thirtysecond 65536 139 43 32 22 [16, 16, 16, 16]
 
-def ziskFinalConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 65536; rowsL := 65536; numColumnsS := 2; numLookupsM := 24
-  grindBitsLookup := 0
+def ziskFinalConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 65536 65536 2 24
 
 def ziskFinalDeepAli : DeepAliCfg where
   name           := "Final"
@@ -2987,25 +1957,9 @@ example : ziskFinalDeepAli.ExitCriteria ziskFinalJBR
 
 /-! ## Final_Compressed -/
 
-def ziskFinalCompressedFRI : FRIConfig where
-  hashBits       := 256
-  field          := goldilocks3
-  ρ              := Rate.sixteenth
-  denseLen       := 32768
-  batchSize      := 145
-  powerBatch     := true
-  multilinBatch  := false
-  numQueries     := 54
-  foldingFactors := [8, 8, 8]
-  earlyStopDeg   := 1024
-  grindQuery     := 22
-  grindBatch     := 0
-  grindCommit    := 0
+def ziskFinalCompressedFRI := ziskFRI Rate.sixteenth 32768 145 54 1024 22 [8, 8, 8]
 
-def ziskFinalCompressedConnectionGprod1 : LookupCfg where
-  name := "Connection_gprod_[1]"; field := goldilocks3; isLogUpMultivar := false
-  rowsT := 32768; rowsL := 32768; numColumnsS := 2; numLookupsM := 27
-  grindBitsLookup := 0
+def ziskFinalCompressedConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 32768 32768 2 27
 
 def ziskFinalCompressedDeepAli : DeepAliCfg where
   name           := "Final_Compressed"

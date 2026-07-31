@@ -32,7 +32,6 @@ abbrev Q := Rat
 structure FRIConfig where
   hashBits       : N
   ρ              : Rate          -- rate, constrained to (0,1) by the Rate subtype
-  traceLen       : N
   field          : FieldParams
   denseLen       : N             -- = 2^21 for SP1 core
   batchSize      : N             -- = 193
@@ -48,13 +47,11 @@ structure FRIConfig where
   h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
                    = (earlyStopDeg : Q) := by native_decide
 
-def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
-  R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
-
 /-- Powers-batching error: uses `errPowers` (Airbender's `power_batching = true` path)
     then applies the batching grind. -/
-def FRIConfig.batchingErrPowers (c : FRIConfig) (R : Regime) : Q :=
-  R.errPowers c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
+def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
+  if c.powerBatch then  R.errPowers c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
+  else R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
 
 def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
   let acc := (c.foldingFactors.take (i + 1)).foldl (· * ·) 1
@@ -104,6 +101,17 @@ def FRIConfig.h (c: FRIConfig) : N :=
 -/
 def FRIConfig.rounds (c: FRIConfig) : N :=
   c.foldingFactors.length
+
+/--
+  Enumerates all the soundness errors of a FRI PCS.
+-/
+def FRIConfig.listErrs (c: FRIConfig) (R: Regime) : List ℚ := do
+  let mut l : List ℚ := []
+  l := l ++ [c.batchingErr R]
+  for i in List.range c.foldingFactors.length do
+    l := l ++ [c.commitErr R i]
+  l := l ++ [c.queryErr R]
+  l
 
 /-! ## FRI proof size -/
 

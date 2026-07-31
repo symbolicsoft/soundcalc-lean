@@ -1,6 +1,8 @@
 import Soundcalc.SecBits
 import Soundcalc.Regime
+import Soundcalc.PCS.PCS
 import Soundcalc.PCS.FRI
+import Soundcalc.PCS.WHIR
 import Soundcalc.Circuit.Circuit
 import Soundcalc.Circuit.DeepAli
 import Soundcalc.Circuit.GenericCircuit
@@ -21,7 +23,5 @@ import Soundcalc.ZkVM.Airbender
 import Soundcalc.ZkVM.OpenVM
 import Soundcalc.ZkVM.Pico
 import Soundcalc.ZkVM.Zisk
-import Soundcalc.PCS.WHIR
 import Soundcalc.Circuit.SWIRL.ComputeError
 import Soundcalc.ZkVM.OpenVM2
-

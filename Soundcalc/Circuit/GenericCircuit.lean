@@ -1,8 +1,6 @@
 import Mathlib
-import Soundcalc.SecBits
-import Soundcalc.Regime
-import Soundcalc.PCS.FRI
 import Soundcalc.Lookup
+import Soundcalc.PCS.PCS
 
 namespace Soundcalc
 
@@ -11,7 +9,7 @@ structure GenericCircuit where
   name             : String
   field            : FieldParams
   proofSystName    : String
-  densePCS         : FRIConfig
+  densePCS         : PCS
   gapToRadius      : Option ℚ       := none -- gapToRadius is defined at circuit level
   lookups          : List LookupCfg := []
   /- Flags for supported regimes -/

@@ -227,7 +227,6 @@ private def parseFRIConfig (circTab : Table)
   let fcfg: FRIConfig := {
     hashBits          := zkvm_hash_size_bits
     ρ                 := circ_rho
-    traceLen          := circ_trace_length
     field             := zkvm_field
     denseLen          := circ_trace_length  -- dense_length in SP1
     batchSize         := circ_batch_size    -- dense_batch in SP1
@@ -289,14 +288,14 @@ private def parseLookupCfg (lookupTab : Table)
   in a table `zkvmTab`, which is obtained from parsing a `.toml`
   file of a ZkVM configuration.
   The output `JaggedCfg` also bundles the list of lookups it contains
-  (`lookupList`), as well as its FRI configuration (`friConfig`).
+  (`lookupList`), as well as its PCS configuration (`PCSConfig`).
 
   Raises an error if any core fields are missing.
 -/
 private def parseJaggedCfg (circTab : Table)
                            (zkvmTab : Table)
                            (lookupList : List LookupCfg)
-                           (friConfig : FRIConfig) : IO JaggedCfg := do
+                           (PCSconfig : PCS) : IO JaggedCfg := do
   /- Global zkVM values -/
   let zkvm_field ← orExit (getString zkvmTab "field")
   let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
@@ -315,10 +314,10 @@ private def parseJaggedCfg (circTab : Table)
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "Lookup field mismatch: not all lookups share the circuit's field"; IO.Process.exit 1
 
-  let h_densePCS_field : PLift (friConfig.field = zkvm_field) ←
-  match decEq friConfig.field zkvm_field with
-  | .isTrue h  => pure (PLift.up h : PLift (friConfig.field = zkvm_field))
-  | .isFalse _ => IO.eprintln "FRI field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
+  let h_densePCS_field : PLift (PCSconfig.field = zkvm_field) ←
+  match decEq PCSconfig.field zkvm_field with
+  | .isTrue h  => pure (PLift.up h : PLift (PCSconfig.field = zkvm_field))
+  | .isFalse _ => IO.eprintln "PCS field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
 
   let circ_gap_to_radius_cond ← orExit (getOptFloat circTab "gap_to_radius")
   let circ_gap_to_radius ← orExit (gapToRadiusRat circ_gap_to_radius_cond)
@@ -327,13 +326,13 @@ private def parseJaggedCfg (circTab : Table)
     name              := circ_name
     field             := zkvm_field
     proofSystName     := "Jagged"
-    densePCS          := friConfig
+    densePCS          := PCSconfig
     traceLength       := circ_trace_length
     traceWidth        := circ_trace_columns
     numConstraints    := circ_num_constraints
     airMaxDegree      := circ_air_max_degree
     lookups           := lookupList
-    h_densePCS_field  := PLift.down (α := friConfig.field = zkvm_field) h_densePCS_field
+    h_densePCS_field  := PLift.down (α := PCSconfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
     isUDR             := true   -- **TODO** generalize
     isJBR             := false  -- **TODO** generalize
@@ -347,14 +346,14 @@ private def parseJaggedCfg (circTab : Table)
   in a table `zkvmTab`, which is obtained from parsing a `.toml`
   file of a ZkVM configuration.
   The output `DeepAliCfg` also bundles the list of lookups it contains
-  (`lookupList`), as well as its FRI configuration (`friConfig`).
+  (`lookupList`), as well as its PCS configuration (`PCSconfig`).
 
   Raises an error if any core fields are missing.
 -/
 private def parseDeepAliCfg (circTab : Table)
                             (zkvmTab : Table)
                             (lookupList : List LookupCfg)
-                            (friConfig : FRIConfig) : IO DeepAliCfg := do
+                            (PCSconfig : PCS) : IO DeepAliCfg := do
   /- Global zkVM values -/
   let zkvm_field ← orExit (getString zkvmTab "field")
   let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
@@ -384,10 +383,10 @@ private def parseDeepAliCfg (circTab : Table)
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "Lookup field mismatch: not all lookups share the circuit's field"; IO.Process.exit 1
 
-  let h_densePCS_field : PLift (friConfig.field = zkvm_field) ←
-  match decEq friConfig.field zkvm_field with
-  | .isTrue h  => pure (PLift.up h : PLift (friConfig.field = zkvm_field))
-  | .isFalse _ => IO.eprintln "FRI field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
+  let h_densePCS_field : PLift (PCSconfig.field = zkvm_field) ←
+  match decEq PCSconfig.field zkvm_field with
+  | .isTrue h  => pure (PLift.up h : PLift (PCSconfig.field = zkvm_field))
+  | .isFalse _ => IO.eprintln "PCS field mismatch: densePCS.field ≠ circuit field"; IO.Process.exit 1
 
   let circ_gap_to_radius_cond ← orExit (getOptFloat circTab "gap_to_radius")
   let circ_gap_to_radius ← orExit (gapToRadiusRat circ_gap_to_radius_cond)
@@ -396,13 +395,13 @@ private def parseDeepAliCfg (circTab : Table)
     name              := circ_name
     field             := zkvm_field
     proofSystName     := "DEEP-ALI"
-    densePCS          := friConfig
+    densePCS          := PCSconfig
     numConstraints    := circ_num_constraints
     airMaxDegree      := circ_air_max_degree
     maxCombo          := circ_max_combo
     grindDeep         := circ_grinding_deep
     lookups           := lookupList
-    h_densePCS_field  := PLift.down (α := friConfig.field = zkvm_field) h_densePCS_field
+    h_densePCS_field  := PLift.down (α := PCSconfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
     isUDR             := true   -- **TODO** generalize
     isJBR             := true   -- **TODO** generalize
@@ -454,14 +453,22 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
       let circ_protocol_family ← orExit (getString circ_tab "protocol_family")
 
       /- The last boolean parameter signals the FRIConfig should be parsed
-      as per a Jagged circuit. (i.e., dense FRI params) -/
-      let (friConfig, circuit) ← match circ_protocol_family with
+      as per a Jagged circuit. (i.e., dense FRI params)
+
+      Following soundcalc, Jagged and DeepAli circuits are ALWAYS bundled with FRI,
+      whereas SWIRL circuits are ALWAYS bundled with WHIRL.
+      Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L89
+
+      **FEAT TODO** Allow for switching of PCS schemes.
+      |-> Possible solution: add a PCS field explicitly within .toml files.
+      -/
+      let circuit ← match circ_protocol_family with
       | "JAGGED"    => let fcfg ← parseFRIConfig circ_tab zkvm_tab true
-                       let jaggedCirc ← (parseJaggedCfg circ_tab zkvm_tab lookup_list fcfg)
-                       pure (fcfg, .jagged jaggedCirc)
+                       let jaggedCirc ← (parseJaggedCfg circ_tab zkvm_tab lookup_list (.fri fcfg))
+                       pure (.jagged jaggedCirc)
       | "FRI_STARK" => let fcfg ← parseFRIConfig circ_tab zkvm_tab false
-                       let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list fcfg)
-                       pure (fcfg, .deepali deepAliCirc)
+                       let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list (.fri fcfg))
+                       pure (.deepali deepAliCirc)
       | _           =>  IO.eprintln "Unsupported circuit family."; IO.Process.exit 1
 
 

@@ -28,37 +28,44 @@ def DeepAliCfg.renderCircParams (c: DeepAliCfg) : IO String := do
       s!"- Grinding DEEP (bits): {c.grindDeep}\n"
     else s!""
 
-  /- Conditional strings -/
-  let batchingStr := if c.densePCS.powerBatch then "Powers" else "Affine"
-  let grindcommitStr :=
-    if c.densePCS.grindCommit > 0 then
-      s!"- Grinding commit phase, at every folding round (bits): {c.densePCS.grindCommit}\n"
-    else s!""
 
-  let grindBatchStr :=
-    if c.densePCS.grindBatch > 0 then
-      s!"- Grinding batching phase (bits): {c.densePCS.grindBatch}\n"
-    else s!""
+  /- Currently-supported PCS: FRI
+    **FEAT TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
 
-  outStr := outStr ++
-  s!"- Proof system: {c.proofSystName}\n" ++
-  s!"- PCS: FRI\n" ++
-  s!"- Hash size (bits): {c.densePCS.hashBits}\n" ++
-  s!"- Number of queries: {c.densePCS.numQueries}\n" ++
-  s!"- Grinding query phase (bits): {c.densePCS.grindQuery}\n" ++
-  /- Conditional grinding string -/
-  s!"{grindBatchStr}" ++
-  s!"{grindcommitStr}" ++
-  s!"- Field: {fieldDisplayName}\n" ++
-  s!"- Rate (ρ): {floatRateStr}\n" ++
-  s!"- Trace length (H): $2^\{{c.densePCS.h}}$\n" ++
-  s!"- FRI rounds: {c.densePCS.rounds}\n" ++
-  s!"- FRI folding factors: {c.densePCS.foldingFactors}\n" ++
-  s!"- FRI early stop degree: {c.densePCS.earlyStopDeg}\n" ++
-  s!"- Batch size: {c.densePCS.batchSize}\n" ++
-  s!"- Batching: {batchingStr}\n" ++
-  s!"{grindDeepStr}" ++
-  s!"- Number of constraints: {c.numConstraints}\n"
+  match c.densePCS with
+  | .fri fcfg =>
+    /- Conditional strings -/
+    let batchingStr := if fcfg.powerBatch then "Powers" else "Affine"
+    let grindcommitStr :=
+      if fcfg.grindCommit > 0 then
+        s!"- Grinding commit phase, at every folding round (bits): {fcfg.grindCommit}\n"
+      else s!""
+
+    let grindBatchStr :=
+      if fcfg.grindBatch > 0 then
+        s!"- Grinding batching phase (bits): {fcfg.grindBatch}\n"
+      else s!""
+
+    outStr := outStr ++
+    s!"- Proof system: {c.proofSystName}\n" ++
+    s!"- PCS: FRI\n" ++
+    s!"- Hash size (bits): {fcfg.hashBits}\n" ++
+    s!"- Number of queries: {fcfg.numQueries}\n" ++
+    s!"- Grinding query phase (bits): {fcfg.grindQuery}\n" ++
+    /- Conditional grinding string -/
+    s!"{grindBatchStr}" ++
+    s!"{grindcommitStr}" ++
+    s!"- Field: {fieldDisplayName}\n" ++
+    s!"- Rate (ρ): {floatRateStr}\n" ++
+    s!"- Trace length (H): $2^\{{fcfg.h}}$\n" ++
+    s!"- FRI rounds: {fcfg.rounds}\n" ++
+    s!"- FRI folding factors: {fcfg.foldingFactors}\n" ++
+    s!"- FRI early stop degree: {fcfg.earlyStopDeg}\n" ++
+    s!"- Batch size: {fcfg.batchSize}\n" ++
+    s!"- Batching: {batchingStr}\n" ++
+    s!"{grindDeepStr}" ++
+    s!"- Number of constraints: {c.numConstraints}\n"
+  | .whir _ => IO.eprintln "Unsupported PCS scheme (WHIR)."; IO.Process.exit 1
 
   for lookup in c.lookups do
     outStr := outStr ++
@@ -83,15 +90,18 @@ def DeepAliCfg.getSecurityLevels (c: DeepAliCfg) (R: Regime) : IO (List (String 
   l := l ++ [("ALI", (secBits (c.aliErr R)))]
   l := l ++ [("DEEP", (secBits (c.deepErr R)))]
 
+  /- Currently-supported PCS: FRI
+    **FEAT TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
+  match c.densePCS with
+  | .fri fcfg =>
   /- FRIConfig secBits: batching, commit round {i}, query phase -/
-  let fcfg := c.densePCS
-  l := l ++ [("batching", (secBits (fcfg.batchingErrPowers (R))))]
+    l := l ++ [("batching", (secBits (fcfg.batchingErr (R))))]
 
-  for i in rangeAlph fcfg.rounds do
-    let roundLabel := s!"commit round {i}"
-    l := l ++ [(roundLabel, (secBits (fcfg.commitErr (R) (i-1))))]
-  l := l ++ [("query phase", (secBits (fcfg.queryErr (R))))]
-
+    for i in rangeAlph fcfg.rounds do
+      let roundLabel := s!"commit round {i}"
+      l := l ++ [(roundLabel, (secBits (fcfg.commitErr (R) (i-1))))]
+    l := l ++ [("query phase", (secBits (fcfg.queryErr (R))))]
+  | .whir _ => IO.eprintln "Unsupported PCS scheme (WHIR)."; IO.Process.exit 1
   pure l
 
 end Soundcalc

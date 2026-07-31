@@ -1,7 +1,7 @@
 import Mathlib
 import Soundcalc.SecBits
 import Soundcalc.Regime
-import Soundcalc.PCS.FRI
+import Soundcalc.PCS.PCS
 import Soundcalc.Lookup
 import Soundcalc.Circuit.GenericCircuit
 
@@ -33,14 +33,14 @@ structure DeepAliCfg extends GenericCircuit where
 /-- `e_ALI = L⁺ · C / |F|`.
     Regime-dependent purely through `L⁺ = R.listSize`; for UDR `L⁺ = 1`. -/
 def DeepAliCfg.aliErr (c : DeepAliCfg) (R : Regime) : Q :=
-  let traceLen := c.densePCS.denseLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+  let traceLen := c.densePCS.traceLen
   R.listSize c.densePCS.ρ traceLen * (c.numConstraints : Q) / (c.field.card : Q)
 
 /-- `e_DEEP = L⁺ · (deg·(H + m_max − 1) + (H − 1)) / (|F| − H − D) / 2^grindDeep`,
     where `D = H / ρ` is the FRI evaluation domain size.
     The denominator is `|F| − H − D`, **not** `|F|` — see module docstring. -/
 def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
-  let traceLen := c.densePCS.denseLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+  let traceLen := c.densePCS.traceLen
   let H  : Q := (traceLen : Q)
   let D  : Q := H / (c.densePCS.ρ : Q)
   let Lp : Q := R.listSize c.densePCS.ρ traceLen
@@ -51,7 +51,7 @@ def DeepAliCfg.deepErr (c : DeepAliCfg) (R : Regime) : Q :=
     Uses `θUB` (upper bound on true θ) so the checked window is a lower bound on the
     true window — if the guard passes here it passes with the exact θ. -/
 abbrev DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
-  let traceLength := c.densePCS.denseLen -- *TODO* rename denseLen to traceLen in FRIConfig at some point
+  let traceLength := c.densePCS.traceLen
   ((traceLength : Q) + (c.maxCombo : Q)) <
     (1 - R.θUB c.densePCS.ρ traceLength) * ((traceLength : Q) / (c.densePCS.ρ : Q))
 
@@ -64,11 +64,7 @@ abbrev DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
 -/
 def DeepAliCfg.listErrs (c: DeepAliCfg)(R: Regime) : List ℚ := do
   let mut l : List ℚ := []
-  l := l ++ [c.densePCS.batchingErrPowers R]
-  let fcfg := c.densePCS
-  for i in List.range fcfg.rounds do
-    l := l ++ [fcfg.commitErr (R) i]
-  l := l ++ [c.densePCS.queryErr R]
+  l := l ++ c.densePCS.listErrs R
   l := l ++ [c.aliErr R]
   l := l ++ [c.deepErr R]
   for lcfg in c.lookups do

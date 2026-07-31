@@ -263,35 +263,38 @@ def main (args: List String): IO Unit := do
         /- Collecting `LookupCfg` Lean variables in a list. -/
         lookupcfg_lean_vars := lookupcfg_lean_vars.concat lookupcfg_lean_var
 
-      let friconfig_lean_var := s!"{zkVM.name}_{jcirc.name}_FRI"
+      let densePCS := jcirc.densePCS
+      let densePCS_lean_var := s!"{zkVM.name}_{jcirc.name}_{densePCS.label}"
 
       /- We retrieve the variable name associated with the field
       specified within `jaggedcfg.densePCS.field` from the map
       `mapFieldParamsToVarname`. -/
-      let friconfig_field_leanvar ← orExit (
+      let densePCS_field_leanvar ← orExit (
         fieldParamsToVarname
         mapFieldParamsToVarname
         jcirc.densePCS.field
       )
 
+      match densePCS with
+      | .fri c =>
       outStr := outStr ++
         s!"/- ZkVM `{zkVM.name}` | Circuit `{jcirc.name}` -/\n" ++
         s!"\n" ++
-        s!"def {friconfig_lean_var} : FRIConfig where\n" ++
-        s!"  hashBits        := {jcirc.densePCS.hashBits}\n" ++
-        s!"  ρ               := ⟨{jcirc.densePCS.ρ}, by norm_num⟩\n" ++
-        s!"  traceLen        := {jcirc.traceLength}\n" ++ -- **TODO** collapse or remove in FRIConfig?
-        s!"  field           := {friconfig_field_leanvar}\n" ++
-        s!"  denseLen        := {jcirc.densePCS.denseLen}\n" ++
-        s!"  batchSize       := {jcirc.densePCS.batchSize}\n" ++
-        s!"  powerBatch      := {jcirc.densePCS.powerBatch}\n" ++
-        s!"  multilinBatch   := {jcirc.densePCS.multilinBatch}\n" ++
-        s!"  numQueries      := {jcirc.densePCS.numQueries}\n" ++
-        s!"  foldingFactors  := {jcirc.densePCS.foldingFactors}\n" ++
-        s!"  earlyStopDeg    := {jcirc.densePCS.earlyStopDeg}\n" ++
-        s!"  grindQuery      := {jcirc.densePCS.grindQuery}\n" ++
-        s!"  grindBatch      := {jcirc.densePCS.grindBatch}\n" ++
+        s!"def {densePCS_lean_var} : FRIConfig where\n" ++
+        s!"  hashBits        := {c.hashBits}\n" ++
+        s!"  ρ               := ⟨{c.ρ}, by norm_num⟩\n" ++
+        s!"  field           := {densePCS_field_leanvar}\n" ++
+        s!"  denseLen        := {c.denseLen}\n" ++
+        s!"  batchSize       := {c.batchSize}\n" ++
+        s!"  powerBatch      := {c.powerBatch}\n" ++
+        s!"  multilinBatch   := {c.multilinBatch}\n" ++
+        s!"  numQueries      := {c.numQueries}\n" ++
+        s!"  foldingFactors  := {c.foldingFactors}\n" ++
+        s!"  earlyStopDeg    := {c.earlyStopDeg}\n" ++
+        s!"  grindQuery      := {c.grindQuery}\n" ++
+        s!"  grindBatch      := {c.grindBatch}\n" ++
         s!"\n"
+      | .whir _ => IO.eprintln "Unsupported PCS (WHIR)."; IO.Process.exit 1
 
       let jaggedcfg_lean_var := s!"{zkVM.name}_{jcirc.name}_jagged"
 
@@ -309,7 +312,7 @@ def main (args: List String): IO Unit := do
         s!"  name            := \"{jcirc.name}\"\n" ++
         s!"  field           := {jaggedcfg_field_leanvar}\n" ++
         s!"  proofSystName   := \"{jcirc.proofSystName}\"\n" ++
-        s!"  densePCS        := {friconfig_lean_var}\n" ++
+        s!"  densePCS        := .fri {densePCS_lean_var}\n" ++
         s!"  traceLength     := {jcirc.traceLength}\n" ++
         s!"  traceWidth      := {jcirc.traceWidth}\n" ++
         s!"  numConstraints  := {jcirc.numConstraints}\n" ++

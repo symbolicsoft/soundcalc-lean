@@ -22,7 +22,6 @@ def SP1_core_lookup_lookup : LookupCfg where
 def SP1_core_FRI : FRIConfig where
   hashBits        := 248
   ρ               := ⟨1/4, by norm_num⟩
-  traceLen        := 4194304
   field           := koalaBear4
   denseLen        := 2097152
   batchSize       := 193
@@ -38,7 +37,7 @@ def SP1_core_jagged : JaggedCfg where
   name            := "core"
   field           := koalaBear4
   proofSystName   := "Jagged"
-  densePCS        := SP1_core_FRI
+  densePCS        := .fri SP1_core_FRI
   traceLength     := 4194304
   traceWidth      := 3741
   numConstraints  := 3412
@@ -105,7 +104,6 @@ def SP1_compress_lookup_lookup : LookupCfg where
 def SP1_compress_FRI : FRIConfig where
   hashBits        := 248
   ρ               := ⟨1/4, by norm_num⟩
-  traceLen        := 2097152
   field           := koalaBear4
   denseLen        := 1048576
   batchSize       := 128
@@ -121,7 +119,7 @@ def SP1_compress_jagged : JaggedCfg where
   name            := "compress"
   field           := koalaBear4
   proofSystName   := "Jagged"
-  densePCS        := SP1_compress_FRI
+  densePCS        := .fri SP1_compress_FRI
   traceLength     := 2097152
   traceWidth      := 326
   numConstraints  := 204
@@ -187,7 +185,6 @@ def SP1_shrink_lookup_lookup : LookupCfg where
 def SP1_shrink_FRI : FRIConfig where
   hashBits        := 248
   ρ               := ⟨1/8, by norm_num⟩
-  traceLen        := 524288
   field           := koalaBear4
   denseLen        := 262144
   batchSize       := 128
@@ -203,7 +200,7 @@ def SP1_shrink_jagged : JaggedCfg where
   name            := "shrink"
   field           := koalaBear4
   proofSystName   := "Jagged"
-  densePCS        := SP1_shrink_FRI
+  densePCS        := .fri SP1_shrink_FRI
   traceLength     := 524288
   traceWidth      := 326
   numConstraints  := 204

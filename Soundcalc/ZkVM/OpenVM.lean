@@ -32,7 +32,6 @@ def openvmAppFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
   ρ              := Rate.half
-  traceLen       := 2 ^ 23
   denseLen       := 2 ^ 23          -- trace length = FRI dimension
   batchSize      := 80000
   powerBatch     := true            -- OpenVM uses power batching
@@ -48,7 +47,6 @@ def openvmLeafFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
   ρ              := Rate.half
-  traceLen       := 2 ^ 23
   denseLen       := 2 ^ 23
   batchSize      := 80000
   powerBatch     := true
@@ -64,7 +62,6 @@ def openvmInternalFRI : FRIConfig where
   hashBits       := 256
   field          := babyBear4
   ρ              := Rate.quarter
-  traceLen       := 2 ^ 21
   denseLen       := 2 ^ 21
   batchSize      := 4000
   powerBatch     := true
@@ -105,7 +102,7 @@ def openvmAppDeepAli : DeepAliCfg where
   name           := "app"
   proofSystName  := "DEEP-ALI"
   field          := openvmAppFRI.field
-  densePCS       := openvmAppFRI
+  densePCS       := .fri openvmAppFRI
   numConstraints := 15000
   airMaxDegree   := 3
   maxCombo       := 2
@@ -117,7 +114,7 @@ def openvmLeafDeepAli : DeepAliCfg where
   name           := "leaf"
   proofSystName  := "DEEP-ALI"
   field          := openvmLeafFRI.field
-  densePCS       := openvmLeafFRI
+  densePCS       := .fri openvmLeafFRI
   numConstraints := 15000
   airMaxDegree   := 3
   maxCombo       := 2
@@ -129,7 +126,7 @@ def openvmInternalDeepAli : DeepAliCfg where
   name           := "internal"
   proofSystName  := "DEEP-ALI"
   field          := openvmInternalFRI.field
-  densePCS       := openvmInternalFRI
+  densePCS       := .fri openvmInternalFRI
   numConstraints := 15000
   airMaxDegree   := 4
   maxCombo       := 2

@@ -1,6 +1,6 @@
 import Mathlib
 import Soundcalc.SecBits
-import Soundcalc.PCS.FRI
+import Soundcalc.PCS.PCS
 import Soundcalc.Lookup
 import Soundcalc.Circuit.GenericCircuit
 
@@ -36,7 +36,7 @@ structure JaggedCfg extends GenericCircuit where
 `ℓ = ⌈log₂ denseLen⌉ + ⌈log₂ batchSize⌉`; the formula counts variables checked
 in two rounds of the jagged sumcheck (width term + linear and quadratic bookkeeping). -/
 def JaggedCfg.reduceErr (c : JaggedCfg) : Q :=
-  let l := Nat.clog 2 c.densePCS.denseLen + Nat.clog 2 c.densePCS.batchSize  -- 21 + 8 = 29
+  let l := Nat.clog 2 c.densePCS.traceLen + Nat.clog 2 c.densePCS.batchSize  -- 21 + 8 = 29
   ((Nat.clog 2 c.traceWidth : Q) + 2 * l + 2 * (2 * l + 2)) / (c.field.card : Q)
 
 /-- Zerocheck soundness error.
@@ -54,11 +54,7 @@ def JaggedCfg.listErrs (c: JaggedCfg) : List ℚ := do
   let mut l : List ℚ := []
   l := l ++ [c.reduceErr]
   l := l ++ [c.zerocheckErr]
-  let fcfg := c.densePCS
-  l := (fcfg.batchingErr (UDR fcfg.field)) :: l
-  for i in List.range fcfg.foldingFactors.length do
-    l := l ++ [fcfg.commitErr (UDR fcfg.field) i]
-  l := (fcfg.queryErr (UDR fcfg.field)) :: l
+  l := l ++ c.densePCS.listErrs (UDR c.field)
   for lcfg in c.lookups do
     l := l ++ [lcfg.errUB]
   l
@@ -72,9 +68,9 @@ def JaggedCfg.totalErr (c : JaggedCfg) : ℚ :=
 
 /-! ## Jagged reduction proof size
 
-In the Jagged proof system (used by SP1), the dense FRI interaction is only part of the proof.
+In the Jagged proof system (used by SP1), the dense PCS interaction is only part of the proof.
 On top of it sits the *Jagged reduction*: two sumcheck protocols that reduce the multilinear
-constraint system down to the dense FRI oracle.
+constraint system down to the dense PCS oracle.
 
 Source: `soundcalc/circuits/jagged.py`, `JaggedPCS._reduction_proof_size_bits`.
 
@@ -84,10 +80,10 @@ from the Python:
 
     (numVars * (degree + 2) + 2) * fieldBits
 
-`getJaggedReductionSizeBits denseTraceLen batchSize fieldBits` runs two such sumchecks:
+`getJaggedReductionSizeBits traceLen batchSize fieldBits` runs two such sumchecks:
 
 1. **Jagged sumcheck** over `logTrace` variables, where
-       `logTrace = ⌈log₂ denseTraceLen⌉ + ⌈log₂ batchSize⌉`
+       `logTrace = ⌈log₂ traceLen⌉ + ⌈log₂ batchSize⌉`
 
 2. **Jagged evaluation sumcheck** over `2 * logTrace + 2` variables.
 
@@ -96,8 +92,8 @@ Both use degree 2. -/
 private def sumcheckSizeBits (degree numVars fieldBits : N) : N :=
   (numVars * (degree + 2) + 2) * fieldBits
 
-private def getJaggedReductionSizeBits (denseTraceLen batchSize fieldBits : N) : N :=
-  let logTrace := Nat.clog 2 denseTraceLen + Nat.clog 2 batchSize
+private def getJaggedReductionSizeBits (traceLen batchSize fieldBits : N) : N :=
+  let logTrace := Nat.clog 2 traceLen + Nat.clog 2 batchSize
   sumcheckSizeBits 2 logTrace fieldBits + sumcheckSizeBits 2 (2 * logTrace + 2) fieldBits
 
 /-! ## Full Jagged proof size
@@ -114,13 +110,13 @@ without any lookup term. -/
 private def getJaggedProofSizeBits (c: JaggedCfg) (expected: Bool) : ℕ :=
   let fieldSizeBits := c.densePCS.field.elementSizeBits
   let batchSize := c.densePCS.batchSize
-  let denseTraceLen := c.densePCS.denseLen
+  let traceLen := c.densePCS.traceLen
 
   let proofSizePCS :=
     if expected then c.densePCS.proofSizeExp
     else c.densePCS.proofSizeWorst
 
-  proofSizePCS + getJaggedReductionSizeBits denseTraceLen batchSize fieldSizeBits
+  proofSizePCS + getJaggedReductionSizeBits traceLen batchSize fieldSizeBits
 
 def JaggedCfg.proofSizeExp (c: JaggedCfg) : ℕ :=
   getJaggedProofSizeBits c true

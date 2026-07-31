@@ -40,7 +40,6 @@ def airbenderFRI : FRIConfig where
   hashBits       := 256
   field          := mersenne31_4
   ρ              := Rate.half
-  traceLen       := 2^24
   denseLen       := 2^24          -- trace length = FRI dimension
   batchSize      := 1225
   powerBatch     := true          -- Airbender uses power batching
@@ -87,7 +86,7 @@ def airbenderDeepAli : DeepAliCfg where
   name           := "Airbender"
   proofSystName  := "DEEP-ALI"
   field          := airbenderFRI.field
-  densePCS       := airbenderFRI
+  densePCS       := .fri airbenderFRI
   numConstraints := 928
   airMaxDegree   := 2
   maxCombo       := 2

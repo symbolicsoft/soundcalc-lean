@@ -23,6 +23,7 @@ import Soundcalc.ZkVM.Airbender
 import Soundcalc.ZkVM.OpenVM
 import Soundcalc.ZkVM.Pico
 import Soundcalc.ZkVM.Zisk
+import Soundcalc.ZkVM.Venus
 import Soundcalc.Circuit.SWIRL.ComputeError
 import Soundcalc.ZkVM.OpenVM2
 import Soundcalc.ZkVM.ZkDTVM

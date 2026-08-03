@@ -29,6 +29,10 @@ structure LookupCfg where
   grindBitsLookup : ℕ     := 0     -- PoW grinding (expressed in bits of security)
   /- Auxiliary soundness error added on top of the grind-scaled error (Python: `reduction_err`). -/
   reductionErr    : ℚ    := 0
+  /-- Column-aggregation model (Python `multilinear_fingerprint`), independent of `isLogUpMultivar`.
+      `true` ⇒ `R = max(⌈log₂ S⌉, 1)`; `false` ⇒ `R = S`. Defaults to `isLogUpMultivar`, matching
+      the Python default (`multivariate ⇒ true`), but a univariate lookup can still set it. -/
+  multilinearFingerprint : Bool := isLogUpMultivar
 
 /-- Computes an upper bound of the soundness error for the GKR protocol as:
       `(1/2) * (n + m) * (3 * (n + m) + 1) / |F|`
@@ -54,7 +58,7 @@ def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
 
 def LookupCfg.errUB (c : LookupCfg) : ℚ :=
   let H         := c.rowsL + c.rowsT
-  let R         := columnAggregFactor c.numColumnsS c.isLogUpMultivar
+  let R         := columnAggregFactor c.numColumnsS c.multilinearFingerprint
   let baseError := ((c.numLookupsM * H : ℚ) * R) / c.field.card
   -- Multivariate only: GKR reduction term and auxiliary reduction error.
   let gkrError  := if c.isLogUpMultivar then gkrErrorUB c.field H c.numLookupsM + c.reductionErr else 0

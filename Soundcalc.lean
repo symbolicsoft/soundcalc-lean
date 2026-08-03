@@ -25,3 +25,4 @@ import Soundcalc.ZkVM.Pico
 import Soundcalc.ZkVM.Zisk
 import Soundcalc.Circuit.SWIRL.ComputeError
 import Soundcalc.ZkVM.OpenVM2
+import Soundcalc.ZkVM.ZkDTVM

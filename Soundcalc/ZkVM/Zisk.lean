@@ -165,7 +165,6 @@ def ziskDmaRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 2097152 1 
 
 def ziskDmaDeepAli : DeepAliCfg where
   name           := "Dma"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaFRI
   numConstraints := 49
@@ -181,8 +180,6 @@ def ziskDmaDeepAli : DeepAliCfg where
                      ziskDmaRangeCheckGsum103,
                      ziskDmaRangeCheckGsum104]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDmaDeepAli.ExitCriteria ziskUDR
@@ -216,7 +213,6 @@ def ziskDmaMemCpyRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 2097
 
 def ziskDmaMemCpyDeepAli : DeepAliCfg where
   name           := "DmaMemCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaMemCpyFRI
   numConstraints := 22
@@ -231,8 +227,6 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
                      ziskDmaMemCpyRangeCheckGsum102,
                      ziskDmaMemCpyRangeCheckGsum104]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaMemCpy: 679 KiB (expected) / 1072 KiB (worst case).
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
@@ -266,7 +260,6 @@ def ziskDmaInputCpyRangeCheckGsum105 := ziskLookup "Range Check_gsum_[105]" 0 20
 
 def ziskDmaInputCpyDeepAli : DeepAliCfg where
   name           := "DmaInputCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaInputCpyFRI
   numConstraints := 20
@@ -281,8 +274,6 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
                      ziskDmaInputCpyRangeCheckGsum104,
                      ziskDmaInputCpyRangeCheckGsum105]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaInputCpy: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
@@ -316,7 +307,6 @@ def ziskDma64AlignedRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2
 
 def ziskDma64AlignedDeepAli : DeepAliCfg where
   name           := "Dma64Aligned"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDma64AlignedFRI
   numConstraints := 88
@@ -331,8 +321,6 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
                      ziskDma64AlignedRangeCheckGsum102,
                      ziskDma64AlignedRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma64Aligned: 838 KiB (expected) / 1233 KiB (worst case).
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
@@ -366,7 +354,6 @@ def ziskDma64AlignedInputCpyRangeCheckGsum103 := ziskLookup "Range Check_gsum_[1
 
 def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedInputCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDma64AlignedInputCpyFRI
   numConstraints := 52
@@ -381,8 +368,6 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedInputCpyRangeCheckGsum102,
                      ziskDma64AlignedInputCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma64AlignedInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
@@ -414,7 +399,6 @@ def ziskDma64AlignedMemSetRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103
 
 def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemSet"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDma64AlignedMemSetFRI
   numConstraints := 62
@@ -427,8 +411,6 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemSetPermutationGsum10,
                      ziskDma64AlignedMemSetRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma64AlignedMemSet: 662 KiB (expected) / 1056 KiB (worst case).
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
@@ -460,7 +442,6 @@ def ziskDma64AlignedMemRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 
 
 def ziskDma64AlignedMemDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMem"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDma64AlignedMemFRI
   numConstraints := 81
@@ -473,8 +454,6 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemPermutationGsum10,
                      ziskDma64AlignedMemRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma64AlignedMem: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
@@ -506,7 +485,6 @@ def ziskDma64AlignedMemCpyRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103
 
 def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
   name           := "Dma64AlignedMemCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDma64AlignedMemCpyFRI
   numConstraints := 69
@@ -519,8 +497,6 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemCpyPermutationGsum10,
                      ziskDma64AlignedMemCpyRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Dma64AlignedMemCpy: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
@@ -553,7 +529,6 @@ def ziskDmaUnalignedRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2
 
 def ziskDmaUnalignedDeepAli : DeepAliCfg where
   name           := "DmaUnaligned"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaUnalignedFRI
   numConstraints := 75
@@ -567,8 +542,6 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
                      ziskDmaUnalignedPermutationGsum10,
                      ziskDmaUnalignedRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaUnaligned: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
@@ -600,7 +573,6 @@ def ziskDmaPrePostPermutationGsum8000 := ziskLookup "Permutation_gsum_[8000]" 20
 
 def ziskDmaPrePostDeepAli : DeepAliCfg where
   name           := "DmaPrePost"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaPrePostFRI
   numConstraints := 69
@@ -613,8 +585,6 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
                      ziskDmaPrePostPermutationGsum10,
                      ziskDmaPrePostPermutationGsum8000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaPrePost: 951 KiB (expected) / 1346 KiB (worst case).
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
@@ -645,7 +615,6 @@ def ziskDmaPrePostMemCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[800
 
 def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostMemCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaPrePostMemCpyFRI
   numConstraints := 38
@@ -657,8 +626,6 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostMemCpyPermutationGsum10,
                      ziskDmaPrePostMemCpyPermutationGsum8000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaPrePostMemCpy: 881 KiB (expected) / 1276 KiB (worst case).
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
@@ -687,7 +654,6 @@ def ziskDmaPrePostInputCpyPermutationGsum8000 := ziskLookup "Permutation_gsum_[8
 
 def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
   name           := "DmaPrePostInputCpy"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaPrePostInputCpyFRI
   numConstraints := 20
@@ -699,8 +665,6 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostInputCpyPermutationGsum10,
                      ziskDmaPrePostInputCpyPermutationGsum8000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaPrePostInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
@@ -731,7 +695,6 @@ def ziskMainRangeCheckGsum106 := ziskLookup "Range Check_gsum_[106]" 0 4194304 1
 
 def ziskMainDeepAli : DeepAliCfg where
   name           := "Main"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMainFRI
   numConstraints := 144
@@ -745,8 +708,6 @@ def ziskMainDeepAli : DeepAliCfg where
                      ziskMainRangeCheckGsum102,
                      ziskMainRangeCheckGsum106]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Main: 890 KiB (expected) / 1292 KiB (worst case).
 example : ziskMainDeepAli.ExitCriteria ziskUDR
@@ -774,7 +735,6 @@ def ziskRomLookupGsum7890 := ziskLookup "Lookup_gsum_[7890]" 4194304 0 11 1
 
 def ziskRomDeepAli : DeepAliCfg where
   name           := "Rom"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskRomFRI
   numConstraints := 3
@@ -783,8 +743,6 @@ def ziskRomDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRomLookupGsum7890]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Rom: 635 KiB (expected) / 1019 KiB (worst case).
 example : ziskRomDeepAli.ExitCriteria ziskUDR
@@ -814,7 +772,6 @@ def ziskMemRangeCheckGsum104 := ziskLookup "Range Check_gsum_[104]" 0 4194304 1 
 
 def ziskMemDeepAli : DeepAliCfg where
   name           := "Mem"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMemFRI
   numConstraints := 34
@@ -823,8 +780,6 @@ def ziskMemDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskMemDirectGsum11, ziskMemPermutationGsum10, ziskMemRangeCheckGsum102, ziskMemRangeCheckGsum103, ziskMemRangeCheckGsum104]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Mem: 718 KiB (expected) / 1120 KiB (worst case).
 example : ziskMemDeepAli.ExitCriteria ziskUDR
@@ -854,7 +809,6 @@ def ziskRomDataRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 0 209715
 
 def ziskRomDataDeepAli : DeepAliCfg where
   name           := "RomData"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskRomDataFRI
   numConstraints := 23
@@ -863,8 +817,6 @@ def ziskRomDataDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRomDataDirectGsum11, ziskRomDataPermutationGsum10, ziskRomDataRangeCheckGsum102]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- RomData: 603 KiB (expected) / 997 KiB (worst case).
 example : ziskRomDataDeepAli.ExitCriteria ziskUDR
@@ -893,7 +845,6 @@ def ziskInputDataRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 2097
 
 def ziskInputDataDeepAli : DeepAliCfg where
   name           := "InputData"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskInputDataFRI
   numConstraints := 30
@@ -902,8 +853,6 @@ def ziskInputDataDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskInputDataDirectGsum11, ziskInputDataPermutationGsum10, ziskInputDataRangeCheckGsum102, ziskInputDataRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- InputData: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskInputDataDeepAli.ExitCriteria ziskUDR
@@ -931,7 +880,6 @@ def ziskMemAlignRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]" 0 20971
 
 def ziskMemAlignDeepAli : DeepAliCfg where
   name           := "MemAlign"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMemAlignFRI
   numConstraints := 40
@@ -940,8 +888,6 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskMemAlignLookupGsum133, ziskMemAlignPermutationGsum10, ziskMemAlignRangeCheckGsum107]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- MemAlign: 821 KiB (expected) / 1217 KiB (worst case).
 example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
@@ -971,7 +917,6 @@ def ziskMemAlignByteRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]" 0 4
 
 def ziskMemAlignByteDeepAli : DeepAliCfg where
   name           := "MemAlignByte"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMemAlignByteFRI
   numConstraints := 16
@@ -984,8 +929,6 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
                      ziskMemAlignByteRangeCheckGsum103,
                      ziskMemAlignByteRangeCheckGsum107]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- MemAlignByte: 694 KiB (expected) / 1093 KiB (worst case).
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
@@ -1016,7 +959,6 @@ def ziskMemAlignReadByteRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]"
 
 def ziskMemAlignReadByteDeepAli : DeepAliCfg where
   name           := "MemAlignReadByte"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMemAlignReadByteFRI
   numConstraints := 10
@@ -1028,8 +970,6 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
                      ziskMemAlignReadBytePermutationGsum10,
                      ziskMemAlignReadByteRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- MemAlignReadByte: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
@@ -1059,7 +999,6 @@ def ziskMemAlignWriteByteRangeCheckGsum107 := ziskLookup "Range Check_gsum_[107]
 
 def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
   name           := "MemAlignWriteByte"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskMemAlignWriteByteFRI
   numConstraints := 15
@@ -1072,8 +1011,6 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
                      ziskMemAlignWriteByteRangeCheckGsum103,
                      ziskMemAlignWriteByteRangeCheckGsum107]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- MemAlignWriteByte: 683 KiB (expected) / 1082 KiB (worst case).
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
@@ -1103,7 +1040,6 @@ def ziskArithLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 2097152 1
 
 def ziskArithDeepAli : DeepAliCfg where
   name           := "Arith"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskArithFRI
   numConstraints := 65
@@ -1112,8 +1048,6 @@ def ziskArithDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithLookupGsum330, ziskArithLookupGsum331, ziskArithLookupGsum5000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Arith: 848 KiB (expected) / 1244 KiB (worst case).
 example : ziskArithDeepAli.ExitCriteria ziskUDR
@@ -1141,7 +1075,6 @@ def ziskBinaryLookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 4194304 0 11 1
 
 def ziskBinaryDeepAli : DeepAliCfg where
   name           := "Binary"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskBinaryFRI
   numConstraints := 14
@@ -1150,8 +1083,6 @@ def ziskBinaryDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBinaryDirectGsum5000, ziskBinaryLookupGsum125, ziskBinaryLookupGsum5000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Binary: 826 KiB (expected) / 1227 KiB (worst case).
 example : ziskBinaryDeepAli.ExitCriteria ziskUDR
@@ -1179,7 +1110,6 @@ def ziskBinaryAddRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 4194
 
 def ziskBinaryAddDeepAli : DeepAliCfg where
   name           := "BinaryAdd"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskBinaryAddFRI
   numConstraints := 9
@@ -1188,8 +1118,6 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBinaryAddDirectGsum5000, ziskBinaryAddLookupGsum5000, ziskBinaryAddRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- BinaryAdd: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
@@ -1218,7 +1146,6 @@ def ziskBinaryExtensionRangeCheckGsum102 := ziskLookup "Range Check_gsum_[102]" 
 
 def ziskBinaryExtensionDeepAli : DeepAliCfg where
   name           := "BinaryExtension"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskBinaryExtensionFRI
   numConstraints := 8
@@ -1230,8 +1157,6 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
                      ziskBinaryExtensionLookupGsum5000,
                      ziskBinaryExtensionRangeCheckGsum102]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- BinaryExtension: 777 KiB (expected) / 1179 KiB (worst case).
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
@@ -1259,7 +1184,6 @@ def ziskAdd256RangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 1048576
 
 def ziskAdd256DeepAli : DeepAliCfg where
   name           := "Add256"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskAdd256FRI
   numConstraints := 36
@@ -1268,8 +1192,6 @@ def ziskAdd256DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskAdd256LookupGsum5000, ziskAdd256PermutationGsum10, ziskAdd256RangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Add256: 816 KiB (expected) / 1165 KiB (worst case).
 example : ziskAdd256DeepAli.ExitCriteria ziskUDR
@@ -1300,7 +1222,6 @@ def ziskArithEqRangeCheckGsum108 := ziskLookup "Range Check_gsum_[108]" 0 104857
 
 def ziskArithEqDeepAli : DeepAliCfg where
   name           := "ArithEq"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskArithEqFRI
   numConstraints := 103
@@ -1314,8 +1235,6 @@ def ziskArithEqDeepAli : DeepAliCfg where
                      ziskArithEqRangeCheckGsum103,
                      ziskArithEqRangeCheckGsum108]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- ArithEq: 2994 KiB (expected) / 3346 KiB (worst case).
 example : ziskArithEqDeepAli.ExitCriteria ziskUDR
@@ -1348,7 +1267,6 @@ def ziskArithEq384RangeCheckGsum108 := ziskLookup "Range Check_gsum_[108]" 0 104
 
 def ziskArithEq384DeepAli : DeepAliCfg where
   name           := "ArithEq384"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskArithEq384FRI
   numConstraints := 76
@@ -1362,8 +1280,6 @@ def ziskArithEq384DeepAli : DeepAliCfg where
                      ziskArithEq384RangeCheckGsum103,
                      ziskArithEq384RangeCheckGsum108]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- ArithEq384: 3366 KiB (expected) / 3720 KiB (worst case).
 example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
@@ -1393,7 +1309,6 @@ def ziskKeccakfPermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 131072 
 
 def ziskKeccakfDeepAli : DeepAliCfg where
   name           := "Keccakf"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskKeccakfFRI
   numConstraints := 2432
@@ -1402,8 +1317,6 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskKeccakfLookupGsum126, ziskKeccakfLookupGsum5000, ziskKeccakfPermutationGsum10]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Keccakf: 20975 KiB (expected) / 21244 KiB (worst case).
 example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
@@ -1431,7 +1344,6 @@ def ziskSha256fRangeCheckGsum109 := ziskLookup "Range Check_gsum_[109]" 0 262144
 
 def ziskSha256fDeepAli : DeepAliCfg where
   name           := "Sha256f"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskSha256fFRI
   numConstraints := 115
@@ -1440,8 +1352,6 @@ def ziskSha256fDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskSha256fLookupGsum5000, ziskSha256fPermutationGsum10, ziskSha256fRangeCheckGsum109]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Sha256f: 7215 KiB (expected) / 7549 KiB (worst case).
 example : ziskSha256fDeepAli.ExitCriteria ziskUDR
@@ -1468,7 +1378,6 @@ def ziskPoseidon2PermutationGsum10 := ziskLookup "Permutation_gsum_[10]" 0 13107
 
 def ziskPoseidon2DeepAli : DeepAliCfg where
   name           := "Poseidon2"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskPoseidon2FRI
   numConstraints := 85
@@ -1477,8 +1386,6 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskPoseidon2LookupGsum5000, ziskPoseidon2PermutationGsum10]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Poseidon2: 682 KiB (expected) / 832 KiB (worst case).
 example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
@@ -1507,7 +1414,6 @@ def ziskBlake2brRangeCheckGsum103 := ziskLookup "Range Check_gsum_[103]" 0 26214
 
 def ziskBlake2brDeepAli : DeepAliCfg where
   name           := "Blake2br"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskBlake2brFRI
   numConstraints := 189
@@ -1516,8 +1422,6 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBlake2brLookupGsum5000, ziskBlake2brPermutationGsum10, ziskBlake2brPermutationGsum127, ziskBlake2brRangeCheckGsum103]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Blake2br: 3874 KiB (expected) / 4207 KiB (worst case).
 example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
@@ -1548,7 +1452,6 @@ def ziskSpecifiedRangesLookupGsum108 := ziskLookup "Lookup_gsum_[108]" 1048576 0
 
 def ziskSpecifiedRangesDeepAli : DeepAliCfg where
   name           := "SpecifiedRanges"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskSpecifiedRangesFRI
   numConstraints := 16
@@ -1562,8 +1465,6 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
                      ziskSpecifiedRangesLookupGsum108_109,
                      ziskSpecifiedRangesLookupGsum108]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- SpecifiedRanges: 1020 KiB (expected) / 1369 KiB (worst case).
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
@@ -1596,7 +1497,6 @@ def ziskVirtualTable0LookupGsum5002_88_77_8003_126 := ziskLookup "Lookup_gsum_[5
 
 def ziskVirtualTable0DeepAli : DeepAliCfg where
   name           := "VirtualTable0"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskVirtualTable0FRI
   numConstraints := 6
@@ -1610,8 +1510,6 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
                      ziskVirtualTable0LookupGsum330,
                      ziskVirtualTable0LookupGsum5002_88_77_8003_126]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- VirtualTable0: 875 KiB (expected) / 1270 KiB (worst case).
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
@@ -1639,7 +1537,6 @@ def ziskVirtualTable1LookupGsum5000 := ziskLookup "Lookup_gsum_[5000]" 2097152 0
 
 def ziskVirtualTable1DeepAli : DeepAliCfg where
   name           := "VirtualTable1"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskVirtualTable1FRI
   numConstraints := 6
@@ -1648,8 +1545,6 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskVirtualTable1LookupGsum5000]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- VirtualTable1: 989 KiB (expected) / 1384 KiB (worst case).
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
@@ -1675,7 +1570,6 @@ def ziskDmaPrePostCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]
 
 def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   name           := "DmaPrePost-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskDmaPrePostCompressorFRI
   numConstraints := 179
@@ -1684,8 +1578,6 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskDmaPrePostCompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- DmaPrePost-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
@@ -1711,7 +1603,6 @@ def ziskArithEqCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 2
 
 def ziskArithEqCompressorDeepAli : DeepAliCfg where
   name           := "ArithEq-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskArithEqCompressorFRI
   numConstraints := 179
@@ -1720,8 +1611,6 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithEqCompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- ArithEq-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
@@ -1747,7 +1636,6 @@ def ziskArithEq384CompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]
 
 def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   name           := "ArithEq384-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskArithEq384CompressorFRI
   numConstraints := 179
@@ -1756,8 +1644,6 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskArithEq384CompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- ArithEq384-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
@@ -1783,7 +1669,6 @@ def ziskKeccakfCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 1
 
 def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   name           := "Keccakf-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskKeccakfCompressorFRI
   numConstraints := 179
@@ -1792,8 +1677,6 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskKeccakfCompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Keccakf-compressor: 771 KiB (expected) / 940 KiB (worst case).
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
@@ -1819,7 +1702,6 @@ def ziskSha256fCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 5
 
 def ziskSha256fCompressorDeepAli : DeepAliCfg where
   name           := "Sha256f-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskSha256fCompressorFRI
   numConstraints := 179
@@ -1828,8 +1710,6 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskSha256fCompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Sha256f-compressor: 743 KiB (expected) / 892 KiB (worst case).
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
@@ -1855,7 +1735,6 @@ def ziskBlake2brCompressorConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 
 
 def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   name           := "Blake2br-compressor"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskBlake2brCompressorFRI
   numConstraints := 179
@@ -1864,8 +1743,6 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskBlake2brCompressorConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Blake2br-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
@@ -1891,7 +1768,6 @@ def ziskRecursive2ConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 131072 1
 
 def ziskRecursive2DeepAli : DeepAliCfg where
   name           := "Recursive2"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskRecursive2FRI
   numConstraints := 158
@@ -1900,8 +1776,6 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskRecursive2ConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Recursive2: 398 KiB (expected) / 487 KiB (worst case).
 example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
@@ -1927,7 +1801,6 @@ def ziskFinalConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 65536 65536 2
 
 def ziskFinalDeepAli : DeepAliCfg where
   name           := "Final"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskFinalFRI
   numConstraints := 154
@@ -1936,8 +1809,6 @@ def ziskFinalDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskFinalConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Final: 253 KiB (expected) / 292 KiB (worst case).
 example : ziskFinalDeepAli.ExitCriteria ziskUDR
@@ -1963,7 +1834,6 @@ def ziskFinalCompressedConnectionGprod1 := ziskLookup "Connection_gprod_[1]" 327
 
 def ziskFinalCompressedDeepAli : DeepAliCfg where
   name           := "Final_Compressed"
-  proofSystName  := "DEEP-ALI"
   field          := goldilocks3
   densePCS       := .fri ziskFinalCompressedFRI
   numConstraints := 158
@@ -1972,8 +1842,6 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [ziskFinalCompressedConnectionGprod1]
   h_lookups_field := by native_decide
-  isUDR          := true
-  isJBR          := true
 
 -- Final_Compressed: 269 KiB (expected) / 313 KiB (worst case).
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR

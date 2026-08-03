@@ -5,7 +5,6 @@ import Soundcalc.PCS.FRI
 import Soundcalc.PCS.WHIR
 import Soundcalc.Circuit.Circuit
 import Soundcalc.Circuit.DeepAli
-import Soundcalc.Circuit.GenericCircuit
 import Soundcalc.Circuit.Jagged
 import Soundcalc.Field.Core
 import Soundcalc.Field.Pratt

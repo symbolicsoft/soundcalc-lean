@@ -244,6 +244,251 @@ private def parseFRIConfig (circTab : Table)
   pure fcfg
 
 /--
+  Returns a `WHIRConfig` from a circuit table `circTab` contained
+  in a zkVM table `zkvmTab`, which is parsed from a `.toml` file.
+
+  Raises an error if any core fields are missing.
+-/
+private def parseWHIRConfig (circTab : Table)
+                            (zkvmTab : Table) : IO WHIRConfig := do
+
+  /- Global zkVM values -/
+  let zkvm_hash_size_bits ← orExit (getNat zkvmTab "hash_size_bits")
+  let zkvm_field ← orExit (getString zkvmTab "field")
+  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
+
+  let circ_l_skip ← orExit (getNat circTab "l_skip")
+  let circ_n_stack ← orExit (getNat circTab "n_stack")
+
+  let circ_w_stack ← orExit (getNat circTab "w_stack") -- aka: batch_size
+  let h_batch_size : PLift (1 ≤ circ_w_stack) ←
+  match Nat.decLe 1 circ_w_stack with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "Condition violated: w_stack (aka batchSize) < 1"; IO.Process.exit 1
+
+  let circ_log_blowup ← orExit (getNat circTab "log_blowup") -- aka: log_inv_rate
+  let h_log_blowup : PLift (0 < circ_log_blowup) ←
+  match Nat.decLt 0 circ_log_blowup with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "Condition violated: log_blowup (aka logInv) ≤ 0"; IO.Process.exit 1
+
+  let circ_whir_folding_pow_bits ← orExit (getNat circTab "whir_folding_pow_bits")
+  let circ_whir_mu_pow_bits ← orExit (getNat circTab "whir_mu_pow_bits")
+  let circ_whir_num_queries ← orExit (getListNat circTab "whir_num_queries")
+
+  let circ_constraint_degree ← orExit (getNat circTab "constraint_degree")
+  let h_constraint_degree : PLift (3 ≤ constraintDegree) ←
+  match Nat.decLe 3 circ_constraint_degree with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "Condition violated: constraint_degree < 3"; IO.Process.exit 1
+
+  /- We dispense of Python's SWIRLWhirRoundConfig class. -/
+  let rounds := circ_whir_num_queries
+
+  let numIterations := rounds.length
+  let h_num_iterations : PLift (1 ≤ numIterations) ←
+  match Nat.decLe 1 numIterations with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "Condition violated: numIterations < 1"; IO.Process.exit 1
+
+  /-
+    k = 4 is hardcoded in soundcalc. Ref:
+    https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/swirl/calculator.py#L678  -/
+  let foldingFactors := List.replicate numIterations 4
+  let logDegree := circ_l_skip + circ_n_stack
+  let h_sum_folding : PLift (foldingFactors.sum ≤ logDegree) ←
+  match Nat.decLe foldingFactors.sum logDegree with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "sumFolding violation: foldingFactors.sum > circ_l_skip + circ_n_stack"; IO.Process.exit 1
+
+  let field := zkvm_field
+  let logInvRate := circ_log_blowup
+
+  let h_two_adicity : PLift (logDegree + logInvRate - foldingFactors.headD 0 ≤ field.twoAdicity) ←
+  match Nat.decLe (logDegree + logInvRate - foldingFactors.headD 0) field.twoAdicity with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "twoAdicity violation: logDegree + logInvRate - foldingFactors.headD 0 > field.twoAdicity"; IO.Process.exit 1
+
+  let wcfg : WHIRConfig := {
+    hashBits         := zkvm_hash_size_bits
+    field            := field
+    logInvRate       := logInvRate
+    numIterations    := numIterations
+
+    foldingFactors   := foldingFactors
+    logDegree        := logDegree
+    batchSize        := circ_w_stack
+    /- Always power batches. Ref:
+       https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L224
+    -/
+    powerBatch       := true
+    grindBatch       := circ_whir_mu_pow_bits
+    constraintDegree := circ_constraint_degree
+
+    grindFolding     := List.replicate numIterations (List.replicate 4 circ_whir_folding_pow_bits) -- : List (List ℕ)
+    numQueries       := rounds
+
+    /- query_phase_pow_bits = 20 is hardcoded in soundcalc. Ref:
+       https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/swirl/calculator.py#L681
+    -/
+    grindQueries     := List.replicate numIterations 20
+    numOodSamples    := List.replicate (max (numIterations-1) (0)) 1
+    grindOod         := List.replicate (max (numIterations-1) (0)) 0
+    /- Trivial simp theorems are obtained by how the respective fields are constructed. -/
+    h_constraintDegree   := PLift.down (α := 3 ≤ circ_constraint_degree) h_constraint_degree
+    h_batchSize          := PLift.down (α := 1 ≤ circ_w_stack) h_batch_size
+    h_logInvRate         := PLift.down (α := 0 < circ_log_blowup) h_log_blowup
+    h_numIterations      := PLift.down (α := 1 ≤ numIterations) h_num_iterations
+    h_foldingFactors_len := by simp [foldingFactors] -- foldingFactors.length = numIterations
+    h_foldingFactors_pos := by simp [foldingFactors] -- ∀ k ∈ foldingFactors, 1 ≤ k
+    h_sumFolding         := PLift.down (α := foldingFactors.sum ≤ logDegree) h_sum_folding -- foldingFactors.sum ≤ logDegree
+    h_twoAdicity         := PLift.down (α := logDegree + logInvRate - foldingFactors.headD 0 ≤ field.twoAdicity) h_two_adicity -- logDegree + logInvRate - foldingFactors.headD 0 ≤ field.twoAdicity
+    h_numOodSamples_len  := by simp  -- numOodSamples.length = numIterations - 1
+    h_numQueries_len     := by simp [numIterations] -- numQueries.length = numIterations
+    h_grindOod_len       := by simp  -- grindOod.length = numIterations - 1
+    h_grindQueries_len   := by simp  -- grindQueries.length = numIterations
+    h_grindFolding_len   := by simp  -- grindFolding.length = numIterations
+    h_grindFolding_inner := fun i hi => by -- ∀ i < numIterations, (grindFolding.getD i []).length = foldingFactors.getD i 0
+                              simp only [foldingFactors]
+                              rw [List.getD_eq_getElem _ _ (by rw [List.length_replicate]; exact hi),
+                              List.getD_eq_getElem _ _ (by rw [List.length_replicate]; exact hi)]
+                              simp
+  }
+  pure wcfg
+
+/--
+  Returns a `SWIRLCfg` from a circuit table `circTab` contained
+  in a zkVM table `zkvmTab`, plus a general-config SWIRL table
+  `swirlTab`, both parsed from a `.toml` file.
+  The output `SWIRLCfg` also bundles its WHIR configuration (`wcfg`).
+
+  soundcalc strictly ties SWIRL to WHIR (including, e.g., in some
+  well-formedness checks).
+  Ref:
+  https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/swirl/circuit.py#L21
+  **FEAT TODO**: generalize SWIRL to support arbitrary PCS schemes.
+
+  Raises an error if any core fields are missing.
+-/
+private def parseSWIRLCfg (circTab : Table)
+                          (zkvmTab : Table)
+                          (swirlTab : Table)
+                          (wcfg : WHIRConfig): IO SWIRLCfg := do
+  /- Global zkVM values -/
+  let zkvm_field ← orExit (getString zkvmTab "field")
+  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
+
+  let circ_l_skip ← orExit (getNat circTab "l_skip")
+
+  /- `explicit_m` is parsed only if explicit_regime is "list" -/
+  let circ_explicit_regime ← orExit (getOptString circTab "explicit_regime")
+  let circ_explicit_m ← match circ_explicit_regime with
+  | some "list" => let explicit_m ← orExit (getNat circTab "explicit_m")
+                   pure (some explicit_m)
+  | _           => pure (none)
+
+  let swirl_max_interaction_count ← orExit (getNat swirlTab "logup_max_interaction_count")
+  let swirl_log_max_message_length ← orExit (getNat swirlTab "logup_log_max_message_length")
+  let swirl_pow_bits ← orExit (getNat swirlTab "logup_pow_bits")
+
+  /- If a circuit-specific `swirl_pow_bits` is specified, override the global configuration. -/
+  let circ_pow_bits ← orExit (getNatD circTab "logup_pow_bits" swirl_pow_bits)
+
+  let logupcfg : LogUpParams := {
+    maxInteractionCount := swirl_max_interaction_count
+    logMaxMessageLength := swirl_log_max_message_length
+    powBits             := circ_pow_bits
+  }
+
+  let h_lskip_log : PLift (circ_l_skip ≤ wcfg.logDegree) ←
+  match Nat.decLe circ_l_skip wcfg.logDegree with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "lskip_log violation: circ_l_skip > wcfg.logDegree"; IO.Process.exit 1
+
+
+  let h_whir_fold : PLift (wcfg.numIterations * wcfg.foldingFactors.headD 0 ≤ wcfg.logDegree) ←
+  match Nat.decLe (wcfg.numIterations * wcfg.foldingFactors.headD 0) wcfg.logDegree with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "whir_fold violation: wcfg.numIterations * wcfg.foldingFactors.headD 0 > wcfg.logDegree"; IO.Process.exit 1
+
+  let circ_name ← orExit (getString circTab "name")
+
+  /- If soundness values are not specified, `soundcalc` defaults
+     to the actual value as the cap of the envelope. -/
+  let circ_num_airs ← orExit (getNat circTab "num_airs")
+  let circ_soundness_num_airs ← orExit (getNatD circTab "soundness_num_airs" circ_num_airs)
+
+  let h_num_airs_envelope : PLift (circ_num_airs ≤ circ_max_constraints_per_air) ←
+  match Nat.decLe circ_num_airs circ_soundness_num_airs with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "num_airs exceeds soundness_num_airs"; IO.Process.exit 1
+
+  /- We also require circ_num_airs ≥ 1. -/
+  let h_airs : PLift (1 ≤ circ_num_airs) ←
+  match Nat.decLe 1 circ_num_airs with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "Condition violated: circ_num_airs < 1"; IO.Process.exit 1
+
+  let circ_max_constraints_per_air ← orExit (getNat circTab "max_constraints_per_air")
+  let circ_soundness_max_constraints_per_air ← orExit (getNatD circTab "soundness_max_constraints_per_air" circ_max_constraints_per_air)
+
+  let h_num_max_constraints_per_air : PLift (circ_max_constraints_per_air ≤ circ_soundness_max_constraints_per_air) ←
+  match Nat.decLe circ_max_constraints_per_air circ_soundness_max_constraints_per_air with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "max_constraints_per_air exceeds soundness_max_constraints_per_air"; IO.Process.exit 1
+
+  let circ_max_log_trace_height ← orExit (getNat circTab "max_log_trace_height")
+  let circ_soundness_max_log_trace_height ← orExit (getNatD circTab "soundness_max_log_trace_height" circ_max_log_trace_height)
+
+  let h_circ_max_log_trace_height : PLift (circ_max_log_trace_height ≤ circ_soundness_max_log_trace_height) ←
+  match Nat.decLe circ_max_log_trace_height circ_soundness_max_log_trace_height with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "max_log_trace_height exceeds soundness_max_log_trace_height"; IO.Process.exit 1
+
+  let circ_num_trace_columns ← orExit (getNat circTab "num_trace_columns")
+  let circ_soundness_num_trace_columns ← orExit (getNatD circTab "soundness_num_trace_columns" circ_num_trace_columns)
+
+  let h_circ_num_trace_columns : PLift (circ_num_trace_columns ≤ circ_soundness_num_trace_columns) ←
+  match Nat.decLe circ_num_trace_columns circ_soundness_num_trace_columns with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "num_trace_columns exceeds soundness_num_trace_columns"; IO.Process.exit 1
+
+  let circ_max_interactions_per_air ← orExit (getNat circTab "max_interactions_per_air")
+  let circ_soundness_max_interactions_per_air ← orExit (getNatD circTab "soundness_max_interactions_per_air" circ_max_interactions_per_air)
+
+  let h_circ_max_interactions_per_air : PLift (circ_max_interactions_per_air ≤ circ_soundness_max_interactions_per_air) ←
+  match Nat.decLe circ_max_interactions_per_air circ_soundness_max_interactions_per_air with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln "max_interactions_per_air exceeds soundness_max_interactions_per_air"; IO.Process.exit 1
+
+  let circ_proof_size_num_public_values ← orExit (getNatD circTab "proof_size_num_public_values" 0)
+
+  let h_wcfg_field : PLift (wcfg.field = zkvm_field) ←
+  match decEq wcfg.field zkvm_field with
+  | .isTrue h  => pure (PLift.up h : PLift (wcfg.field = zkvm_field))
+  | .isFalse _ => IO.eprintln "WHIR field mismatch: wcfg.field ≠ circuit field"; IO.Process.exit 1
+
+  let scfg : SWIRLCfg := {
+    name := circ_name
+    field := zkvm_field
+    whir := wcfg
+    h_whir_field := PLift.down (α := wcfg.field = zkvm_field) h_wcfg_field
+    lSkip := circ_l_skip
+    airs := { actual := circ_num_airs, envelope := circ_soundness_num_airs, h_le := (PLift.down (α := circ_num_airs ≤ circ_soundness_num_airs)) h_num_airs_envelope }
+    constraints := { actual := circ_max_constraints_per_air, envelope := circ_soundness_max_constraints_per_air, h_le := (PLift.down (α := circ_max_constraints_per_air ≤ circ_soundness_max_constraints_per_air)) h_num_max_constraints_per_air}
+    logTraceHeight := { actual := circ_max_log_trace_height, envelope := circ_soundness_max_log_trace_height, h_le := (PLift.down (α := circ_max_log_trace_height ≤ circ_soundness_max_log_trace_height)) h_circ_max_log_trace_height}
+    traceColumns := { actual := circ_num_trace_columns, envelope := circ_soundness_num_trace_columns, h_le := (PLift.down (α := circ_num_trace_columns ≤ circ_soundness_num_trace_columns)) h_circ_num_trace_columns}
+    interactions := { actual := circ_max_interactions_per_air, envelope := circ_soundness_max_interactions_per_air, h_le := (PLift.down (α := circ_max_interactions_per_air ≤ circ_soundness_max_interactions_per_air)) h_circ_max_interactions_per_air}
+    logup := logupcfg
+    explicitM := circ_explicit_m
+    numPublicValues := circ_proof_size_num_public_values
+    h_airs := PLift.down (α := 1 ≤ circ_num_airs) h_airs
+    h_lskip_log := PLift.down (α := circ_l_skip ≤ wcfg.logDegree) h_lskip_log
+    h_whir_fold := PLift.down (α := wcfg.numIterations * wcfg.foldingFactors.headD 0 ≤ wcfg.logDegree) h_whir_fold
+  }
+  pure scfg
+
+/--
   Returns a `LookupCfg` from a lookup table `lookupTab` contained
   in a table `zkvmTab`, which is obtained from parsing a `.toml`
   file of a ZkVM configuration.
@@ -271,14 +516,14 @@ private def parseLookupCfg (lookupTab : Table)
   let lookup_grinding_bits_lookup ← orExit (getNatD lookupTab "grinding_bits_lookup" 0)
 
   let lcfg: LookupCfg := {
-    name            := lookup_name
-    field           := zkvm_field
-    isLogUpMultivar := lookup_logup_type
-    rowsL           := lookup_rows_L
-    rowsT           := lookup_rows_T
-    numColumnsS     := lookup_num_columns_S
-    numLookupsM     := lookup_num_lookups_M
-    grindBitsLookup := lookup_grinding_bits_lookup
+    name                   := lookup_name
+    field                  := zkvm_field
+    isLogUpMultivar        := lookup_logup_type
+    rowsL                  := lookup_rows_L
+    rowsT                  := lookup_rows_T
+    numColumnsS            := lookup_num_columns_S
+    numLookupsM            := lookup_num_lookups_M
+    grindBitsLookup        := lookup_grinding_bits_lookup
   }
 
   pure lcfg
@@ -325,7 +570,6 @@ private def parseJaggedCfg (circTab : Table)
   let jcfg: JaggedCfg := {
     name              := circ_name
     field             := zkvm_field
-    proofSystName     := "Jagged"
     densePCS          := PCSconfig
     traceLength       := circ_trace_length
     traceWidth        := circ_trace_columns
@@ -334,8 +578,6 @@ private def parseJaggedCfg (circTab : Table)
     lookups           := lookupList
     h_densePCS_field  := PLift.down (α := PCSconfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
-    isUDR             := true   -- **TODO** generalize
-    isJBR             := false  -- **TODO** generalize
     gapToRadius       := circ_gap_to_radius
   }
 
@@ -394,7 +636,6 @@ private def parseDeepAliCfg (circTab : Table)
   let dacfg: DeepAliCfg := {
     name              := circ_name
     field             := zkvm_field
-    proofSystName     := "DEEP-ALI"
     densePCS          := PCSconfig
     numConstraints    := circ_num_constraints
     airMaxDegree      := circ_air_max_degree
@@ -403,8 +644,6 @@ private def parseDeepAliCfg (circTab : Table)
     lookups           := lookupList
     h_densePCS_field  := PLift.down (α := PCSconfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
-    isUDR             := true   -- **TODO** generalize
-    isJBR             := true   -- **TODO** generalize
     gapToRadius       := circ_gap_to_radius
   }
 
@@ -456,7 +695,7 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
       as per a Jagged circuit. (i.e., dense FRI params)
 
       Following soundcalc, Jagged and DeepAli circuits are ALWAYS bundled with FRI,
-      whereas SWIRL circuits are ALWAYS bundled with WHIRL.
+      whereas SWIRL circuits are ALWAYS bundled with WHIR.
       Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L89
 
       **FEAT TODO** Allow for switching of PCS schemes.
@@ -469,6 +708,10 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
       | "FRI_STARK" => let fcfg ← parseFRIConfig circ_tab zkvm_tab false
                        let deepAliCirc ← (parseDeepAliCfg circ_tab zkvm_tab lookup_list (.fri fcfg))
                        pure (.deepali deepAliCirc)
+      | "SWIRL"     => let wcfg ← parseWHIRConfig circ_tab zkvm_tab
+                       let swirl_tab ← orExit (getTable tbl "swirl")
+                       let swirlCirc ← (parseSWIRLCfg circ_tab zkvm_tab swirl_tab wcfg)
+                       pure (.swirl swirlCirc)
       | _           =>  IO.eprintln "Unsupported circuit family."; IO.Process.exit 1
 
 
@@ -477,8 +720,8 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
 
   /- We compute a proof showing that the fields contained in all the
       circuits of the zkVM are consistent with each other. -/
-  let h_circuits_lifted : PLift (circuit_list.all (·.toGenericCircuit.field == zkvm_field) = true) ←
-    match decEq (circuit_list.all (·.toGenericCircuit.field == zkvm_field)) true with
+  let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
+    match decEq (circuit_list.all (·.field == zkvm_field)) true with
     | .isTrue h  => pure (PLift.up h)
     | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
 
@@ -487,7 +730,7 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
     field            := zkvm_field
     version          := zkvm_version
     circuits         := circuit_list
-    h_circuits_field := PLift.down (α := circuit_list.all (·.toGenericCircuit.field == zkvm_field) = true) h_circuits_lifted
+    h_circuits_field := PLift.down (α := circuit_list.all (·.field == zkvm_field) = true) h_circuits_lifted
   }
   pure zkVM
 

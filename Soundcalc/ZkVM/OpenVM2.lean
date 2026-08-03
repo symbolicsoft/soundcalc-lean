@@ -1,5 +1,6 @@
 import Soundcalc.Circuit.SWIRL.ComputeError  -- SWIRLCfg + proofSizeBits + listErrs + ExitCriteria
 import Soundcalc.Field.BabyBear               -- babyBear4 preset (OpenVM2 fields)
+import Soundcalc.Circuit.Circuit
 
 open Soundcalc
 
@@ -31,16 +32,20 @@ no `soundness_*`, so actual = envelope.
 
 namespace Soundcalc
 
+def openvm2AppWHIR : WHIRConfig := {
+  hashBits := 256, field := babyBear4, logInvRate := 1, numIterations := 4,
+  foldingFactors := [4, 4, 4, 4], logDegree := 24, batchSize := 2048, powerBatch := true,
+  grindBatch := 15, constraintDegree := 3,
+  grindFolding := [[5, 5, 5, 5], [5, 5, 5, 5], [5, 5, 5, 5], [5, 5, 5, 5]],
+  numQueries := [193, 88, 81, 81], grindQueries := [20, 20, 20, 20],
+  numOodSamples := [1, 1, 1], grindOod := [0, 0, 0]
+}
+
 /-! ## app — unique-decoding (UDR) -/
 def openvm2App : SWIRLCfg where
   name := "app"
-  whir :=
-    { hashBits := 256, field := babyBear4, logInvRate := 1, numIterations := 4,
-      foldingFactors := [4, 4, 4, 4], logDegree := 24, batchSize := 2048, powerBatch := true,
-      grindBatch := 15, constraintDegree := 3,
-      grindFolding := [[5, 5, 5, 5], [5, 5, 5, 5], [5, 5, 5, 5], [5, 5, 5, 5]],
-      numQueries := [193, 88, 81, 81], grindQueries := [20, 20, 20, 20],
-      numOodSamples := [1, 1, 1], grindOod := [0, 0, 0] }
+  field := babyBear4
+  whir := openvm2AppWHIR
   lSkip := 4
   airs := { actual := 72, envelope := 100 };  logTraceHeight := { actual := 24, envelope := 24 }
   traceColumns := { actual := 24381, envelope := 30000 }
@@ -53,16 +58,22 @@ example : openvm2App.ExitCriteria
     (totalBits := 100) (proofSizeKib := 26175) := by
   native_decide
 
+
+def openvm2LeafWHIR : WHIRConfig := {
+    hashBits := 256, field := babyBear4, logInvRate := 2, numIterations := 3,
+    foldingFactors := [4, 4, 4], logDegree := 21, batchSize := 2048, powerBatch := true,
+    grindBatch := 13, constraintDegree := 4,
+    grindFolding := [[4, 4, 4, 4], [4, 4, 4, 4], [4, 4, 4, 4]],
+    numQueries := [118, 84, 81], grindQueries := [20, 20, 20],
+    numOodSamples := [1, 1], grindOod := [0, 0]
+}
+
+
 /-! ## leaf — unique-decoding (UDR) -/
 def openvm2Leaf : SWIRLCfg where
   name := "leaf"
-  whir :=
-    { hashBits := 256, field := babyBear4, logInvRate := 2, numIterations := 3,
-      foldingFactors := [4, 4, 4], logDegree := 21, batchSize := 2048, powerBatch := true,
-      grindBatch := 13, constraintDegree := 4,
-      grindFolding := [[4, 4, 4, 4], [4, 4, 4, 4], [4, 4, 4, 4]],
-      numQueries := [118, 84, 81], grindQueries := [20, 20, 20],
-      numOodSamples := [1, 1], grindOod := [0, 0] }
+  field := babyBear4
+  whir := openvm2LeafWHIR
   lSkip := 4
   airs := { actual := 42, envelope := 50 };  logTraceHeight := { actual := 21, envelope := 21 }
   traceColumns := { actual := 1679, envelope := 2000 }
@@ -75,16 +86,20 @@ example : openvm2Leaf.ExitCriteria
     (totalBits := 100) (proofSizeKib := 15509) := by
   native_decide
 
+def openvm2InternalForLeafWHIR : WHIRConfig := {
+    hashBits := 256, field := babyBear4, logInvRate := 3, numIterations := 3,
+    foldingFactors := [4, 4, 4], logDegree := 19, batchSize := 512, powerBatch := true,
+    grindBatch := 20, constraintDegree := 4,
+    grindFolding := [[18, 18, 18, 18], [18, 18, 18, 18], [18, 18, 18, 18]],
+    numQueries := [68, 30, 20], grindQueries := [20, 20, 20],
+    numOodSamples := [1, 1], grindOod := [0, 0]
+}
+
 /-! ## internal_for_leaf — list-decoding, `m = 2` -/
 def openvm2InternalForLeaf : SWIRLCfg where
   name := "internal_for_leaf"
-  whir :=
-    { hashBits := 256, field := babyBear4, logInvRate := 3, numIterations := 3,
-      foldingFactors := [4, 4, 4], logDegree := 19, batchSize := 512, powerBatch := true,
-      grindBatch := 20, constraintDegree := 4,
-      grindFolding := [[18, 18, 18, 18], [18, 18, 18, 18], [18, 18, 18, 18]],
-      numQueries := [68, 30, 20], grindQueries := [20, 20, 20],
-      numOodSamples := [1, 1], grindOod := [0, 0] }
+  field := babyBear4
+  whir := openvm2InternalForLeafWHIR
   lSkip := 2
   airs := { actual := 42, envelope := 50 };  logTraceHeight := { actual := 19, envelope := 19 }
   traceColumns := { actual := 1663, envelope := 2000 }
@@ -107,15 +122,20 @@ example : openvm2InternalRecursive.ExitCriteria
     (totalBits := 100) (proofSizeKib := 2393) := by
   native_decide
 
+def openvm2HookWHIR : WHIRConfig := {
+    hashBits := 256, field := babyBear4, logInvRate := 2, numIterations := 3,
+    foldingFactors := [4, 4, 4], logDegree := 20, batchSize := 80, powerBatch := true,
+    grindBatch := 11, constraintDegree := 4,
+    grindFolding := [[12, 12, 12, 12], [12, 12, 12, 12], [12, 12, 12, 12]],
+    numQueries := [193, 42, 24], grindQueries := [20, 20, 20],
+    numOodSamples := [1, 1], grindOod := [0, 0]
+}
+
+
 def openvm2Hook : SWIRLCfg where
   name := "hook"
-  whir :=
-    { hashBits := 256, field := babyBear4, logInvRate := 2, numIterations := 3,
-      foldingFactors := [4, 4, 4], logDegree := 20, batchSize := 80, powerBatch := true,
-      grindBatch := 11, constraintDegree := 4,
-      grindFolding := [[12, 12, 12, 12], [12, 12, 12, 12], [12, 12, 12, 12]],
-      numQueries := [193, 42, 24], grindQueries := [20, 20, 20],
-      numOodSamples := [1, 1], grindOod := [0, 0] }
+  field := babyBear4
+  whir := openvm2HookWHIR
   lSkip := 2
   airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 20, envelope := 20 }
   traceColumns := { actual := 2000, envelope := 2000 }
@@ -129,15 +149,19 @@ example : openvm2Hook.ExitCriteria
     (totalBits := 100) (proofSizeKib := 1330) := by
   native_decide
 
+def openvm2RootWHIR : WHIRConfig := {
+    hashBits := 256, field := babyBear4, logInvRate := 4, numIterations := 3,
+    foldingFactors := [4, 4, 4], logDegree := 20, batchSize := 18, powerBatch := true,
+    grindBatch := 20, constraintDegree := 4,
+    grindFolding := [[20, 20, 20, 20], [20, 20, 20, 20], [20, 20, 20, 20]],
+    numQueries := [57, 28, 19], grindQueries := [20, 20, 20],
+    numOodSamples := [1, 1], grindOod := [0, 0]
+  }
+
 def openvm2Root : SWIRLCfg where
   name := "root"
-  whir :=
-    { hashBits := 256, field := babyBear4, logInvRate := 4, numIterations := 3,
-      foldingFactors := [4, 4, 4], logDegree := 20, batchSize := 18, powerBatch := true,
-      grindBatch := 20, constraintDegree := 4,
-      grindFolding := [[20, 20, 20, 20], [20, 20, 20, 20], [20, 20, 20, 20]],
-      numQueries := [57, 28, 19], grindQueries := [20, 20, 20],
-      numOodSamples := [1, 1], grindOod := [0, 0] }
+  field := babyBear4
+  whir := openvm2RootWHIR
   lSkip := 2
   airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 21, envelope := 21 }
   traceColumns := { actual := 2000, envelope := 2000 }

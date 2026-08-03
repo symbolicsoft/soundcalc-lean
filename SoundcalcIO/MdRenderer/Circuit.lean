@@ -2,6 +2,7 @@ import Soundcalc
 import SoundcalcIO.Common
 import SoundcalcIO.MdRenderer.Jagged
 import SoundcalcIO.MdRenderer.DeepAli
+import SoundcalcIO.MdRenderer.SWIRL
 
 open Soundcalc
 open SoundcalcIO
@@ -18,20 +19,24 @@ namespace Soundcalc
   Returns a string containing all the circuit parameters of a generic Circuit.
 -/
 def Circuit.circParamsStr : Circuit → IO String
-  | .jagged c => c.renderCircParams
+  | .jagged c  => c.renderCircParams
   | .deepali c => c.renderCircParams
+  | .swirl c   => c.renderCircParams
 /--
   Returns a [header, secbits] list containing all the UDR security bits of a generic Circuit.
 -/
 def Circuit.secParamsUDR : Circuit → IO (List (String × Nat))
-  | .jagged c => c.getSecurityLevels
+  | .jagged c  => c.getSecurityLevels
   | .deepali c => c.getSecurityLevels (UDR c.field)
+  | .swirl c   => c.getSecurityLevels -- regimes are internally handled by `explicit_m`
 
 /--
   Returns a [header, secbits] list containing all the JBR security bits of a generic Circuit.
 -/
 def Circuit.secParamsJBR : Circuit → IO (List (String × Nat))
-  | .jagged _ => pure []         -- unsupported; *TODO* ìmprove representation.
+  | .jagged _  => pure []             -- unsupported; *TODO* ìmprove representation.
   | .deepali c => c.getSecurityLevels (JBR c.field (2^40) c.gapToRadius)
+  | .swirl c   => c.getSecurityLevels -- regimes are internally handled by `explicit_m`
+
 
 end Soundcalc

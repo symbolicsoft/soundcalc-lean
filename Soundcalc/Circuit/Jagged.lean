@@ -2,7 +2,6 @@ import Mathlib
 import Soundcalc.SecBits
 import Soundcalc.PCS.PCS
 import Soundcalc.Lookup
-import Soundcalc.Circuit.GenericCircuit
 
 open Soundcalc
 
@@ -25,11 +24,20 @@ With `ℓ = ⌈log₂ d⌉ + ⌈log₂ b⌉ = 21 + 8 = 29`:
 -/
 
 /-- Parameters for a jagged circuit instance. -/
-structure JaggedCfg extends GenericCircuit where
+structure JaggedCfg where
+  name           : String
+  field          : FieldParams
+  densePCS       : PCS
   traceLength    : N    -- e.g. 2^22 (one gotcha: use trace length, not FRI dimension)
   traceWidth     : N    -- e.g. 3741
   numConstraints : N    -- e.g. 3412
   airMaxDegree   : N    -- e.g. 3
+  gapToRadius      : Option ℚ       := none -- gapToRadius is defined at circuit level
+  lookups          : List LookupCfg := []
+  /- The theorems below enforce coherency between fields
+     included in different data structures. -/
+  h_densePCS_field : densePCS.field = field := by rfl
+  h_lookups_field  : lookups.all (·.field == field) = true := by decide
 
 /-- Reduction soundness error.
 

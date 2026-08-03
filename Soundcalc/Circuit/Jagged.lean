@@ -131,7 +131,7 @@ def JaggedCfg.proofSizeWorst (c: JaggedCfg) : ℕ :=
     instance of this `Prop`, discharged by `native_decide`, replaces the scattered per-circuit
     `example`s previously written by hand. Jagged is UDR-only, so — unlike
     `DeepAliCfg.ExitCriteria` — it takes no `Regime`. -/
-def JaggedCfg.ExitCriteria (c : JaggedCfg)
+abbrev JaggedCfg.ExitCriteria (c : JaggedCfg)
     (reduceBits zerocheckBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
     (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
   secBits c.reduceErr = reduceBits ∧

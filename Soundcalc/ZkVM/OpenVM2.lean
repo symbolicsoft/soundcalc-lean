@@ -51,7 +51,7 @@ def openvm2App : SWIRLCfg where
 example : openvm2App.ExitCriteria
     (rowBits := [102, 122, 123, 117, 111, 107, 102, 104, 104, 127, 100, 100, 116, 104, 100])
     (totalBits := 100) (proofSizeKib := 26175) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## leaf — unique-decoding (UDR) -/
 def openvm2Leaf : SWIRLCfg where
@@ -73,7 +73,7 @@ def openvm2Leaf : SWIRLCfg where
 example : openvm2Leaf.ExitCriteria
     (rowBits := [102, 122, 123, 117, 113, 111, 102, 105, 105, 126, 100, 100, 116, 107, 100])
     (totalBits := 100) (proofSizeKib := 15509) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## internal_for_leaf — list-decoding, `m = 2` -/
 def openvm2InternalForLeaf : SWIRLCfg where
@@ -96,7 +96,7 @@ def openvm2InternalForLeaf : SWIRLCfg where
 example : openvm2InternalForLeaf.ExitCriteria
     (rowBits := [100, 122, 123, 116, 110, 108, 102, 103, 103, 134, 100, 100, 111, 100, 100])
     (totalBits := 100) (proofSizeKib := 2393) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## internal_recursive — identical parameters to `internal_for_leaf` -/
 def openvm2InternalRecursive : SWIRLCfg :=
@@ -105,7 +105,7 @@ def openvm2InternalRecursive : SWIRLCfg :=
 example : openvm2InternalRecursive.ExitCriteria
     (rowBits := [100, 122, 123, 116, 110, 108, 102, 103, 103, 134, 100, 100, 111, 100, 100])
     (totalBits := 100) (proofSizeKib := 2393) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 def openvm2Hook : SWIRLCfg where
   name := "hook"
@@ -127,7 +127,7 @@ def openvm2Hook : SWIRLCfg where
 example : openvm2Hook.ExitCriteria
     (rowBits := [101, 122, 123, 118, 112, 110, 100, 102, 102, 129, 100, 100, 112, 102, 100])
     (totalBits := 100) (proofSizeKib := 1330) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 def openvm2Root : SWIRLCfg where
   name := "root"
@@ -149,6 +149,6 @@ def openvm2Root : SWIRLCfg where
 example : openvm2Root.ExitCriteria
     (rowBits := [100, 122, 123, 117, 111, 109, 107, 105, 105, 136, 100, 100, 112, 100, 100])
     (totalBits := 100) (proofSizeKib := 270) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 end Soundcalc

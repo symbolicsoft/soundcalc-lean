@@ -192,7 +192,7 @@ example : ziskDmaDeepAli.ExitCriteria ziskUDR
                 166, 170, 169, 169])
     (totalBits := 111)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [166, 169, 168, 168, 166, 170, 169, 169])
@@ -200,7 +200,7 @@ example : ziskDmaDeepAli.ExitCriteria ziskDmaJBR
                 166, 170, 169, 169])
     (totalBits := 128)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaMemCpy -/
 
@@ -242,7 +242,7 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
                 166, 170, 169])
     (totalBits := 111)
     (proofSizeExpKib := 679) (proofSizeWorstKib := 1072) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [166, 169, 168, 168, 166, 170, 169])
@@ -250,7 +250,7 @@ example : ziskDmaMemCpyDeepAli.ExitCriteria ziskDmaMemCpyJBR
                 166, 170, 169])
     (totalBits := 128)
     (proofSizeExpKib := 679) (proofSizeWorstKib := 1072) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaInputCpy -/
 
@@ -292,7 +292,7 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
                 170, 170, 170])
     (totalBits := 111)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [166, 168, 168, 166, 170, 170, 170])
@@ -300,7 +300,7 @@ example : ziskDmaInputCpyDeepAli.ExitCriteria ziskDmaInputCpyJBR
                 170, 170, 170])
     (totalBits := 128)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64Aligned -/
 
@@ -342,7 +342,7 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
                 165, 167, 169])
     (totalBits := 111)
     (proofSizeExpKib := 838) (proofSizeWorstKib := 1233) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
     (aliBits := 178) (deepBits := 162)
     (lookupBits := [167, 166, 167, 167, 165, 167, 169])
@@ -350,7 +350,7 @@ example : ziskDma64AlignedDeepAli.ExitCriteria ziskDma64AlignedJBR
                 165, 167, 169])
     (totalBits := 128)
     (proofSizeExpKib := 838) (proofSizeWorstKib := 1233) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedInputCpy -/
 
@@ -392,7 +392,7 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
                 166, 167, 169])
     (totalBits := 111)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [167, 166, 167, 167, 166, 167, 169])
@@ -400,7 +400,7 @@ example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskDma64AlignedInputCpyJ
                 166, 167, 169])
     (totalBits := 128)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMemSet -/
 
@@ -438,7 +438,7 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 662) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 165, 169])
@@ -446,7 +446,7 @@ example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskDma64AlignedMemSetJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 662) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMem -/
 
@@ -484,7 +484,7 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 165, 169])
@@ -492,7 +492,7 @@ example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskDma64AlignedMemJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 748) (proofSizeWorstKib := 1142) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Dma64AlignedMemCpy -/
 
@@ -530,7 +530,7 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 166, 167, 164, 169])
@@ -538,7 +538,7 @@ example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskDma64AlignedMemCpyJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaUnaligned -/
 
@@ -578,7 +578,7 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
                 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [167, 165, 167, 167, 166, 169])
@@ -586,7 +586,7 @@ example : ziskDmaUnalignedDeepAli.ExitCriteria ziskDmaUnalignedJBR
                 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 781) (proofSizeWorstKib := 1174) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePost -/
 
@@ -624,7 +624,7 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
                 167])
     (totalBits := 111)
     (proofSizeExpKib := 951) (proofSizeWorstKib := 1346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 169, 166, 166, 167])
@@ -632,7 +632,7 @@ example : ziskDmaPrePostDeepAli.ExitCriteria ziskDmaPrePostJBR
                 167])
     (totalBits := 128)
     (proofSizeExpKib := 951) (proofSizeWorstKib := 1346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePostMemCpy -/
 
@@ -667,14 +667,14 @@ example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 172, 175, 178, 181, 184, 187, 111, 186, 168, 168, 166, 166, 167])
     (totalBits := 111)
     (proofSizeExpKib := 881) (proofSizeWorstKib := 1276) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskDmaPrePostMemCpyJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 166, 166, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 168, 166, 166, 167])
     (totalBits := 128)
     (proofSizeExpKib := 881) (proofSizeWorstKib := 1276) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePostInputCpy -/
 
@@ -709,14 +709,14 @@ example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 187, 168, 168, 166, 167, 167])
     (totalBits := 111)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskDmaPrePostInputCpyJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [168, 166, 167, 167])
     (rowBits := [133, 138, 141, 144, 147, 150, 154, 128, 180, 161, 168, 166, 167, 167])
     (totalBits := 128)
     (proofSizeExpKib := 738) (proofSizeWorstKib := 1131) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Main -/
 
@@ -756,7 +756,7 @@ example : ziskMainDeepAli.ExitCriteria ziskUDR
                 164, 169])
     (totalBits := 111)
     (proofSizeExpKib := 890) (proofSizeWorstKib := 1292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMainDeepAli.ExitCriteria ziskMainJBR
     (aliBits := 178) (deepBits := 161)
     (lookupBits := [166, 166, 166, 161, 164, 169])
@@ -764,7 +764,7 @@ example : ziskMainDeepAli.ExitCriteria ziskMainJBR
                 164, 169])
     (totalBits := 128)
     (proofSizeExpKib := 890) (proofSizeWorstKib := 1292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Rom -/
 
@@ -793,14 +793,14 @@ example : ziskRomDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 190, 168, 166])
     (totalBits := 111)
     (proofSizeExpKib := 635) (proofSizeWorstKib := 1019) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRomDeepAli.ExitCriteria ziskRomJBR
     (aliBits := 183) (deepBits := 161)
     (lookupBits := [166])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 183, 161, 166])
     (totalBits := 128)
     (proofSizeExpKib := 635) (proofSizeWorstKib := 1019) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Mem -/
 
@@ -834,7 +834,7 @@ example : ziskMemDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 718) (proofSizeWorstKib := 1120) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemDeepAli.ExitCriteria ziskMemJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [166, 167, 169, 167, 169])
@@ -842,7 +842,7 @@ example : ziskMemDeepAli.ExitCriteria ziskMemJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 718) (proofSizeWorstKib := 1120) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## RomData -/
 
@@ -873,14 +873,14 @@ example : ziskRomDataDeepAli.ExitCriteria ziskUDR
     (rowBits := [167, 172, 175, 178, 181, 184, 187, 111, 187, 168, 167, 168, 169])
     (totalBits := 111)
     (proofSizeExpKib := 603) (proofSizeWorstKib := 997) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRomDataDeepAli.ExitCriteria ziskRomDataJBR
     (aliBits := 180) (deepBits := 161)
     (lookupBits := [167, 168, 169])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 180, 161, 167, 168, 169])
     (totalBits := 128)
     (proofSizeExpKib := 603) (proofSizeWorstKib := 997) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## InputData -/
 
@@ -912,14 +912,14 @@ example : ziskInputDataDeepAli.ExitCriteria ziskUDR
     (rowBits := [167, 172, 175, 178, 181, 184, 187, 111, 187, 168, 167, 168, 170, 167])
     (totalBits := 111)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskInputDataDeepAli.ExitCriteria ziskInputDataJBR
     (aliBits := 179) (deepBits := 161)
     (lookupBits := [167, 168, 170, 167])
     (rowBits := [133, 137, 140, 143, 146, 149, 153, 128, 179, 161, 167, 168, 170, 167])
     (totalBits := 128)
     (proofSizeExpKib := 646) (proofSizeWorstKib := 1040) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlign -/
 
@@ -950,14 +950,14 @@ example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 186, 168, 168, 168, 167])
     (totalBits := 111)
     (proofSizeExpKib := 821) (proofSizeWorstKib := 1217) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignDeepAli.ExitCriteria ziskMemAlignJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 168, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 168, 168, 167])
     (totalBits := 128)
     (proofSizeExpKib := 821) (proofSizeWorstKib := 1217) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignByte -/
 
@@ -995,7 +995,7 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 694) (proofSizeWorstKib := 1093) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
     (aliBits := 180) (deepBits := 160)
     (lookupBits := [166, 168, 165, 169, 169])
@@ -1003,7 +1003,7 @@ example : ziskMemAlignByteDeepAli.ExitCriteria ziskMemAlignByteJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 694) (proofSizeWorstKib := 1093) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignReadByte -/
 
@@ -1038,14 +1038,14 @@ example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 168, 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskMemAlignReadByteJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 168, 166, 169])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 181, 160, 166, 168, 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## MemAlignWriteByte -/
 
@@ -1083,7 +1083,7 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 683) (proofSizeWorstKib := 1082) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 168, 165, 169, 169])
@@ -1091,7 +1091,7 @@ example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskMemAlignWriteByteJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 683) (proofSizeWorstKib := 1082) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Arith -/
 
@@ -1122,14 +1122,14 @@ example : ziskArithDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 172, 175, 178, 181, 184, 187, 111, 185, 168, 165, 168, 166])
     (totalBits := 111)
     (proofSizeExpKib := 848) (proofSizeWorstKib := 1244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithDeepAli.ExitCriteria ziskArithJBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [165, 168, 166])
     (rowBits := [133, 139, 142, 145, 148, 151, 154, 128, 179, 162, 165, 168, 166])
     (totalBits := 128)
     (proofSizeExpKib := 848) (proofSizeWorstKib := 1244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Binary -/
 
@@ -1160,14 +1160,14 @@ example : ziskBinaryDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 164, 166])
     (totalBits := 111)
     (proofSizeExpKib := 826) (proofSizeWorstKib := 1227) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryDeepAli.ExitCriteria ziskBinaryJBR
     (aliBits := 181) (deepBits := 161)
     (lookupBits := [166, 164, 166])
     (rowBits := [133, 138, 141, 144, 147, 150, 153, 128, 181, 161, 166, 164, 166])
     (totalBits := 128)
     (proofSizeExpKib := 826) (proofSizeWorstKib := 1227) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## BinaryAdd -/
 
@@ -1198,14 +1198,14 @@ example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 166, 167])
     (totalBits := 111)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryAddDeepAli.ExitCriteria ziskBinaryAddJBR
     (aliBits := 181) (deepBits := 160)
     (lookupBits := [166, 166, 167])
     (rowBits := [133, 137, 140, 143, 146, 149, 152, 128, 181, 160, 166, 166, 167])
     (totalBits := 128)
     (proofSizeExpKib := 656) (proofSizeWorstKib := 1056) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## BinaryExtension -/
 
@@ -1240,14 +1240,14 @@ example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 171, 174, 177, 180, 183, 186, 111, 188, 167, 166, 164, 166, 169])
     (totalBits := 111)
     (proofSizeExpKib := 777) (proofSizeWorstKib := 1179) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskBinaryExtensionJBR
     (aliBits := 182) (deepBits := 161)
     (lookupBits := [166, 164, 166, 169])
     (rowBits := [133, 138, 141, 144, 147, 150, 153, 128, 182, 161, 166, 164, 166, 169])
     (totalBits := 128)
     (proofSizeExpKib := 777) (proofSizeWorstKib := 1179) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Add256 -/
 
@@ -1278,14 +1278,14 @@ example : ziskAdd256DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 173, 176, 179, 182, 185, 111, 186, 169, 168, 165, 167])
     (totalBits := 111)
     (proofSizeExpKib := 816) (proofSizeWorstKib := 1165) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskAdd256DeepAli.ExitCriteria ziskAdd256JBR
     (aliBits := 179) (deepBits := 162)
     (lookupBits := [168, 165, 167])
     (rowBits := [133, 139, 142, 145, 148, 151, 128, 179, 162, 168, 165, 167])
     (totalBits := 128)
     (proofSizeExpKib := 816) (proofSizeWorstKib := 1165) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq -/
 
@@ -1325,7 +1325,7 @@ example : ziskArithEqDeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 111)
     (proofSizeExpKib := 2994) (proofSizeWorstKib := 3346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
     (aliBits := 178) (deepBits := 163)
     (lookupBits := [168, 169, 168, 170, 169, 169])
@@ -1333,7 +1333,7 @@ example : ziskArithEqDeepAli.ExitCriteria ziskArithEqJBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 2994) (proofSizeWorstKib := 3346) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq384 -/
 
@@ -1373,7 +1373,7 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
                 169])
     (totalBits := 112)
     (proofSizeExpKib := 3366) (proofSizeWorstKib := 3720) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
     (aliBits := 179) (deepBits := 163)
     (lookupBits := [168, 169, 168, 170, 169, 169])
@@ -1381,7 +1381,7 @@ example : ziskArithEq384DeepAli.ExitCriteria ziskArithEq384JBR
                 169])
     (totalBits := 128)
     (proofSizeExpKib := 3366) (proofSizeWorstKib := 3720) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Keccakf -/
 
@@ -1412,14 +1412,14 @@ example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 176, 179, 182, 185, 113, 180, 172, 163, 171, 167])
     (totalBits := 113)
     (proofSizeExpKib := 20975) (proofSizeWorstKib := 21244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskKeccakfDeepAli.ExitCriteria ziskKeccakfJBR
     (aliBits := 174) (deepBits := 166)
     (lookupBits := [163, 171, 167])
     (rowBits := [132, 145, 148, 151, 154, 128, 174, 166, 163, 171, 167])
     (totalBits := 128)
     (proofSizeExpKib := 20975) (proofSizeWorstKib := 21244) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Sha256f -/
 
@@ -1450,14 +1450,14 @@ example : ziskSha256fDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 175, 178, 181, 184, 187, 111, 185, 171, 170, 171, 172])
     (totalBits := 111)
     (proofSizeExpKib := 7215) (proofSizeWorstKib := 7549) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSha256fDeepAli.ExitCriteria ziskSha256fJBR
     (aliBits := 178) (deepBits := 165)
     (lookupBits := [170, 171, 172])
     (rowBits := [132, 143, 146, 149, 152, 155, 128, 178, 165, 170, 171, 172])
     (totalBits := 128)
     (proofSizeExpKib := 7215) (proofSizeWorstKib := 7549) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Poseidon2 -/
 
@@ -1487,14 +1487,14 @@ example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 174, 177, 180, 183, 186, 93, 185, 172, 171, 170])
     (totalBits := 93)
     (proofSizeExpKib := 682) (proofSizeWorstKib := 832) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskPoseidon2DeepAli.ExitCriteria ziskPoseidon2JBR
     (aliBits := 177) (deepBits := 164)
     (lookupBits := [171, 170])
     (rowBits := [133, 140, 143, 146, 149, 153, 128, 177, 164, 171, 170])
     (totalBits := 128)
     (proofSizeExpKib := 682) (proofSizeWorstKib := 832) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Blake2br -/
 
@@ -1526,14 +1526,14 @@ example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 175, 178, 181, 184, 187, 111, 184, 171, 170, 169, 171, 170])
     (totalBits := 111)
     (proofSizeExpKib := 3874) (proofSizeWorstKib := 4207) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBlake2brDeepAli.ExitCriteria ziskBlake2brJBR
     (aliBits := 177) (deepBits := 165)
     (lookupBits := [170, 169, 171, 170])
     (rowBits := [133, 142, 145, 148, 151, 155, 128, 177, 165, 170, 169, 171, 170])
     (totalBits := 128)
     (proofSizeExpKib := 3874) (proofSizeWorstKib := 4207) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## SpecifiedRanges -/
 
@@ -1573,7 +1573,7 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
                 171])
     (totalBits := 111)
     (proofSizeExpKib := 1020) (proofSizeWorstKib := 1369) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
     (aliBits := 180) (deepBits := 162)
     (lookupBits := [171, 171, 171, 171, 171, 171])
@@ -1581,7 +1581,7 @@ example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskSpecifiedRangesJBR
                 171])
     (totalBits := 128)
     (proofSizeExpKib := 1020) (proofSizeWorstKib := 1369) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## VirtualTable0 -/
 
@@ -1621,7 +1621,7 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
                 169, 168])
     (totalBits := 111)
     (proofSizeExpKib := 875) (proofSizeWorstKib := 1270) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
     (aliBits := 182) (deepBits := 162)
     (lookupBits := [168, 168, 168, 168, 169, 168])
@@ -1629,7 +1629,7 @@ example : ziskVirtualTable0DeepAli.ExitCriteria ziskVirtualTable0JBR
                 169, 168])
     (totalBits := 128)
     (proofSizeExpKib := 875) (proofSizeWorstKib := 1270) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## VirtualTable1 -/
 
@@ -1658,14 +1658,14 @@ example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 172, 175, 178, 181, 184, 187, 111, 189, 168, 167])
     (totalBits := 111)
     (proofSizeExpKib := 989) (proofSizeWorstKib := 1384) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskVirtualTable1JBR
     (aliBits := 182) (deepBits := 162)
     (lookupBits := [167])
     (rowBits := [133, 139, 142, 145, 148, 151, 155, 128, 182, 162, 167])
     (totalBits := 128)
     (proofSizeExpKib := 989) (proofSizeWorstKib := 1384) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## DmaPrePost-compressor -/
 
@@ -1694,14 +1694,14 @@ example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskDmaPrePostCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq-compressor -/
 
@@ -1730,14 +1730,14 @@ example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskArithEqCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## ArithEq384-compressor -/
 
@@ -1766,14 +1766,14 @@ example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskArithEq384CompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Keccakf-compressor -/
 
@@ -1802,14 +1802,14 @@ example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [163, 171, 174, 177, 180, 183, 186, 94, 184, 169, 164])
     (totalBits := 94)
     (proofSizeExpKib := 771) (proofSizeWorstKib := 940) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskKeccakfCompressorJBR
     (aliBits := 177) (deepBits := 162)
     (lookupBits := [164])
     (rowBits := [133, 141, 144, 147, 150, 153, 156, 128, 177, 162, 164])
     (totalBits := 128)
     (proofSizeExpKib := 771) (proofSizeWorstKib := 940) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Sha256f-compressor -/
 
@@ -1838,14 +1838,14 @@ example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 172, 175, 178, 181, 184, 94, 184, 170, 165])
     (totalBits := 94)
     (proofSizeExpKib := 743) (proofSizeWorstKib := 892) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskSha256fCompressorJBR
     (aliBits := 176) (deepBits := 162)
     (lookupBits := [165])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 162, 165])
     (totalBits := 128)
     (proofSizeExpKib := 743) (proofSizeWorstKib := 892) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Blake2br-compressor -/
 
@@ -1874,14 +1874,14 @@ example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
     (rowBits := [165, 173, 176, 179, 182, 185, 94, 184, 171, 166])
     (totalBits := 94)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskBlake2brCompressorJBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [166])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 166])
     (totalBits := 128)
     (proofSizeExpKib := 726) (proofSizeWorstKib := 871) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Recursive2 -/
 
@@ -1910,14 +1910,14 @@ example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 173, 176, 179, 182, 185, 80, 184, 171, 168])
     (totalBits := 80)
     (proofSizeExpKib := 398) (proofSizeWorstKib := 487) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskRecursive2DeepAli.ExitCriteria ziskRecursive2JBR
     (aliBits := 176) (deepBits := 163)
     (lookupBits := [168])
     (rowBits := [133, 140, 143, 146, 149, 152, 128, 176, 163, 168])
     (totalBits := 128)
     (proofSizeExpKib := 398) (proofSizeWorstKib := 487) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Final -/
 
@@ -1946,14 +1946,14 @@ example : ziskFinalDeepAli.ExitCriteria ziskUDR
     (rowBits := [164, 172, 176, 180, 184, 63, 184, 172, 169])
     (totalBits := 63)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskFinalDeepAli.ExitCriteria ziskFinalJBR
     (aliBits := 175) (deepBits := 163)
     (lookupBits := [169])
     (rowBits := [133, 140, 144, 148, 152, 128, 175, 163, 169])
     (totalBits := 128)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 292) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ## Final_Compressed -/
 
@@ -1982,13 +1982,13 @@ example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR
     (rowBits := [166, 174, 177, 180, 71, 184, 173, 170])
     (totalBits := 71)
     (proofSizeExpKib := 269) (proofSizeWorstKib := 313) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskFinalCompressedJBR
     (aliBits := 175) (deepBits := 164)
     (lookupBits := [170])
     (rowBits := [134, 141, 144, 147, 128, 175, 164, 170])
     (totalBits := 128)
     (proofSizeExpKib := 269) (proofSizeWorstKib := 313) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 end Soundcalc

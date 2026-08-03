@@ -113,7 +113,7 @@ example : airbenderDeepAli.ExitCriteria airbenderUDR
     (rowBits := [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100])
     (totalBits := 64)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 example : airbenderDeepAli.ExitCriteria airbenderJBR
     (aliBits := 109) (deepBits := 105)
@@ -121,7 +121,7 @@ example : airbenderDeepAli.ExitCriteria airbenderJBR
     (rowBits := [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100])
     (totalBits := 67)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  unfold DeepAliCfg.ExitCriteria; native_decide
+  native_decide
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 

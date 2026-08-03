@@ -99,7 +99,7 @@ def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
     sizes in KiB. One instance of this `Prop`, discharged by `native_decide`, replaces the
     scattered per-circuit `example`s (and `_multiPoint_ok` theorems) previously written by
     hand for each of Airbender/OpenVM/etc. -/
-def DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
+abbrev DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)
     (aliBits deepBits : ℕ) (lookupBits : List ℕ) (rowBits : List ℕ) (totalBits : ℕ)
     (proofSizeExpKib proofSizeWorstKib : ℕ) : Prop :=
   c.multiPointOk R ∧

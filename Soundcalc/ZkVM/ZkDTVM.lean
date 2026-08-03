@@ -105,7 +105,7 @@ example : zkdtvmCoreJagged.ExitCriteria
                   147, 148, 149, 150, 151, 152, 153, 153, 154, 128, 136])
     (totalBits := 128)
     (proofSizeExpKib := 311725) (proofSizeWorstKib := 312976) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 -- compress: 1022 KiB (expected) / 1736 KiB (worst case).
 example : zkdtvmCompressJagged.ExitCriteria
@@ -114,7 +114,7 @@ example : zkdtvmCompressJagged.ExitCriteria
                   147, 148, 149, 150, 151, 152, 152, 153, 128, 136])
     (totalBits := 128)
     (proofSizeExpKib := 1022) (proofSizeWorstKib := 1736) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 -- shrink: 856 KiB (expected) / 1422 KiB (worst case).
 example : zkdtvmShrinkJagged.ExitCriteria
@@ -123,12 +123,12 @@ example : zkdtvmShrinkJagged.ExitCriteria
                   147, 148, 149, 150, 151, 151, 152, 154, 128, 137])
     (totalBits := 128)
     (proofSizeExpKib := 856) (proofSizeWorstKib := 1422) := by
-  unfold JaggedCfg.ExitCriteria; native_decide
+  native_decide
 
 -- root_shrink: 200 KiB (expected = worst). `w_stack = 1` ⇒ no `whir_mu_batching` cell.
 example : zkdtvmRootShrink.ExitCriteria
     (rowBits := [128, 153, 154, 143, 143, 142, 134, 134, 167, 140, 140, 142, 132, 132])
     (totalBits := 128) (proofSizeKib := 200) := by
-  unfold SWIRLCfg.ExitCriteria; native_decide
+  native_decide
 
 end Soundcalc

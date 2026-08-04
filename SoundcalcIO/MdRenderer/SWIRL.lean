@@ -12,11 +12,10 @@ open SoundcalcIO.MdRenderer
   as they are exclusively related to the `MdRenderer`.
  -/
 namespace Soundcalc
-open Soundcalc
 
 /--
   Mirrors Python's `get_report_parameter_lines` for SWIRL circuits.
-  Currently-supported PCS: WHIR (as per soundcalc).
+  Currently-supported PCS: WHIR (as per `soundcalc`).
 -/
 def SWIRLCfg.renderCircParams (c: SWIRLCfg) : IO String := do
   let mut outStr := ""

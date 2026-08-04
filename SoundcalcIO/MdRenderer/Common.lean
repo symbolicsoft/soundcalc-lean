@@ -18,6 +18,7 @@ def mapFieldParamsToDisplayname : List (FieldParams × String) := [
   (mersenne31_4, "M31⁴"),
   (babyBear4, "BabyBear⁴"),
   (goldilocks3, "Goldilocks³"),
+  (koalaBear5, "KoalaBear⁵"),
 ]
 
 def fieldParamsToDisplayname (map : List (FieldParams × String))

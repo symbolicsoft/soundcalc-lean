@@ -1,0 +1,155 @@
+# zkDTVM v0.8.0 soundness model.
+#
+# v0.8.0 is a mixed architecture:
+#   - core / compress / shrink use the non-stacking Jagged-style path.
+#   - root_shrink uses the SWIRL-style stacked WHIR path with cross-round IOPP.
+#
+# Runtime source of truth:
+#   zkdtvm-suite/whir_config_koalabear_ext5.json
+#
+# Target: 128-bit round-by-round soundness over KoalaBear^5.
+
+[zkevm]
+name = "zkDTVM"
+field = "KoalaBear^5"
+version = "0.8.0"
+hash_size_bits = 248   # Poseidon2 digest: 8 KoalaBear elements.
+
+
+# ---- Core circuit: non-stacking / Jagged-style ----
+[[circuits]]
+name = "core"
+protocol_family = "JAGGED"
+explicit_regime = "unique"
+blowup_factor = 2
+rho = 0.5
+trace_length = 4194304
+trace_columns = 31209
+dense_length = 2097152
+dense_batch = 62928
+num_constraints = 29053
+air_max_degree = 3
+opening_points = 1
+power_batching = true
+multilinear_batching = false
+multilinear_zerocheck = true
+num_queries = 261
+fri_folding_factors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+fri_early_stop_degree = 2
+grinding_batching_phase = 10
+grinding_query_phase = 20
+
+[[circuits.lookups]]
+name = "lookup"
+logup_type = "univariate"
+rows_L = 4194304
+rows_T = 0
+num_columns_S = 103
+num_lookups_M = 14
+grinding_bits_lookup = 10
+multilinear_fingerprint = true
+
+
+# ---- Compress circuit: non-stacking / Jagged-style ----
+[[circuits]]
+name = "compress"
+protocol_family = "JAGGED"
+explicit_regime = "unique"
+blowup_factor = 4
+rho = 0.25
+trace_length = 2097152
+trace_columns = 326
+dense_length = 1048576
+dense_batch = 128
+num_constraints = 204
+air_max_degree = 3
+opening_points = 1
+power_batching = true
+multilinear_batching = false
+multilinear_zerocheck = true
+num_queries = 160
+fri_folding_factors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+fri_early_stop_degree = 4
+grinding_batching_phase = 10
+grinding_query_phase = 20
+
+[[circuits.lookups]]
+name = "lookup"
+logup_type = "univariate"
+rows_L = 2097152
+rows_T = 0
+num_columns_S = 6
+num_lookups_M = 50
+grinding_bits_lookup = 10
+multilinear_fingerprint = true
+
+
+# ---- Shrink circuit: non-stacking / Jagged-style ----
+[[circuits]]
+name = "shrink"
+protocol_family = "JAGGED"
+explicit_regime = "unique"
+blowup_factor = 8
+rho = 0.125
+trace_length = 1048576
+trace_columns = 326
+dense_length = 524288
+dense_batch = 128
+num_constraints = 204
+air_max_degree = 3
+opening_points = 1
+power_batching = true
+multilinear_batching = false
+multilinear_zerocheck = true
+# 131 is the first query count that floors to 128 bits under soundcalc's
+# integer security convention; 130 is approximately 127.9 bits.
+num_queries = 131
+fri_folding_factors = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+fri_early_stop_degree = 4
+grinding_batching_phase = 10
+grinding_query_phase = 20
+
+[[circuits.lookups]]
+name = "lookup"
+logup_type = "univariate"
+rows_L = 1048576
+rows_T = 0
+num_columns_S = 6
+num_lookups_M = 50
+grinding_bits_lookup = 10
+multilinear_fingerprint = true
+
+
+# ---- Root shrink circuit: SWIRL-style stacked WHIR ----
+[swirl]
+logup_max_interaction_count = 52428800
+logup_log_max_message_length = 6
+logup_pow_bits = 10
+
+[[circuits]]
+name = "root_shrink"
+protocol_family = "SWIRL"
+hash_size_bits = 256   # SHA256 Merkle root for the final PCS layer.
+
+# WHIR PCS parameters.  The runtime config has stack_log_height=18,
+# log_final_poly_len=6, and num_committed_groups=3, so the active 12 rounds
+# are distributed as [4, 4, 4].
+log_blowup = 4
+whir_num_queries = [77, 38, 26]
+whir_folding_pow_bits = 20
+whir_mu_pow_bits = 20
+constraint_degree = 3
+explicit_regime = "list"
+explicit_m = 2
+
+# SWIRL reduction parameters.
+l_skip = 6
+n_stack = 12
+w_stack = 1
+
+# Conservative recursion-circuit bounds used by the SWIRL-side soundness terms.
+max_constraints_per_air = 204
+num_airs = 50
+max_log_trace_height = 18
+num_trace_columns = 326
+max_interactions_per_air = 100

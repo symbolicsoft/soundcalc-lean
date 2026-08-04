@@ -56,14 +56,14 @@ rational number representing an error probability or list size.
 structure Regime where
   /-- Rational lower bound on the (possibly irrational) true θ;
       equals θ exactly when θ is rational (e.g. UDR). -/
-  θLB            : Rate → (dim : ℕ) → ℚ
+  θLB            : Rate → (dim : ℚ) → ℚ
   /-- Rational upper bound on the (possibly irrational) true θ;
       equals θ exactly when θ is rational (e.g. UDR). -/
-  θUB            : Rate → (dim : ℕ) → ℚ
-  listSize       : Rate → (dim : ℕ) → ℚ
-  errLinear      : Rate → (dim : ℕ) → ℚ
-  errPowers      : Rate → (dim : ℕ) → (batch : ℕ) → ℚ
-  errMultilinear : Rate → (dim : ℕ) → (batch : ℕ) → ℚ
+  θUB            : Rate → (dim : ℚ) → ℚ
+  listSize       : Rate → (dim : ℚ) → ℚ
+  errLinear      : Rate → (dim : ℚ) → ℚ
+  errPowers      : Rate → (dim : ℚ) → (batch : ℕ) → ℚ
+  errMultilinear : Rate → (dim : ℚ) → (batch : ℕ) → ℚ
 
 /-!
 ## Unique Decoding Regime (UDR)
@@ -144,11 +144,11 @@ def jbrM (ρ η : ℚ) (g : ℕ) : ℕ :=
 /-- Certified **upper bound** on the JBR linear MCA error (BCHKS25 Thm 4.2).
     Every `√ρ` is replaced by `sqrtLB` because the error is decreasing in `√ρ`, so
     substituting a smaller value makes the bound larger (conservative). -/
-def jbrErrLinear (F : FieldParams) (η : ℚ) (g : ℕ) (ρ : ℚ) (d : ℕ) : ℚ :=
+def jbrErrLinear (F : FieldParams) (η : ℚ) (g : ℕ) (ρ : ℚ) (d : ℚ) : ℚ :=
   let sr     := sqrtLB ρ g
   let m      := (jbrM ρ η g : ℚ)
   let ms     := m + 1 / 2
-  let n      := (d : ℚ) / ρ
+  let n      := d / ρ
   let θ      := (1 - η) - sr
   let first  := (2 * ms ^ 5 + 3 * ms * (θ * ρ)) * n / (3 * ρ * sr)
   let second := ms / sr
@@ -200,7 +200,7 @@ def JBR (F : FieldParams) (g : ℕ) (gapToRadius : Option ℚ := none) : Regime 
     rational `jbrErrLinear` is proven to over-approximate. Uses the genuine irrational
     `Real.sqrt ρ`, so it is `noncomputable` and is never `decide`d — only bounded. -/
 noncomputable def trueErrLinearJBR
-    (F : FieldParams) (η : ℚ) (m : ℕ) (ρ : ℚ) (d : ℕ) : ℝ :=
+    (F : FieldParams) (η : ℚ) (m : ℕ) (ρ : ℚ) (d : ℚ) : ℝ :=
   let sr : ℝ := Real.sqrt (ρ : ℝ)
   let ms : ℝ := (m : ℝ) + 1 / 2
   let n  : ℝ := (d : ℝ) / (ρ : ℝ)

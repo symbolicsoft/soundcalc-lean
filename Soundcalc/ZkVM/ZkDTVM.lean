@@ -122,7 +122,7 @@ example : zkdtvmCompressJagged.ExitCriteria
 example : zkdtvmShrinkJagged.ExitCriteria
     (reduceBits := 147) (zerocheckBits := 146) (lookupBits := [137])
     (rowBits := [147, 146, 137, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146,
-                  147, 148, 149, 150, 151, 151, 152, 154, 128, 137])
+                  147, 148, 149, 150, 151, 151, 152, 153, 128, 137])
     (totalBits := 128)
     (proofSizeExpKib := 856) (proofSizeWorstKib := 1422) := by
   native_decide

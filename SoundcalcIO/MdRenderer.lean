@@ -25,8 +25,8 @@ private def renderSecurityLevels (c: Circuit) : IO String := do
   let isUDR := c.isUDR
   let isJBR := c.isJBR
 
-  /- **TODO** Revisit once an appropriate generalization of fields
-    is introduced at circuit-level. -/
+  /- **FEAT TODO** Revisit once an appropriate generalization
+    of fields is introduced at circuit-level. -/
   if isUDR then
     for elem in secLevelsUDR do
       headerStr := headerStr ++ s!"| {elem.1} "
@@ -165,7 +165,7 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
   pure outStr
 
 /--
-  Renders a generic VM into a .md report.
+  Renders a generic VM.
 -/
 private def renderVMStr (vm: ZkVM) : IO String := do
   /- Incremental contents of the output MD file. We overwrite the
@@ -251,11 +251,13 @@ private def renderVMStr (vm: ZkVM) : IO String := do
       s!"No circuits available.\n"
   pure outStr
 
-private def renderMd (inTomlFile: String)(outMdFile: String) : IO Unit := do
-  let zkVM ← tomlToZkVM inTomlFile
-  let zkVMreport ← renderVMStr zkVM
+/--
+  Renders a generic zkVM as a into a
+  `.md` report located at `outMdFile`.
+-/
+private def renderMd (inVM: ZkVM)(outMdFile: String) : IO Unit := do
+  let zkVMreport ← renderVMStr inVM
   IO.FS.writeFile outMdFile zkVMreport
-  IO.println s!"Successfully parsed {inTomlFile} to {outMdFile}!"
 
 private def appBanner : String :=
   s!"mdrenderer - a renderer tool that parses a zkEVM configuration in .toml\n" ++
@@ -263,29 +265,35 @@ private def appBanner : String :=
   s!"\n" ++
   s!"usage: lake exe mdrenderer\n" ++
   s!"|-> default behaviour: parse all supported zkVMs. \n" ++
-  s!"|-> supported zkVMs: sp1.toml, airbender.toml\n" ++
+  s!"|-> supported zkVMs: sp1, airbender, openvm, pico, zisk, venus, openvm2, zkdtvm\n" ++
   s!"\n" ++
-  s!"extended usage: lake exe mdrenderer <in-toml-path> <out-md-path>\n"
+  s!"extended usage: lake exe mdrenderer <in-toml-path> <out-md-path>\n" ++
+  s!"|-> render one specific zkVM.\n"
 
 /--
-  Currently-supported VMs:
-  - Jagged: sp1
-  - DeepAli: airbender, openvm, pico, zisk, venus
-  - SWIRL: openvm2
+  Currently-supported VMs.
 -/
+def supportedvms : List String := [
+  "sp1",                                             -- Jagged
+  "airbender", "openvm", "pico", "zisk", "venus",    -- DEEP-ALI
+  "openvm2",                                         -- SWIRL
+  "zkdtvm"
+]
+
 def main (args: List String): IO Unit := do
   IO.println appBanner
 
   /- Default: we parse all the supported zkVMs. -/
   if args.length = 0 then
     let relPath := "./SoundcalcIO/ZkVM"
-    renderMd s!"{relPath}/Ref/sp1.toml" s!"{relPath}/sp1.md"
-    renderMd s!"{relPath}/Ref/airbender.toml" s!"{relPath}/airbender.md"
-    renderMd s!"{relPath}/Ref/openvm.toml" s!"{relPath}/openvm.md"
-    renderMd s!"{relPath}/Ref/pico.toml" s!"{relPath}/pico.md"
-    renderMd s!"{relPath}/Ref/zisk.toml" s!"{relPath}/zisk.md"
-    renderMd s!"{relPath}/Ref/venus.toml" s!"{relPath}/venus.md"
-    renderMd s!"{relPath}/Ref/openvm2.toml" s!"{relPath}/openvm2.md"
+
+    for vmname in supportedvms do
+       let inTomlFile := s!"{relPath}/Ref/{vmname}.toml"
+       let outMdFile  := s!"{relPath}/{vmname}.md"
+
+       let zkVM ← tomlToZkVM inTomlFile
+       renderMd zkVM outMdFile
+       IO.println s!"Successfully parsed {inTomlFile} to {outMdFile}!"
 
   /- Extended usage: specify and render one specific zkVM. -/
   else if h: args.length = 2 then
@@ -293,7 +301,9 @@ def main (args: List String): IO Unit := do
     let inTomlFile := args[0]'(by omega)
     let outMdFile  := args[1]'(by omega)
 
-    renderMd inTomlFile outMdFile
+    let zkVM ← tomlToZkVM inTomlFile
+    renderMd zkVM outMdFile
+    IO.println s!"Successfully parsed {inTomlFile} to {outMdFile}!"
   else
     IO.eprintln "Invalid inputs."; IO.Process.exit 1
 

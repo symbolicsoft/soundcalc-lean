@@ -54,8 +54,8 @@ def FRIConfig.batchingErr (c : FRIConfig) (R : Regime) : Q :=
   else R.errMultilinear c.ρ c.denseLen c.batchSize / 2 ^ c.grindBatch
 
 def FRIConfig.commitErr (c : FRIConfig) (R : Regime) (i : N) : Q :=
-  let acc := (c.foldingFactors.take (i + 1)).foldl (· * ·) 1
-  R.errPowers c.ρ (c.denseLen / acc) (c.foldingFactors.getD i 1) / 2 ^ c.grindCommit
+  let acc : ℕ := (c.foldingFactors.take (i + 1)).foldl (· * ·) 1
+  R.errPowers c.ρ ((c.denseLen : ℚ) / acc) (c.foldingFactors.getD i 1) / 2 ^ c.grindCommit
 
 def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
   (1 - R.θLB c.ρ c.denseLen) ^ c.numQueries / 2 ^ c.grindQuery

@@ -152,6 +152,7 @@ private def mapStrToFieldParams : List (String × FieldParams) := [
   ("M31^4", mersenne31_4),
   ("BabyBear^4", babyBear4),
   ("Goldilocks^3", goldilocks3),
+  ("KoalaBear^5", koalaBear5),
 ]
 
 /--
@@ -161,6 +162,42 @@ private def strToFieldParams (map : List (String × FieldParams)) (s : String) :
   match map.lookup s with
   | some fp => .ok fp
   | none    => .error s!"no FieldParams defined for '{s}'"
+
+/--
+  Returns the field from a circuit table `circTab` contained
+  in a zkVM table `zkvmTab`, which is parsed from a `.toml` file.
+
+  If any circuit-level conf is specified for `field`,
+  it overrides the global zkVM configs.
+  Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L85
+-/
+private def getCircField (circTab : Table)
+                         (zkvmTab : Table) : IO FieldParams := do
+  let zkvm_field_str ← orExit (getString zkvmTab "field")
+  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field_str)
+
+  let circ_field_str ← orExit (getOptString circTab "field")
+  let circ_field ← match circ_field_str with
+  | some s => orExit (strToFieldParams mapStrToFieldParams s)
+  | none   => pure zkvm_field
+
+  pure circ_field
+
+/--
+  Returns the hash bits from a circuit table `circTab` contained
+  in a zkVM table `zkvmTab`, which is parsed from a `.toml` file.
+
+  If any circuit-level conf is specified for `hash_size_bits`,
+  it overrides the global zkVM configs.
+  Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L81
+-/
+private def getCircHashBits (circTab : Table)
+                            (zkvmTab : Table) : IO Nat := do
+  let zkvm_hash_size_bits ← orExit (getNat zkvmTab "hash_size_bits")
+  let circ_hash_size_bits ← orExit (getNatD circTab "hash_size_bits" zkvm_hash_size_bits)
+
+  pure circ_hash_size_bits
+
 
 /--
   Returns a `FRIConfig` from a circuit table `circTab` contained
@@ -174,10 +211,9 @@ private def strToFieldParams (map : List (String × FieldParams)) (s : String) :
 private def parseFRIConfig (circTab : Table)
                            (zkvmTab : Table)
                            (isJagged : Bool) : IO FRIConfig := do
-  /- Global zkVM values -/
-  let zkvm_hash_size_bits ← orExit (getNat zkvmTab "hash_size_bits")
-  let zkvm_field ← orExit (getString zkvmTab "field")
-  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
+
+  let circ_field ← getCircField circTab zkvmTab
+  let circ_hash_bits ← getCircHashBits circTab zkvmTab
 
   /- We interpret the float as an exact rational according
     to the `mapFloatstrToRat` map. Note: if the float is
@@ -225,9 +261,9 @@ private def parseFRIConfig (circTab : Table)
                       IO.Process.exit 1
 
   let fcfg: FRIConfig := {
-    hashBits          := zkvm_hash_size_bits
+    hashBits          := circ_hash_bits
     ρ                 := circ_rho
-    field             := zkvm_field
+    field             := circ_field
     denseLen          := circ_trace_length  -- dense_length in SP1
     batchSize         := circ_batch_size    -- dense_batch in SP1
     powerBatch        := circ_power_batching
@@ -252,10 +288,8 @@ private def parseFRIConfig (circTab : Table)
 private def parseWHIRConfig (circTab : Table)
                             (zkvmTab : Table) : IO WHIRConfig := do
 
-  /- Global zkVM values -/
-  let zkvm_hash_size_bits ← orExit (getNat zkvmTab "hash_size_bits")
-  let zkvm_field ← orExit (getString zkvmTab "field")
-  let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
+  let circ_field ← getCircField circTab zkvmTab
+  let circ_hash_bits ← getCircHashBits circTab zkvmTab
 
   let circ_l_skip ← orExit (getNat circTab "l_skip")
   let circ_n_stack ← orExit (getNat circTab "n_stack")
@@ -301,7 +335,7 @@ private def parseWHIRConfig (circTab : Table)
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "sumFolding violation: foldingFactors.sum > circ_l_skip + circ_n_stack"; IO.Process.exit 1
 
-  let field := zkvm_field
+  let field := circ_field
   let logInvRate := circ_log_blowup
 
   let h_two_adicity : PLift (logDegree + logInvRate - foldingFactors.headD 0 ≤ field.twoAdicity) ←
@@ -310,7 +344,7 @@ private def parseWHIRConfig (circTab : Table)
   | .isFalse _ => IO.eprintln "twoAdicity violation: logDegree + logInvRate - foldingFactors.headD 0 > field.twoAdicity"; IO.Process.exit 1
 
   let wcfg : WHIRConfig := {
-    hashBits         := zkvm_hash_size_bits
+    hashBits         := circ_hash_bits
     field            := field
     logInvRate       := logInvRate
     numIterations    := numIterations
@@ -515,6 +549,14 @@ private def parseLookupCfg (lookupTab : Table)
   let lookup_num_lookups_M ← orExit (getNatD lookupTab "num_lookups_M" 1)
   let lookup_grinding_bits_lookup ← orExit (getNatD lookupTab "grinding_bits_lookup" 0)
 
+  /- Mirrors the __post_init__ of
+    https://github.com/ethereum/soundcalc/blob/main/soundcalc/lookups/logup.py#L45:
+    if `multilinear_fingerprint` is missing, it matches the
+    boolean associated with `logup_type`:
+    (`"multivariate"` -> `multilinear_fingerprint=true`;
+    `"univariate"`   -> `multilinear_fingerprint=false`) -/
+  let lookup_multilinear_fingerprint ← orExit (getBoolD lookupTab "multilinear_fingerprint" lookup_logup_type)
+
   let lcfg: LookupCfg := {
     name                   := lookup_name
     field                  := zkvm_field
@@ -524,6 +566,7 @@ private def parseLookupCfg (lookupTab : Table)
     numColumnsS            := lookup_num_columns_S
     numLookupsM            := lookup_num_lookups_M
     grindBitsLookup        := lookup_grinding_bits_lookup
+    multilinearFingerprint := lookup_multilinear_fingerprint
   }
 
   pure lcfg

@@ -100,31 +100,26 @@ abbrev openvmInternalJBR : Regime := JBR babyBear4 (2^40)
 
 def openvmAppDeepAli : DeepAliCfg where
   name           := "app"
-  proofSystName  := "DEEP-ALI"
   field          := openvmAppFRI.field
   densePCS       := .fri openvmAppFRI
   numConstraints := 15000
   airMaxDegree   := 3
   maxCombo       := 2
   grindDeep      := 5
-  isUDR          := true
-  isJBR          := true
+
 
 def openvmLeafDeepAli : DeepAliCfg where
   name           := "leaf"
-  proofSystName  := "DEEP-ALI"
   field          := openvmLeafFRI.field
   densePCS       := .fri openvmLeafFRI
   numConstraints := 15000
   airMaxDegree   := 3
   maxCombo       := 2
   grindDeep      := 5
-  isUDR          := true
-  isJBR          := true
+
 
 def openvmInternalDeepAli : DeepAliCfg where
   name           := "internal"
-  proofSystName  := "DEEP-ALI"
   field          := openvmInternalFRI.field
   densePCS       := .fri openvmInternalFRI
   numConstraints := 15000
@@ -132,8 +127,7 @@ def openvmInternalDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 5
   lookups        := [openvmInternalLookup]
-  isUDR          := true
-  isJBR          := true
+
 
 /-! ## Exit criteria (bundled)
 

@@ -269,8 +269,9 @@ private def appBanner : String :=
 
 /--
   Currently-supported VMs:
-  - Jagged: SP1
-  - DeepAli: Airbender
+  - Jagged: sp1
+  - DeepAli: airbender, openvm, pico, zisk, venus
+  - SWIRL: openvm2
 -/
 def main (args: List String): IO Unit := do
   IO.println appBanner
@@ -284,6 +285,7 @@ def main (args: List String): IO Unit := do
     renderMd s!"{relPath}/Ref/pico.toml" s!"{relPath}/pico.md"
     renderMd s!"{relPath}/Ref/zisk.toml" s!"{relPath}/zisk.md"
     renderMd s!"{relPath}/Ref/venus.toml" s!"{relPath}/venus.md"
+    renderMd s!"{relPath}/Ref/openvm2.toml" s!"{relPath}/openvm2.md"
 
   /- Extended usage: specify and render one specific zkVM. -/
   else if h: args.length = 2 then

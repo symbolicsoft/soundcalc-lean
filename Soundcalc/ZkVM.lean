@@ -18,6 +18,6 @@ structure ZkVM where
   field       : FieldParams
   circuits    : List Circuit := [] -- heterogeneous list of circuits
   /- Every circuit included in the zkVM must run over the same field. -/
-  h_circuits_field : circuits.all (·.toGenericCircuit.field == field) = true := by decide
+  h_circuits_field : circuits.all (·.field == field) = true := by decide
 
 end Soundcalc

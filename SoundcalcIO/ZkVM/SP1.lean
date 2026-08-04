@@ -36,15 +36,12 @@ def SP1_core_FRI : FRIConfig where
 def SP1_core_jagged : JaggedCfg where
   name            := "core"
   field           := koalaBear4
-  proofSystName   := "Jagged"
   densePCS        := .fri SP1_core_FRI
   traceLength     := 4194304
   traceWidth      := 3741
   numConstraints  := 3412
   airMaxDegree    := 3
   lookups         := [SP1_core_lookup_lookup]
-  isUDR           := true
-  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 
@@ -118,15 +115,12 @@ def SP1_compress_FRI : FRIConfig where
 def SP1_compress_jagged : JaggedCfg where
   name            := "compress"
   field           := koalaBear4
-  proofSystName   := "Jagged"
   densePCS        := .fri SP1_compress_FRI
   traceLength     := 2097152
   traceWidth      := 326
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [SP1_compress_lookup_lookup]
-  isUDR           := true
-  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 
@@ -199,15 +193,12 @@ def SP1_shrink_FRI : FRIConfig where
 def SP1_shrink_jagged : JaggedCfg where
   name            := "shrink"
   field           := koalaBear4
-  proofSystName   := "Jagged"
   densePCS        := .fri SP1_shrink_FRI
   traceLength     := 524288
   traceWidth      := 326
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [SP1_shrink_lookup_lookup]
-  isUDR           := true
-  isJBR           := false
 
 /- Sanity check against `sp1.md`'s reported values.-/
 

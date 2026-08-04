@@ -7,9 +7,9 @@ open SoundcalcIO
 open SoundcalcIO.MdRenderer
 
 /-
-  We work in the `Soundcalc` namespace to extend `Circuit` with appropriate rendering methods.
+  We work in the `Soundcalc` namespace to extend `DeepAliCfg` with appropriate rendering methods.
   These methods are defined here (as opposed to being defined in directly in `Soundcalc`),
-  as are exclusively related to the `MdRenderer`.
+  as they are exclusively related to the `MdRenderer`.
  -/
 namespace Soundcalc
 
@@ -18,6 +18,10 @@ namespace Soundcalc
 -/
 def DeepAliCfg.renderCircParams (c: DeepAliCfg) : IO String := do
   let mut outStr := ""
+
+  /- We interpret `c` as a generic Circuit to access dot-methods shared
+     among multiple circuits (`gc.proofSysName`). -/
+  let gc : Circuit := .deepali c
 
   let fieldDisplayName ← orExit (fieldParamsToDisplayname mapFieldParamsToDisplayname c.densePCS.field)
   let floatRate ← orExit (rateToFloat mapFloatToRate c.densePCS.ρ)
@@ -28,10 +32,8 @@ def DeepAliCfg.renderCircParams (c: DeepAliCfg) : IO String := do
       s!"- Grinding DEEP (bits): {c.grindDeep}\n"
     else s!""
 
-
   /- Currently-supported PCS: FRI
     **FEAT TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
-
   match c.densePCS with
   | .fri fcfg =>
     /- Conditional strings -/
@@ -47,8 +49,8 @@ def DeepAliCfg.renderCircParams (c: DeepAliCfg) : IO String := do
       else s!""
 
     outStr := outStr ++
-    s!"- Proof system: {c.proofSystName}\n" ++
-    s!"- PCS: FRI\n" ++
+    s!"- Proof system: {gc.proofSysName}\n" ++
+    s!"- PCS: {c.densePCS.label}\n" ++
     s!"- Hash size (bits): {fcfg.hashBits}\n" ++
     s!"- Number of queries: {fcfg.numQueries}\n" ++
     s!"- Grinding query phase (bits): {fcfg.grindQuery}\n" ++

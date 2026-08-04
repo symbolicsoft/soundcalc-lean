@@ -176,15 +176,12 @@ Parameters from `circuits/jagged.py`:
 def sp1CoreJagged : JaggedCfg where
   name           := "core"
   field          := koalaBear4
-  proofSystName  := "Jagged"
   densePCS       := .fri sp1CoreFRI
   traceWidth     := 3741
   traceLength    := 2 ^ 22
   numConstraints := 3412
   airMaxDegree   := 3
   lookups        := [sp1CoreLookup]
-  isUDR          := true
-  isJBR          := false
 
 /-!
 Core cell derivation (asserted below in `sp1CoreJagged.ExitCriteria`):
@@ -209,28 +206,22 @@ Sizes are floor-divided by `KIB = 8192` to match the KiB figures in the report.
 def sp1CompressJagged : JaggedCfg where
   name            := "compress"
   field           := koalaBear4
-  proofSystName   := "Jagged"
   densePCS        := .fri sp1CompressFRI
   traceLength     := 2097152
   traceWidth      := 326
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [sp1CompressLookup]
-  isUDR           := true
-  isJBR           := false
 
 def sp1ShrinkJagged : JaggedCfg where
   name            := "shrink"
   field           := koalaBear4
-  proofSystName   := "Jagged"
   densePCS        := .fri sp1ShrinkFRI
   traceLength     := 524288
   traceWidth      := 326
   numConstraints  := 204
   airMaxDegree    := 3
   lookups         := [sp1ShrinkLookup]
-  isUDR          := true
-  isJBR          := false
 
 /-!
   S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits.

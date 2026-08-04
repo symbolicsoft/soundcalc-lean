@@ -182,7 +182,6 @@ abbrev picoEmbedJBR : Regime := JBR koalaBear4 (2^40)
 
 def picoRiscvDeepAli : DeepAliCfg where
   name           := "riscv"
-  proofSystName  := "DEEP-ALI"
   field          := picoRiscvFRI.field
   densePCS       := .fri picoRiscvFRI
   numConstraints := 4729
@@ -191,12 +190,9 @@ def picoRiscvDeepAli : DeepAliCfg where
   grindDeep      := 0
   lookups        := [picoRiscvAlu, picoRiscvByte, picoRiscvGlobalType, picoRiscvMemory,
                      picoRiscvPoseidon2, picoRiscvProgram, picoRiscvSyscall]
-  isUDR          := true
-  isJBR          := true
 
 def picoConvertDeepAli : DeepAliCfg where
   name           := "convert"
-  proofSystName  := "DEEP-ALI"
   field          := picoConvertFRI.field
   densePCS       := .fri picoConvertFRI
   numConstraints := 323
@@ -204,12 +200,9 @@ def picoConvertDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoConvertMemory]
-  isUDR          := true
-  isJBR          := true
 
 def picoCombineDeepAli : DeepAliCfg where
   name           := "combine"
-  proofSystName  := "DEEP-ALI"
   field          := picoCombineFRI.field
   densePCS       := .fri picoCombineFRI
   numConstraints := 323
@@ -217,12 +210,9 @@ def picoCombineDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoCombineMemory]
-  isUDR          := true
-  isJBR          := true
 
 def picoCompressDeepAli : DeepAliCfg where
   name           := "compress"
-  proofSystName  := "DEEP-ALI"
   field          := picoCompressFRI.field
   densePCS       := .fri picoCompressFRI
   numConstraints := 323
@@ -230,12 +220,9 @@ def picoCompressDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoCompressMemory]
-  isUDR          := true
-  isJBR          := true
 
 def picoEmbedDeepAli : DeepAliCfg where
   name           := "embed"
-  proofSystName  := "DEEP-ALI"
   field          := picoEmbedFRI.field
   densePCS       := .fri picoEmbedFRI
   numConstraints := 323
@@ -243,8 +230,6 @@ def picoEmbedDeepAli : DeepAliCfg where
   maxCombo       := 2
   grindDeep      := 0
   lookups        := [picoEmbedMemory]
-  isUDR          := true
-  isJBR          := true
 
 /-
 # Exit criteria (bundled)

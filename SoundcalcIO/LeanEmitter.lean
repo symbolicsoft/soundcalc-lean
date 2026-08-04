@@ -311,15 +311,12 @@ def main (args: List String): IO Unit := do
       s!"def {jaggedcfg_lean_var} : JaggedCfg where\n" ++
         s!"  name            := \"{jcirc.name}\"\n" ++
         s!"  field           := {jaggedcfg_field_leanvar}\n" ++
-        s!"  proofSystName   := \"{jcirc.proofSystName}\"\n" ++
         s!"  densePCS        := .fri {densePCS_lean_var}\n" ++
         s!"  traceLength     := {jcirc.traceLength}\n" ++
         s!"  traceWidth      := {jcirc.traceWidth}\n" ++
         s!"  numConstraints  := {jcirc.numConstraints}\n" ++
         s!"  airMaxDegree    := {jcirc.airMaxDegree}\n" ++
         s!"  lookups         := {lookupcfg_lean_vars}\n" ++
-        s!"  isUDR           := true\n" ++  -- **TODO** generalize
-        s!"  isJBR           := false\n" ++ -- **TODO** generalize
         s!"\n"
 
       /- Collecting `JaggedCfg` Lean variables in a list. -/

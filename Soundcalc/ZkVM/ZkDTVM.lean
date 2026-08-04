@@ -30,12 +30,11 @@ def zkdtvmCoreLookup : LookupCfg where
   grindBitsLookup := 10
 
 def zkdtvmCoreJagged : JaggedCfg where
-  name := "core"; field := koalaBear5; proofSystName := "Jagged"
+  name := "core"; field := koalaBear5
   densePCS := .fri zkdtvmCoreFRI
   traceWidth := 31209; traceLength := 4194304
   numConstraints := 29053; airMaxDegree := 3
   lookups := [zkdtvmCoreLookup]
-  isUDR := true; isJBR := false
 
 /-! ## compress — Jagged/FRI, unique decoding -/
 def zkdtvmCompressFRI : FRIConfig where
@@ -51,12 +50,11 @@ def zkdtvmCompressLookup : LookupCfg where
   grindBitsLookup := 10
 
 def zkdtvmCompressJagged : JaggedCfg where
-  name := "compress"; field := koalaBear5; proofSystName := "Jagged"
+  name := "compress"; field := koalaBear5
   densePCS := .fri zkdtvmCompressFRI
   traceWidth := 326; traceLength := 2097152
   numConstraints := 204; airMaxDegree := 3
   lookups := [zkdtvmCompressLookup]
-  isUDR := true; isJBR := false
 
 /-! ## shrink — Jagged/FRI, unique decoding -/
 def zkdtvmShrinkFRI : FRIConfig where
@@ -72,23 +70,27 @@ def zkdtvmShrinkLookup : LookupCfg where
   grindBitsLookup := 10
 
 def zkdtvmShrinkJagged : JaggedCfg where
-  name := "shrink"; field := koalaBear5; proofSystName := "Jagged"
+  name := "shrink"; field := koalaBear5
   densePCS := .fri zkdtvmShrinkFRI
   traceWidth := 326; traceLength := 1048576
   numConstraints := 204; airMaxDegree := 3
   lookups := [zkdtvmShrinkLookup]
-  isUDR := true; isJBR := false
+
+def zkdtvmRootShrinkWHIR : WHIRConfig :=
+  { hashBits := 256, field := koalaBear5, logInvRate := 4, numIterations := 3,
+    foldingFactors := [4, 4, 4], logDegree := 18, batchSize := 1, powerBatch := true,
+    grindBatch := 20, constraintDegree := 3,
+    grindFolding := [[20, 20, 20, 20], [20, 20, 20, 20], [20, 20, 20, 20]],
+    numQueries := [77, 38, 26], grindQueries := [20, 20, 20],
+    numOodSamples := [1, 1], grindOod := [0, 0]
+  }
+
 
 /-! ## root_shrink — SWIRL/WHIR, list decoding (`m = 2`) -/
 def zkdtvmRootShrink : SWIRLCfg where
   name := "root_shrink"
-  whir :=
-    { hashBits := 256, field := koalaBear5, logInvRate := 4, numIterations := 3,
-      foldingFactors := [4, 4, 4], logDegree := 18, batchSize := 1, powerBatch := true,
-      grindBatch := 20, constraintDegree := 3,
-      grindFolding := [[20, 20, 20, 20], [20, 20, 20, 20], [20, 20, 20, 20]],
-      numQueries := [77, 38, 26], grindQueries := [20, 20, 20],
-      numOodSamples := [1, 1], grindOod := [0, 0] }
+  field := koalaBear5
+  whir := zkdtvmRootShrinkWHIR
   lSkip := 6
   airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 18, envelope := 18 }
   traceColumns := { actual := 326, envelope := 326 }

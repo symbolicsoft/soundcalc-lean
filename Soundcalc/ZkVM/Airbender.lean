@@ -84,7 +84,6 @@ abbrev airbenderJBR : Regime := JBR mersenne31_4 (2^40)
 /-- Airbender DEEP-ALI configuration. -/
 def airbenderDeepAli : DeepAliCfg where
   name           := "Airbender"
-  proofSystName  := "DEEP-ALI"
   field          := airbenderFRI.field
   densePCS       := .fri airbenderFRI
   numConstraints := 928
@@ -95,8 +94,6 @@ def airbenderDeepAli : DeepAliCfg where
                      airbenderRangeCheck16,
                      airbenderRangeCheck19,
                      airbenderDecoder]
-  isUDR          := true
-  isJBR          := true
 
 /-! ## A4–A6 exit criteria (bundled)
 

@@ -43,7 +43,8 @@ formulas use. Every soundness-error and proof-size formula reads the `.envelope`
 against the upper bound is the conservative claim. Parameters the WHIR PCS already carries
 (rates, degrees, pow bits, …) are read back through the accessors below, not duplicated. -/
 structure SWIRLCfg where
-  name          : String
+  name             : String
+  field            : FieldParams
   /-- The WHIR PCS instance (`zkvm.py`): `logInvRate = log_blowup`, `logDegree = l_skip+n_stack`,
       `batchSize = w_stack`, `foldingFactors = [k]*rounds`, pow bits in the grinding arrays. -/
   whir          : WHIRConfig
@@ -67,8 +68,13 @@ structure SWIRLCfg where
   explicitM     : Option ℕ := none
   /-- Well-formedness, auto-discharged at construction (≥ 1 AIR, `l_skip ≤ log_degree`, and no
       over-fold `rounds·k ≤ log_degree`); per-bound `actual ≤ envelope` checks live in `Bounded`. -/
-  wf            : 1 ≤ airs.actual ∧ lSkip ≤ whir.logDegree
-                  ∧ whir.numIterations * whir.foldingFactors.headD 0 ≤ whir.logDegree := by decide
+  h_airs        : 1 ≤ airs.actual := by decide
+  h_lskip_log   : lSkip ≤ whir.logDegree := by decide
+  h_whir_fold   : whir.numIterations * whir.foldingFactors.headD 0 ≤ whir.logDegree := by decide
+  /- The theorems below enforce coherency between fields
+      included in different data structures. -/
+  h_whir_field : whir.field = field := by rfl
+
 
 /-! ## Derived SWIRL quantities (the `zkvm.py` correspondences, read back from `whir`) -/
 

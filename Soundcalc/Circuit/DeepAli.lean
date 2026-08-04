@@ -3,7 +3,6 @@ import Soundcalc.SecBits
 import Soundcalc.Regime
 import Soundcalc.PCS.PCS
 import Soundcalc.Lookup
-import Soundcalc.Circuit.GenericCircuit
 
 namespace Soundcalc
 
@@ -24,11 +23,20 @@ correction — do not simplify to `|F|`.
 -/
 
 /-- Parameters for a DEEP-ALI circuit instance (`circuits/deep_ali.py: DeepAliConfig`). -/
-structure DeepAliCfg extends GenericCircuit where
+structure DeepAliCfg where
+  name           : String
+  field          : FieldParams
+  densePCS       : PCS
   numConstraints : N    -- C = 928
   airMaxDegree   : N    -- deg = 2
   maxCombo       : N    -- m_max = 2 (max column entries in one constraint)
   grindDeep      : N    -- = 12
+  gapToRadius      : Option ℚ       := none -- gapToRadius is defined at circuit level
+  lookups          : List LookupCfg := []
+  /- The theorems below enforce coherency between fields
+     included in different data structures. -/
+  h_densePCS_field : densePCS.field = field := by rfl
+  h_lookups_field  : lookups.all (·.field == field) = true := by decide
 
 /-- `e_ALI = L⁺ · C / |F|`.
     Regime-dependent purely through `L⁺ = R.listSize`; for UDR `L⁺ = 1`. -/

@@ -10,7 +10,7 @@ bytes of the transcript (`stark-backend/src/proof.rs`), split into five sections
 batch-constraint, stacking, and WHIR. Base-field elements are byte-padded to whole bytes
 (`8·⌈bits/8⌉`) and extension elements are `degree` of those — so the codec width (`32`/`128` for
 BabyBear⁴) differs from the field-capacity width (`31`/`124`). All bounds read are the
-soundness/proof-size `.envelope` values (worst-case sizing).
+proof-size `.proofEnvelope` values (worst-case sizing).
 -/
 
 namespace Soundcalc
@@ -46,7 +46,7 @@ values. -/
 private def swPreambleBits (c : SWIRLCfg) : ℕ :=
   let baseBits := swBaseBits c.whir.field
   let digest   := c.whir.hashBits
-  let numAirs  := c.airs.envelope
+  let numAirs  := c.airs.proofEnvelope
   swU32                                 -- CODEC_VERSION
   + digest                              -- common_main_commit
   + swU32                               -- num_airs
@@ -64,11 +64,11 @@ private def swGkrBits (c : SWIRLCfg) : ℕ :=
   let baseBits := swBaseBits c.whir.field
   let extBits  := swExtBits c.whir.field
   let bits0 := baseBits + extBits                      -- logup_pow_witness + q0_claim
-  if c.airs.envelope = 0 ∨ c.interactions.envelope = 0 then
+  if c.airs.proofEnvelope = 0 ∨ c.interactions.proofEnvelope = 0 then
     bits0 + swVecBits 0 (4 * extBits)                  -- empty round Vec (= bits0 + swU32)
   else
-    let nLogup := swNLogupBound c.lSkip c.airs.envelope c.interactions.envelope
-                    c.logTraceHeight.envelope c.whir.field.p
+    let nLogup := swNLogupBound c.lSkip c.airs.proofEnvelope c.interactions.proofEnvelope
+                    c.logTraceHeight.proofEnvelope c.whir.field.p
     let numGkrRounds := c.lSkip + nLogup
     let numSumcheckArrays := numGkrRounds * (numGkrRounds - 1) / 2
     bits0 + swVecBits numGkrRounds (4 * extBits) + numSumcheckArrays * 3 * extBits
@@ -77,8 +77,8 @@ private def swGkrBits (c : SWIRLCfg) : ℕ :=
 `n_max` multilinear sumcheck rows, and the opening bookkeeping. -/
 private def swBatchConstraintBits (c : SWIRLCfg) : ℕ :=
   let extBits        := swExtBits c.whir.field
-  let numAirs        := c.airs.envelope
-  let nMax           := c.logTraceHeight.envelope - c.lSkip
+  let numAirs        := c.airs.proofEnvelope
+  let nMax           := c.logTraceHeight.proofEnvelope - c.lSkip
   let univariateLen  := swRound0UnivariateLen c.lSkip (c.maxConstraintDegree + 1)
   let sumcheckRowLen := c.maxConstraintDegree + 1
   swVecBits numAirs extBits                            -- numerator_term_per_air
@@ -88,7 +88,7 @@ private def swBatchConstraintBits (c : SWIRLCfg) : ℕ :=
   + (if nMax > 0 then swU32 + nMax * sumcheckRowLen * extBits else 0)
   + numAirs * swU32                                    -- per-AIR part count
   + (numAirs + 1) * swU32                              -- _num_opening_parts = num_airs + 1
-  + (2 * c.traceColumns.envelope) * extBits            -- _num_column_openings
+  + (2 * c.traceColumns.proofEnvelope) * extBits            -- _num_column_openings
 
 /-- `_stacking_bits`: the round-0 univariate (degree 2), `n_stack` multilinear rows, and the
 stacking openings. -/
@@ -151,4 +151,3 @@ def SWIRLCfg.proofSizeBits (c : SWIRLCfg) : ℕ :=
   + swStackingBits c + swWhirBits c
 
 end Soundcalc
-

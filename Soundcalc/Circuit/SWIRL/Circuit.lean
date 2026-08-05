@@ -19,14 +19,39 @@ References:
 
 namespace Soundcalc
 
-/-- An actual circuit value with the conservative `envelope` the formulas use, certified
-`actual ≤ envelope` (a check Python omits). -/
+/-- Conservative soundness and proof size envelopes that are consumed within formulas,
+    alongside actual circuit values.
+    Matching Python's `soundness_*` and `proof_size_*` fields.
+    - If `soundEnvelope` is absent, its value defaults to `actual`.
+    - If `proofEnvelope` is absent, its value defaults to `soundEnvelope`.
+    Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L246
+
+    The structure carries semantic structural checks: `actual ≤ soundEnvelope`
+    and `actual ≤ proofEnvelope`, checks Python omits.
+-/
 structure Bounded where
   /-- Actual value (Python MAIN; display-only, feeds no formula). -/
-  actual   : ℕ
-  /-- Envelope (Python `soundness_*` = `proof_size_*`); every formula reads this. -/
-  envelope : ℕ
-  h_le     : actual ≤ envelope := by decide
+  actual        : ℕ
+
+  soundEnvelope : ℕ := actual
+  proofEnvelope : ℕ := soundEnvelope
+  h_le_sound    : actual ≤ soundEnvelope := by decide
+  h_le_proof    : actual ≤ proofEnvelope := by decide
+
+/-- Conservative soundness envelopes that are consumed within formulas,
+    alongside actual circuit values.
+    Matching Python's `soundness_*`-only fields (i.e., no `proof_size`).
+    - If `soundEnvelope` is absent, its value defaults to `actual`.
+    Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L246
+
+    The structure carries semantic structural checks: `actual ≤ soundEnvelope`.
+-/
+structure BoundedSound where
+  /-- Actual value (Python MAIN; display-only, feeds no formula). -/
+  actual        : ℕ
+
+  soundEnvelope : ℕ := actual
+  h_le_sound    : actual ≤ soundEnvelope := by decide
 
 /-- LogUp interaction soundness params (`[swirl]` table / `SWIRLLogUpSecurityParameters`). -/
 structure LogUpParams where
@@ -52,14 +77,14 @@ structure SWIRLCfg where
   lSkip         : ℕ
   /-- Number of AIRs (actual + envelope). -/
   airs          : Bounded
-  /-- Maximum `log₂(trace height)` (actual + envelope). -/
+  /-- Maximum `log₂(trace height)` (actual + sound/proof envelopes). -/
   logTraceHeight : Bounded
-  /-- Total trace columns opened in the stacked reduction (actual + envelope). -/
+  /-- Total trace columns opened in the stacked reduction (actual + sound/proof envelopes). -/
   traceColumns  : Bounded
-  /-- Maximum interactions per AIR / LogUp-GKR width (actual + envelope). -/
+  /-- Maximum interactions per AIR / LogUp-GKR width (actual + sound/proof envelopes). -/
   interactions  : Bounded
-  /-- Maximum constraints per AIR (actual + envelope). -/
-  constraints   : Bounded
+  /-- Maximum constraints per AIR (actual + sound envelope). -/
+  constraints   : BoundedSound
   /-- LogUp interaction soundness params (`SWIRLLogUpSecurityParameters`). -/
   logup         : LogUpParams
   /-- Public values (base-field elements) in the proof preamble. -/

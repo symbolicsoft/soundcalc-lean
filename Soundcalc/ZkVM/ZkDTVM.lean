@@ -92,9 +92,9 @@ def zkdtvmRootShrink : SWIRLCfg where
   field := koalaBear5
   whir := zkdtvmRootShrinkWHIR
   lSkip := 6
-  airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 18, envelope := 18 }
-  traceColumns := { actual := 326, envelope := 326 }
-  interactions := { actual := 100, envelope := 100 };  constraints := { actual := 204, envelope := 204 }
+  airs := { actual := 50 };  logTraceHeight := { actual := 18 }
+  traceColumns := { actual := 326 }
+  interactions := { actual := 100 };  constraints := { actual := 204 }
   logup := { maxInteractionCount := 52428800, logMaxMessageLength := 6, powBits := 10 }
   explicitM := some 2
 

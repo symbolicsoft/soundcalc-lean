@@ -391,6 +391,75 @@ private def parseWHIRConfig (circTab : Table)
   pure wcfg
 
 /--
+  Return a `Bounded` structure (as specified in `Soundcalc/Circuit/SWIRL/Circuit.lean`)
+  for the `varName` field, which contains:
+  - The actual value parsed from `varName`;
+  - The soundness envelope value parsed from `soundness_{varName}` (if existing);
+  - The proof size envelope value parsed from `proof_size_{varName}` (if existing);
+  - A proof showing that `actual ≤ soundEnvelope`.
+  - A proof showing that `actual ≤ proofEnvelope`.
+
+  If no soundness envelope is specified, `soundcalc` defaults to the actual value.
+  If no proof envelope is specified, `soundcalc` defaults to the soundness envelope value.
+  Ref:
+  https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L246
+-/
+private def getBoundedEnvelope (circTab: Table)
+                               (varName: String) : IO Bounded := do
+  let circ_actual ← orExit (getNat circTab varName)
+  let circ_sound_envelope ← orExit (getNatD circTab s!"soundness_{varName}" circ_actual)
+  let circ_proof_envelope ← orExit (getNatD circTab s!"proof_size_{varName}" circ_sound_envelope)
+
+  let h_le_sound : PLift (circ_actual ≤ circ_sound_envelope) ←
+  match Nat.decLe circ_actual circ_sound_envelope with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln s!"{varName} exceeds soundness_{varName}"; IO.Process.exit 1
+
+  let h_le_proof : PLift (circ_actual ≤ circ_proof_envelope) ←
+  match Nat.decLe circ_actual circ_proof_envelope with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln s!"{varName} exceeds proof_size_{varName}"; IO.Process.exit 1
+
+  let bounded : Bounded := {
+    actual := circ_actual
+    soundEnvelope := circ_sound_envelope
+    proofEnvelope := circ_proof_envelope
+    h_le_sound := (PLift.down (α := circ_actual ≤ circ_sound_envelope)) h_le_sound
+    h_le_proof := (PLift.down (α := circ_actual ≤ circ_proof_envelope)) h_le_proof
+  }
+
+  pure bounded
+
+/--
+  Return a `BoundedSound` structure (as specified in `Soundcalc/Circuit/SWIRL/Circuit.lean`)
+  for the `varName` field, which contains:
+  - The actual value parsed from `varName`;
+  - The soundness envelope value parsed from `soundness_{varName}` (if existing);
+  - A proof showing that `actual ≤ soundEnvelope`.
+
+  If no soundness envelope is specified, `soundcalc` defaults to the actual value.
+  Ref:
+  https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L246
+-/
+private def getBoundedSoundEnvelope (circTab: Table)
+                                    (varName: String) : IO BoundedSound := do
+  let circ_actual ← orExit (getNat circTab varName)
+  let circ_sound_envelope ← orExit (getNatD circTab s!"soundness_{varName}" circ_actual)
+
+  let h_le_sound : PLift (circ_actual ≤ circ_sound_envelope) ←
+  match Nat.decLe circ_actual circ_sound_envelope with
+  | .isTrue h  => pure (PLift.up h)
+  | .isFalse _ => IO.eprintln s!"{varName} exceeds soundness_{varName}"; IO.Process.exit 1
+
+  let boundedSound : BoundedSound := {
+    actual := circ_actual
+    soundEnvelope := circ_sound_envelope
+    h_le_sound := (PLift.down (α := circ_actual ≤ circ_sound_envelope)) h_le_sound
+  }
+
+  pure boundedSound
+
+/--
   Returns a `SWIRLCfg` from a circuit table `circTab` contained
   in a zkVM table `zkvmTab`, plus a general-config SWIRL table
   `swirlTab`, both parsed from a `.toml` file.
@@ -447,53 +516,22 @@ private def parseSWIRLCfg (circTab : Table)
 
   let circ_name ← orExit (getString circTab "name")
 
-  /- If soundness values are not specified, `soundcalc` defaults
-     to the actual value as the cap of the envelope. -/
-  let circ_num_airs ← orExit (getNat circTab "num_airs")
-  let circ_soundness_num_airs ← orExit (getNatD circTab "soundness_num_airs" circ_num_airs)
+  /- Python supports full `Bounded` envelopes (i.e., `soundness_*` + `proof_size_*`)
+     for all the fields below. -/
+  let circ_num_airs ← getBoundedEnvelope circTab "num_airs"
+  let circ_max_log_trace_height ← getBoundedEnvelope circTab "max_log_trace_height"
+  let circ_num_trace_columns ← getBoundedEnvelope circTab "num_trace_columns"
+  let circ_max_interactions_per_air ← getBoundedEnvelope circTab "max_interactions_per_air"
 
-  let h_num_airs_envelope : PLift (circ_num_airs ≤ circ_max_constraints_per_air) ←
-  match Nat.decLe circ_num_airs circ_soundness_num_airs with
-  | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "num_airs exceeds soundness_num_airs"; IO.Process.exit 1
+  /- Python supports only `BoundedSound` envelopes (i.e., `soundness_*` only)
+     for the field below. -/
+  let circ_max_constraints_per_air ← getBoundedSoundEnvelope circTab "max_constraints_per_air"
 
   /- We also require circ_num_airs ≥ 1. -/
-  let h_airs : PLift (1 ≤ circ_num_airs) ←
-  match Nat.decLe 1 circ_num_airs with
+  let h_airs : PLift (1 ≤ circ_num_airs.actual) ←
+  match Nat.decLe 1 circ_num_airs.actual with
   | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "Condition violated: circ_num_airs < 1"; IO.Process.exit 1
-
-  let circ_max_constraints_per_air ← orExit (getNat circTab "max_constraints_per_air")
-  let circ_soundness_max_constraints_per_air ← orExit (getNatD circTab "soundness_max_constraints_per_air" circ_max_constraints_per_air)
-
-  let h_num_max_constraints_per_air : PLift (circ_max_constraints_per_air ≤ circ_soundness_max_constraints_per_air) ←
-  match Nat.decLe circ_max_constraints_per_air circ_soundness_max_constraints_per_air with
-  | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "max_constraints_per_air exceeds soundness_max_constraints_per_air"; IO.Process.exit 1
-
-  let circ_max_log_trace_height ← orExit (getNat circTab "max_log_trace_height")
-  let circ_soundness_max_log_trace_height ← orExit (getNatD circTab "soundness_max_log_trace_height" circ_max_log_trace_height)
-
-  let h_circ_max_log_trace_height : PLift (circ_max_log_trace_height ≤ circ_soundness_max_log_trace_height) ←
-  match Nat.decLe circ_max_log_trace_height circ_soundness_max_log_trace_height with
-  | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "max_log_trace_height exceeds soundness_max_log_trace_height"; IO.Process.exit 1
-
-  let circ_num_trace_columns ← orExit (getNat circTab "num_trace_columns")
-  let circ_soundness_num_trace_columns ← orExit (getNatD circTab "soundness_num_trace_columns" circ_num_trace_columns)
-
-  let h_circ_num_trace_columns : PLift (circ_num_trace_columns ≤ circ_soundness_num_trace_columns) ←
-  match Nat.decLe circ_num_trace_columns circ_soundness_num_trace_columns with
-  | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "num_trace_columns exceeds soundness_num_trace_columns"; IO.Process.exit 1
-
-  let circ_max_interactions_per_air ← orExit (getNat circTab "max_interactions_per_air")
-  let circ_soundness_max_interactions_per_air ← orExit (getNatD circTab "soundness_max_interactions_per_air" circ_max_interactions_per_air)
-
-  let h_circ_max_interactions_per_air : PLift (circ_max_interactions_per_air ≤ circ_soundness_max_interactions_per_air) ←
-  match Nat.decLe circ_max_interactions_per_air circ_soundness_max_interactions_per_air with
-  | .isTrue h  => pure (PLift.up h)
-  | .isFalse _ => IO.eprintln "max_interactions_per_air exceeds soundness_max_interactions_per_air"; IO.Process.exit 1
+  | .isFalse _ => IO.eprintln "Condition violated: circ_num_airs.actual < 1"; IO.Process.exit 1
 
   let circ_proof_size_num_public_values ← orExit (getNatD circTab "proof_size_num_public_values" 0)
 
@@ -508,15 +546,15 @@ private def parseSWIRLCfg (circTab : Table)
     whir := wcfg
     h_whir_field := PLift.down (α := wcfg.field = zkvm_field) h_wcfg_field
     lSkip := circ_l_skip
-    airs := { actual := circ_num_airs, envelope := circ_soundness_num_airs, h_le := (PLift.down (α := circ_num_airs ≤ circ_soundness_num_airs)) h_num_airs_envelope }
-    constraints := { actual := circ_max_constraints_per_air, envelope := circ_soundness_max_constraints_per_air, h_le := (PLift.down (α := circ_max_constraints_per_air ≤ circ_soundness_max_constraints_per_air)) h_num_max_constraints_per_air}
-    logTraceHeight := { actual := circ_max_log_trace_height, envelope := circ_soundness_max_log_trace_height, h_le := (PLift.down (α := circ_max_log_trace_height ≤ circ_soundness_max_log_trace_height)) h_circ_max_log_trace_height}
-    traceColumns := { actual := circ_num_trace_columns, envelope := circ_soundness_num_trace_columns, h_le := (PLift.down (α := circ_num_trace_columns ≤ circ_soundness_num_trace_columns)) h_circ_num_trace_columns}
-    interactions := { actual := circ_max_interactions_per_air, envelope := circ_soundness_max_interactions_per_air, h_le := (PLift.down (α := circ_max_interactions_per_air ≤ circ_soundness_max_interactions_per_air)) h_circ_max_interactions_per_air}
+    airs := circ_num_airs
+    constraints := circ_max_constraints_per_air
+    logTraceHeight := circ_max_log_trace_height
+    traceColumns := circ_num_trace_columns
+    interactions := circ_max_interactions_per_air
     logup := logupcfg
     explicitM := circ_explicit_m
     numPublicValues := circ_proof_size_num_public_values
-    h_airs := PLift.down (α := 1 ≤ circ_num_airs) h_airs
+    h_airs := PLift.down (α := 1 ≤ circ_num_airs.actual) h_airs
     h_lskip_log := PLift.down (α := circ_l_skip ≤ wcfg.logDegree) h_lskip_log
     h_whir_fold := PLift.down (α := wcfg.numIterations * wcfg.foldingFactors.headD 0 ≤ wcfg.logDegree) h_whir_fold
   }

@@ -25,9 +25,8 @@ whir_ood_rbr, whir]`), the total, and the proof size in KiB. The list-decoding c
 the `sqrtLB`/`sqrtUB` + BCHKS25 estimation (granularity `g = 2^40`); every cell reproduces the
 report.
 
-Each AIR/trace `Bounded` carries the actual (main) value and the soundness/proof-size envelope
-(`soundness_*`, which the `zkvm.py` chain ties `proof_size_*` to). For `hook`/`root` the TOML sets
-no `soundness_*`, so actual = envelope.
+Each AIR/trace `Bounded` carries the actual (main) value and the soundness envelope
+(`soundness_*`). For `hook`/`root` the TOML sets no `soundness_*`, so actual = envelope.
 -/
 
 namespace Soundcalc
@@ -47,9 +46,9 @@ def openvm2App : SWIRLCfg where
   field := babyBear4
   whir := openvm2AppWHIR
   lSkip := 4
-  airs := { actual := 72, envelope := 100 };  logTraceHeight := { actual := 24, envelope := 24 }
-  traceColumns := { actual := 24381, envelope := 30000 }
-  interactions := { actual := 976, envelope := 1000 };  constraints := { actual := 3183, envelope := 5000 }
+  airs := { actual := 72, soundEnvelope := 100 };  logTraceHeight := { actual := 24, soundEnvelope := 24 }
+  traceColumns := { actual := 24381, soundEnvelope := 30000 }
+  interactions := { actual := 976, soundEnvelope := 1000 };  constraints := { actual := 3183, soundEnvelope := 5000 }
   logup := { maxInteractionCount := 2013265921, logMaxMessageLength := 7, powBits := 18 }
   numPublicValues := 20
 
@@ -75,9 +74,9 @@ def openvm2Leaf : SWIRLCfg where
   field := babyBear4
   whir := openvm2LeafWHIR
   lSkip := 4
-  airs := { actual := 42, envelope := 50 };  logTraceHeight := { actual := 21, envelope := 21 }
-  traceColumns := { actual := 1679, envelope := 2000 }
-  interactions := { actual := 78, envelope := 100 };  constraints := { actual := 282, envelope := 1000 }
+  airs := { actual := 42, soundEnvelope := 50 };  logTraceHeight := { actual := 21, soundEnvelope := 21 }
+  traceColumns := { actual := 1679, soundEnvelope := 2000 }
+  interactions := { actual := 78, soundEnvelope := 100 };  constraints := { actual := 282, soundEnvelope := 1000 }
   logup := { maxInteractionCount := 2013265921, logMaxMessageLength := 7, powBits := 18 }
   numPublicValues := 121
 
@@ -101,9 +100,9 @@ def openvm2InternalForLeaf : SWIRLCfg where
   field := babyBear4
   whir := openvm2InternalForLeafWHIR
   lSkip := 2
-  airs := { actual := 42, envelope := 50 };  logTraceHeight := { actual := 19, envelope := 19 }
-  traceColumns := { actual := 1663, envelope := 2000 }
-  interactions := { actual := 78, envelope := 100 };  constraints := { actual := 282, envelope := 1000 }
+  airs := { actual := 42, soundEnvelope := 50 };  logTraceHeight := { actual := 19, soundEnvelope := 19 }
+  traceColumns := { actual := 1663, soundEnvelope := 2000 }
+  interactions := { actual := 78, soundEnvelope := 100 };  constraints := { actual := 282, soundEnvelope := 1000 }
   logup := { maxInteractionCount := 2013265921, logMaxMessageLength := 7, powBits := 19 }
   numPublicValues := 121
   explicitM := some 2
@@ -137,9 +136,9 @@ def openvm2Hook : SWIRLCfg where
   field := babyBear4
   whir := openvm2HookWHIR
   lSkip := 2
-  airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 20, envelope := 20 }
-  traceColumns := { actual := 2000, envelope := 2000 }
-  interactions := { actual := 100, envelope := 100 };  constraints := { actual := 1000, envelope := 1000 }
+  airs := { actual := 50 };  logTraceHeight := { actual := 20 }
+  traceColumns := { actual := 2000 }
+  interactions := { actual := 100 };  constraints := { actual := 1000 }
   logup := { maxInteractionCount := 2013265921, logMaxMessageLength := 7, powBits := 18 }
   numPublicValues := 18
   explicitM := some 1
@@ -163,9 +162,9 @@ def openvm2Root : SWIRLCfg where
   field := babyBear4
   whir := openvm2RootWHIR
   lSkip := 2
-  airs := { actual := 50, envelope := 50 };  logTraceHeight := { actual := 21, envelope := 21 }
-  traceColumns := { actual := 2000, envelope := 2000 }
-  interactions := { actual := 100, envelope := 100 };  constraints := { actual := 1000, envelope := 1000 }
+  airs := { actual := 50 };  logTraceHeight := { actual := 21 }
+  traceColumns := { actual := 2000 }
+  interactions := { actual := 100 };  constraints := { actual := 1000 }
   logup := { maxInteractionCount := 2013265921, logMaxMessageLength := 7, powBits := 18 }
   numPublicValues := 16
   explicitM := some 1

@@ -171,16 +171,16 @@ def SWIRLCfg.zerocheckErr (c : SWIRLCfg) : ℚ :=
 `fused_boundary_degree = max(n_extra, 3) + (2^l−1) + (max_constraints_per_air − 1)`,
 `n_extra = max(max_log_trace_height − l − n_logup, 0)`. -/
 def SWIRLCfg.constraintBatchingErr (c : SWIRLCfg) : ℚ :=
-  let nLogup := swNLogupBound c.lSkip c.airs.envelope c.interactions.envelope c.logTraceHeight.envelope
+  let nLogup := swNLogupBound c.lSkip c.airs.soundEnvelope c.interactions.soundEnvelope c.logTraceHeight.soundEnvelope
                   c.logup.maxInteractionCount
-  let nExtra := (c.logTraceHeight.envelope - c.lSkip) - nLogup      -- max(n_trace − n_logup, 0) in ℕ
-  let fusedBoundary := max nExtra 3 + (2 ^ c.lSkip - 1) + (c.constraints.envelope - 1)
-  let batchSumcheck := 3 * c.airs.envelope - 1
+  let nExtra := (c.logTraceHeight.soundEnvelope - c.lSkip) - nLogup      -- max(n_trace − n_logup, 0) in ℕ
+  let fusedBoundary := max nExtra 3 + (2 ^ c.lSkip - 1) + (c.constraints.soundEnvelope - 1)
+  let batchSumcheck := 3 * c.airs.soundEnvelope - 1
   (max fusedBoundary batchSumcheck : ℚ) * c.initListSize / c.card
 
 /-- `stacked_reduction`: `max(2·num_trace_columns, 2(2^l−1), 2)·ℓ / card`. -/
 def SWIRLCfg.stackedReductionErr (c : SWIRLCfg) : ℚ :=
-  (max (max (2 * c.traceColumns.envelope) (2 * (2 ^ c.lSkip - 1))) 2 : ℚ)
+  (max (max (2 * c.traceColumns.soundEnvelope) (2 * (2 ^ c.lSkip - 1))) 2 : ℚ)
     * c.initListSize / c.card
 
 /-- All SWIRL soundness errors (the report's per-component cells, as errors). The circuit's
@@ -208,4 +208,3 @@ abbrev SWIRLCfg.ExitCriteria (c : SWIRLCfg) (rowBits : List ℕ) (totalBits proo
   c.proofSizeBits / KIB = proofSizeKib
 
 end Soundcalc
-

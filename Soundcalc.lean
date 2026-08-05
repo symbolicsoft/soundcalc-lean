@@ -25,3 +25,7 @@ import Soundcalc.ZkVM.Zisk
 import Soundcalc.Circuit.SWIRL.ComputeError
 import Soundcalc.ZkVM.OpenVM2
 import Soundcalc.ZkVM.ZkDTVM
+import Soundcalc.Monotonicity.Basic
+import Soundcalc.Monotonicity.Regime
+import Soundcalc.Monotonicity.FRI
+import Soundcalc.Monotonicity.WHIR

@@ -1,5 +1,7 @@
 import Soundcalc
 import SoundcalcIO.TomlParser
+import SoundcalcIO.MdRenderer.ZkVM
+import SoundcalcIO.MdRenderer.Common
 import SoundcalcIO.MdRenderer.Circuit
 
 open Soundcalc
@@ -83,69 +85,10 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
   else
     have hne : vm_circuits ≠ [] := by simpa using h
 
-    let vm_firstCirc := vm_circuits.head hne
-    let vm_lastCirc  := vm_circuits.getLast hne
+    let vm_lastCirc := vm.circuits.getLast hne
 
-    let vm_finalProofSize := vm_lastCirc.proofSizeWorst / KIB
-
-    /-
-      We identify the circuit that has the worst overall secBits, following `soundcalc`'s semantics:
-      - If no global regime is found, each circuit contributes to the overall zkVM with its best regime.
-        This yields a "mixed" regime.
-      - If exactly one global regime is found, we output the circuit with the worst security bits for that regime.
-      - If both global regimes are found, we output the circuit with the worst security bits for the best regime.
-      Ref: https://github.com/ethereum/soundcalc/blob/cee252916d6d9f8579c3d41b2eddb946c329d743/soundcalc/report_md.py#L86
-
-      Current support: UDR, JBR, mirroring `soundcalc`.
-      **TODO** Revisit whenever regimes are generalized.
-    -/
-    let vm_globalUDR := vm_circuits.foldl (
-      fun acc c => c.isUDR && acc
-    ) (vm_firstCirc.isUDR)
-
-    let vm_globalJBR := vm_circuits.foldl (
-      fun acc c => c.isJBR && acc
-    ) (vm_firstCirc.isJBR)
-
-    let (worstRegimeCirc, bestRegimeSecBits, bestRegime) := match vm_globalUDR, vm_globalJBR with
-      /- If no global regime is supported, each circuit contributes with its best regime.
-         The final regime is denoted as "mixed".-/
-      | false, false =>
-        let worstCirc := vm_circuits.foldl
-          (fun (worst c: Circuit) =>
-            if max c.totalSecBitsUDR c.totalSecBitsJBR < max worst.totalSecBitsUDR worst.totalSecBitsJBR then c
-            else worst)
-          vm_firstCirc -- first circuit to accumulate over: always exists due to `hne`!
-
-        let bestRegimeSecBits := max (worstCirc.totalSecBitsUDR) (worstCirc.totalSecBitsJBR)
-        (worstCirc, bestRegimeSecBits, "mixed")
-      /- In what's below, at least one global regime is defined. -/
-      | globalUDR, globalJBR =>
-        /- Evaluates the circuit with the worst overall secBits using UDR. -/
-        let worstCircUDR := vm_circuits.foldl
-          (fun (worst c: Circuit) =>
-            if c.totalSecBitsUDR < worst.totalSecBitsUDR then c
-            else worst)
-          vm_firstCirc
-
-        let minSecBitsUDR := worstCircUDR.totalSecBitsUDR
-
-        /- Evaluates the circuit with the worst overall secBits using JBR. -/
-        let worstCircJBR := vm_circuits.foldl
-          (fun (worst c: Circuit) =>
-            if c.totalSecBitsJBR < worst.totalSecBitsJBR then c
-            else worst)
-          vm_firstCirc
-
-        let minSecBitsJBR := worstCircJBR.totalSecBitsJBR
-
-        /- If all the circuits in the zkVM have exactly one shared regime, we pick that.
-         Otherwise, we pick the best among the two. -/
-        if globalUDR && globalJBR then
-          if minSecBitsUDR > minSecBitsJBR then (worstCircUDR, minSecBitsUDR, "UDR")
-          else (worstCircJBR, minSecBitsJBR, "JBR")
-        else if globalUDR then (worstCircUDR, minSecBitsUDR, "UDR")
-        else (worstCircJBR, minSecBitsJBR, "JBR")
+    let vm_finalProofSize := vm.finalProofSizeWorstKiB hne
+    let (worstRegimeCirc, bestRegimeSecBits, bestRegime) := vm.bestSecurityAcrossCircuits hne
 
     /- Parsing helpers. -/
     let minSecBits := bestRegimeSecBits
@@ -259,12 +202,66 @@ private def renderMd (inVM: ZkVM)(outMdFile: String) : IO Unit := do
   let zkVMreport ← renderVMStr inVM
   IO.FS.writeFile outMdFile zkVMreport
 
+/--
+  Renders a list of generic zkVMs `inVMs` into a
+  summary `.md` located at `outReportMdFile`.
+-/
+private def renderSummary (inVMs: List ZkVM) (outReportMdFile: String): IO Unit := do
+  let mut summaryReport :=
+    s!"# 📊 zkVM Soundness Summary\n" ++
+    s!"\n" ++
+    s!"How to read this report:\n" ++
+    s!"- Click on zkVM names to view detailed individual reports\n" ++
+    s!"- Security shows the best bits of security across the reported regimes\n" ++
+    s!"\n" ++
+    s!"## Overview\n" ++
+    s!"\n" ++
+    s!"| zkVM | Version | Security | Expected Proof Size | Worst-Case Proof Size | Proof system | Field | Circuits |\n" ++
+    s!"|------|---------|----------|---------------------|-----------------------|--------------|-------|----------|\n"
+
+  /- Sort zkVMs as per soundcalc (alphabetic order) -/
+  let sortedZkVMs := inVMs.mergeSort (fun a b => a.name.toLower ≤ b.name.toLower)
+
+  for vm in sortedZkVMs do
+    if hne : vm.circuits ≠ [] then
+      let reportName := vm.name.toLower.replace " " "_"
+      let reportFile := s!"{reportName}.md"
+      let versionStr := match vm.version with
+      | some v => v
+      | none   => "—"
+
+      /- soundcalc's _format_security_value is not needed: secBits are only exact naturals! -/
+      let (_, bestRegimeSecBits, bestRegime) := vm.bestSecurityAcrossCircuits hne
+
+      let proofSizeExpStr := s!"{vm.finalProofSizeExpKiB hne} KiB"
+      let proofSizeWorstStr := s!"{vm.finalProofSizeWorstKiB hne} KiB"
+
+      let fieldStr ← orExit (fieldParamsToDisplayname mapFieldParamsToDisplayname vm.field)
+
+      summaryReport := summaryReport ++
+        s!"| [{vm.name}]({reportFile}) " ++
+        s!"| {versionStr} " ++
+        s!"| **{bestRegimeSecBits}** bits ({bestRegime}) " ++
+        s!"| {proofSizeExpStr} " ++
+        s!"| {proofSizeWorstStr} " ++
+        s!"| {vm.proofSystemLabel} | {fieldStr} | {vm.circuits.length} |\n"
+
+  summaryReport := summaryReport ++
+    s!"\n" ++
+    s!"## Notes\n" ++
+    s!"\n" ++
+    s!"- **Security**: Best bits of security across the reported regimes\n" ++
+    s!"- **Proof Size**: Final proof size in KiB (1 KiB = 1024 bytes)\n"
+
+  IO.FS.writeFile outReportMdFile summaryReport
+  IO.println "Successfully produced a zkVM report!"
+
 private def appBanner : String :=
   s!"mdrenderer - a renderer tool that parses a zkEVM configuration in .toml\n" ++
   s!"into a .md report consistent with soundcalc's Python implementation.\n" ++
   s!"\n" ++
   s!"usage: lake exe mdrenderer\n" ++
-  s!"|-> default behaviour: parse all supported zkVMs. \n" ++
+  s!"|-> default behaviour: parse all supported zkVMs, plus a summary report. \n" ++
   s!"|-> supported zkVMs: sp1, airbender, openvm, pico, zisk, venus, openvm2, zkdtvm\n" ++
   s!"\n" ++
   s!"extended usage: lake exe mdrenderer <in-toml-path> <out-md-path>\n" ++
@@ -287,6 +284,7 @@ def main (args: List String): IO Unit := do
   if args.length = 0 then
     let relPath := "./SoundcalcIO/ZkVM"
 
+    let mut vmList : List ZkVM := []
     for vmname in supportedvms do
        let inTomlFile := s!"{relPath}/Ref/{vmname}.toml"
        let outMdFile  := s!"{relPath}/{vmname}.md"
@@ -294,7 +292,9 @@ def main (args: List String): IO Unit := do
        let zkVM ← tomlToZkVM inTomlFile
        renderMd zkVM outMdFile
        IO.println s!"Successfully parsed {inTomlFile} to {outMdFile}!"
+       vmList := vmList ++ [zkVM]
 
+    renderSummary vmList s!"{relPath}/summary.md"
   /- Extended usage: specify and render one specific zkVM. -/
   else if h: args.length = 2 then
     /- The arguments below always exist. -/

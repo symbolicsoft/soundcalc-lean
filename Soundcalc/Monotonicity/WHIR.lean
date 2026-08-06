@@ -4,24 +4,31 @@ import Soundcalc.PCS.WHIR
 /-!
 # Monotonicity — WHIR
 
-* **The signature of WHIR: rate falls / degree shrinks every iteration.**
-  `WHIRConfig.logInvRate_mono` (`μ_i ≤ μ_{i+1}`, so `ρ_0 = 2^{-μ}` only decreases) and
-  `WHIRConfig.logDegree_anti` (`m_{i+1} ≤ m_i`), straight from the `scanl` recurrences. This
-  fixed-domain-shift is exactly what distinguishes WHIR from FRI.
-* **The list-decoding tradeoff.** In the list regime the query agreement can beat unique
-  (`whir_agreement_list_le_unique`, under an honest `m`-condition), but the list size is always
-  larger (`whir_listSize_ge_one`) — so it helps the query cell yet hurts the list-size cells, which
-  is why the total stays config-dependent.
+Two tiers, mirroring `Monotonicity.FRI`:
+
+* **Catalogue** — config-level sensitivity. *Cross-regime* (`WHIRConfig.epsilonQuery_*`: the query
+  cell `(1 - δ_i)^{t_i} / 2^{g_i}` is antitone in the decoding radius — the analog of
+  `FRIConfig.queryErr_*` / `queryBits_mono`) and *WHIR-structural* (`WHIRConfig.logInvRate_mono` /
+  `logDegree_anti`: the rate falls and the degree shrinks every iteration — the fixed-domain-shift
+  signature with no FRI analog, since FRI's rate is constant).
+* **Foundations** — the real-analysis facts behind the list-decoding tradeoff
+  (`whir_agreement_list_le_unique`, `whir_listSize_ge_one`).
+
+WHIR has no record-update *config-field* knob here: its per-round query counts `t_i` are a list,
+not a single field, so the query-count sensitivity stays the shared shape lemma in
+`Monotonicity.Basic` (`queryShape_antitone_numQueries` with `θ = δ_i`) rather than a `{c with … }`
+theorem.
 -/
 
 namespace Soundcalc
 
-/-! ## Decoding radius buys query bits (mirrors `FRIConfig.queryErr_*` / `queryBits_mono`)
+/-! # Catalogue — configuration sensitivity -/
+
+/-! ## Cross-regime: a larger decoding radius buys query bits (mirrors `FRIConfig.queryErr_*`)
 
 WHIR's per-iteration query error `epsilonQuery R i = (1 - δ_i)^{t_i} / 2^{g_i}` has the *same*
 `(1 - θ)^t / 2^g` shape as FRI's `queryErr`, so it gets the same monotonicity from the shared
-`Monotonicity.Basic` lemmas. The query-count monotonicity is likewise shared
-(`queryShape_antitone_numQueries` / `secBits_queryShape_mono_numQueries` with `θ = δ_i`). -/
+`Monotonicity.Basic` lemmas. -/
 
 /-- WHIR's query error is **antitone in the decoding radius** `δ_i` — the analog of
 `FRIConfig.queryErr_antitone_radius`. -/
@@ -39,7 +46,27 @@ theorem WHIRConfig.epsilonQuery_bits_mono (c : WHIRConfig) (R R' : Regime) (i : 
   unfold WHIRConfig.epsilonQuery
   exact secBits_queryShape_mono_radius hle h1 _ _
 
-/-! ## The list-decoding tradeoff -/
+/-! ## WHIR-structural: the rate falls and the degree shrinks each iteration
+
+No FRI analog — FRI's rate is constant across rounds; WHIR shifts to a fixed domain each iteration. -/
+
+/-- **WHIR rate falls every iteration**: `μ_i ≤ μ_{i+1}` (`μ_{i+1} = μ_i + (k_i − 1)`, `k_i ≥ 1`).
+So the initial rate `ρ_0 = 2^{-μ_0}` only ever decreases — the fixed-domain-shift signature that
+distinguishes WHIR from FRI. -/
+theorem WHIRConfig.logInvRate_mono (c : WHIRConfig) {i : ℕ} (hi : i < c.numIterations) :
+    c.mui i ≤ c.mui (i + 1) := by
+  refine scanl_step_le _ (fun x a => by omega) _ _ i ?_
+  rw [c.h_foldingFactors_len]; exact hi
+
+/-- **WHIR degree shrinks every iteration**: `m_{i+1} ≤ m_i` (`m_{i+1} = m_i − k_i`). -/
+theorem WHIRConfig.logDegree_anti (c : WHIRConfig) {i : ℕ} (hi : i < c.numIterations) :
+    c.mi (i + 1) ≤ c.mi i := by
+  refine scanl_step_ge _ (fun x a => by omega) _ _ i ?_
+  rw [c.h_foldingFactors_len]; exact hi
+
+/-! # Foundations (proof toolkit)
+
+## The list-decoding tradeoff — the real-analysis facts behind the JBR/list regime -/
 
 /-- **WHIR agreement gem.** The list-regime agreement `√ρ·(1 + 1/2m)` is ≤ the unique agreement
 `(1+ρ)/2` — cleared of the denominator, `√ρ·(2m+1) ≤ m·(1+ρ)` — **exactly when**
@@ -66,21 +93,5 @@ theorem whir_listSize_ge_one {ρ : ℝ} (h1 : ρ ≤ 1) {m : ℝ} (hm : 1 ≤ m)
     calc Real.sqrt ρ ≤ Real.sqrt 1 := Real.sqrt_le_sqrt h1
       _ = 1 := Real.sqrt_one
   linarith
-
-/-! ## WHIR's signature: the rate falls and the degree shrinks each iteration -/
-
-/-- **WHIR rate falls every iteration**: `μ_i ≤ μ_{i+1}` (`μ_{i+1} = μ_i + (k_i − 1)`, `k_i ≥ 1`).
-So the initial rate `ρ_0 = 2^{-μ_0}` only ever decreases — the fixed-domain-shift signature that
-distinguishes WHIR from FRI. -/
-theorem WHIRConfig.logInvRate_mono (c : WHIRConfig) {i : ℕ} (hi : i < c.numIterations) :
-    c.mui i ≤ c.mui (i + 1) := by
-  refine scanl_step_le _ (fun x a => by omega) _ _ i ?_
-  rw [c.h_foldingFactors_len]; exact hi
-
-/-- **WHIR degree shrinks every iteration**: `m_{i+1} ≤ m_i` (`m_{i+1} = m_i − k_i`). -/
-theorem WHIRConfig.logDegree_anti (c : WHIRConfig) {i : ℕ} (hi : i < c.numIterations) :
-    c.mi (i + 1) ≤ c.mi i := by
-  refine scanl_step_ge _ (fun x a => by omega) _ _ i ?_
-  rw [c.h_foldingFactors_len]; exact hi
 
 end Soundcalc

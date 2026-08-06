@@ -8,6 +8,10 @@ import Soundcalc.Regime
   radius `(1-ρ)/2` (a corollary of `two_sqrt_le`). This is *why* JBR helps the query cell.
 * `one_div_card_le_errLinear` / `secBits_errLinear_le_field` — the linear (Schwartz–Zippel) error is
   `≥ 1/|F|`, so the field ceiling actually bites on the algebraic cells.
+* `UDR_errLinear_mono_dim` — the linear error is monotone in the instance dimension.
+
+These are **foundations** (regime/field-level mechanisms), not config-field catalogue entries; the
+FRI/WHIR catalogues lift `UDR_errLinear_mono_dim` (via `errPowers`) and the field ceiling.
 -/
 
 namespace Soundcalc

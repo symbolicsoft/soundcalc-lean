@@ -4,14 +4,18 @@ import Soundcalc.PCS.FRI
 /-!
 # Monotonicity — FRI
 
-* **Radius → query bits.** `queryErr` is antitone in the decoding radius `θLB`, so (via
-  `secBits_anti`) a larger radius never gives fewer query bits (`queryBits_mono`). With `johnson_beats_unique`
-  this is "JBR ≥ UDR on the query cell."
-* **Queries → security and proof size (no free lunch).** More queries never reduce query-cell
-  security (`secBits_query_mono_numQueries`) but also always enlarge the (worst-case) proof
-  (`getFRIProofSizeBits_mono_numQueries`).
-* **Folding-leaf cost.** A bigger folding factor makes each Merkle opening larger
-  (`getSizeOfMerkleProofBits_mono_tupleSize`).
+Organised in two tiers:
+
+* **Catalogue** (bottom of file) — the user-facing theorems, each in *configuration-knob* shape:
+  fix a `FRIConfig`, move **one** field via a record update, and compare a single cell (soundness
+  error, security bits, or proof size). These are the rows of the sensitivity catalog. The
+  record-update-safe knobs are `numQueries` and `batchSize`; `denseLen`, `ρ` and `foldingFactors`
+  are pinned together by the config's `h_earlyStop` invariant, so they cannot be moved by `{c with …}`
+  (their sensitivity is studied at the regime / `errPowers` level instead — see the foundations, and
+  the follow-up rows).
+* **Foundations** — the bare-parameter mechanisms the catalogue is built from: the query-cell shape,
+  the Merkle proof-size atoms, the proof-size `foldl` monotonicity, and the folding-product /
+  dimension lemmas. Not part of the catalogue; they are the proof toolkit.
 
 Proof-size results are for the worst case (`expected = false`); the `expected = true` amortized
 hash count has a much harder monotonicity and is left.
@@ -19,31 +23,12 @@ hash count has a much harder monotonicity and is left.
 
 namespace Soundcalc
 
-/-! ## Decoding radius buys query bits (mirrors `WHIRConfig.epsilonQuery_*`)
+/-! # Foundations (proof toolkit)
 
-The query-count monotonicity is proof-system-agnostic and lives in `Monotonicity.Basic`
-(`queryShape_antitone_numQueries` / `secBits_queryShape_mono_numQueries`); apply it with
-`θ = θLB c.ρ c.denseLen`, `g = c.grindQuery`. -/
-
-/-- The FRI query error `(1 - θLB)^t / 2^g` is **antitone in the decoding radius** `θLB`: a regime
-`R'` whose lower-bound radius is at least `R`'s (on this config) has query error no larger. -/
-theorem FRIConfig.queryErr_antitone_radius (c : FRIConfig) (R R' : Regime)
-    (hle : R.θLB c.ρ c.denseLen ≤ R'.θLB c.ρ c.denseLen)
-    (h1 : R'.θLB c.ρ c.denseLen ≤ 1) :
-    c.queryErr R' ≤ c.queryErr R := by
-  unfold FRIConfig.queryErr
-  exact queryShape_antitone_radius hle h1 _ _
-
-/-- On the **query cell**, a larger decoding radius never gives fewer security bits: if `R'` has
-`θLB ≥ R`'s (and `< 1`, so the error is positive), then `secBits (queryErr R) ≤ secBits
-(queryErr R')`. With `R = UDR`, `R' = JBR` this is "JBR ≥ UDR on the query cell" — and
-`johnson_beats_unique` is why JBR's radius clears UDR's (for a small-enough gap). -/
-theorem FRIConfig.queryBits_mono (c : FRIConfig) (R R' : Regime)
-    (hle : R.θLB c.ρ c.denseLen ≤ R'.θLB c.ρ c.denseLen)
-    (h1 : R'.θLB c.ρ c.denseLen < 1) :
-    secBits (c.queryErr R) ≤ secBits (c.queryErr R') := by
-  unfold FRIConfig.queryErr
-  exact secBits_queryShape_mono_radius hle h1 _ _
+Bare-parameter mechanisms — not part of the user catalogue. The configuration-knob theorems at the
+bottom of the file are thin lifts of these. The query-count shape lemmas themselves live in
+`Monotonicity.Basic` (`queryShape_antitone_numQueries` / `secBits_queryShape_mono_numQueries`),
+applied here with `θ = θLB c.ρ c.denseLen`, `g = c.grindQuery`. -/
 
 /-! ## Proof size: folding leaves and queries both cost more (worst case) -/
 
@@ -179,5 +164,84 @@ theorem friDimension_antitone (denseLen : ℕ) {folds : List ℕ} (hpos : ∀ k 
   apply Nat.div_le_div_left (friAcc_mono hpos i)
   simp only [← List.prod_eq_foldl]
   exact List.prod_pos fun x hx => by have := hpos x (List.mem_of_mem_take hx); omega
+
+/-! # Catalogue — configuration sensitivity
+
+Config-level theorems a user reads directly. Two groups: **cross-regime** (how the query cell moves
+when the *decoding regime* changes — the JBR-vs-UDR question) and **configuration knobs** (how a cell
+moves when one *config field* changes). -/
+
+/-! ## Cross-regime: a larger decoding radius buys query bits (mirrors `WHIRConfig.epsilonQuery_*`) -/
+
+/-- The FRI query error `(1 - θLB)^t / 2^g` is **antitone in the decoding radius** `θLB`: a regime
+`R'` whose lower-bound radius is at least `R`'s (on this config) has query error no larger. -/
+theorem FRIConfig.queryErr_antitone_radius (c : FRIConfig) (R R' : Regime)
+    (hle : R.θLB c.ρ c.denseLen ≤ R'.θLB c.ρ c.denseLen)
+    (h1 : R'.θLB c.ρ c.denseLen ≤ 1) :
+    c.queryErr R' ≤ c.queryErr R := by
+  unfold FRIConfig.queryErr
+  exact queryShape_antitone_radius hle h1 _ _
+
+/-- On the **query cell**, a larger decoding radius never gives fewer security bits: if `R'` has
+`θLB ≥ R`'s (and `< 1`, so the error is positive), then `secBits (queryErr R) ≤ secBits
+(queryErr R')`. With `R = UDR`, `R' = JBR` this is "JBR ≥ UDR on the query cell" — and
+`johnson_beats_unique` is why JBR's radius clears UDR's (for a small-enough gap). -/
+theorem FRIConfig.queryBits_mono (c : FRIConfig) (R R' : Regime)
+    (hle : R.θLB c.ρ c.denseLen ≤ R'.θLB c.ρ c.denseLen)
+    (h1 : R'.θLB c.ρ c.denseLen < 1) :
+    secBits (c.queryErr R) ≤ secBits (c.queryErr R') := by
+  unfold FRIConfig.queryErr
+  exact secBits_queryShape_mono_radius hle h1 _ _
+
+/-! ## Configuration knobs
+
+Each theorem fixes a `FRIConfig`, moves exactly one field (via `{c with … }`), and compares one
+cell. The two record-update-safe knobs are `numQueries` and `batchSize`. Soundness cells are stated
+at the `UDR` regime, matching the sensitivity catalog's UDR instantiation. Together the `numQueries`
+trio (error ↓, security ↑, size ↑) and the `batchSize` pair (error ↑, size ↑) are the "no free
+lunch" story at the config level. -/
+
+/-- **Query knob → soundness (↓).** More queries never *raise* the query-cell error. -/
+theorem FRIConfig.queryErr_antitone_numQueries (c : FRIConfig) (R : Regime) {q : ℕ}
+    (h : c.numQueries ≤ q)
+    (h0 : 0 ≤ R.θLB c.ρ c.denseLen) (h1 : R.θLB c.ρ c.denseLen ≤ 1) :
+    ({c with numQueries := q}).queryErr R ≤ c.queryErr R := by
+  unfold FRIConfig.queryErr
+  exact queryShape_antitone_numQueries h0 h1 h c.grindQuery
+
+/-- **Query knob → security (↑).** More queries never *lower* the query-cell security bits — the
+benefit side of the no-free-lunch pair with `proofSizeWorst_mono_numQueries`. -/
+theorem FRIConfig.queryBits_mono_numQueries (c : FRIConfig) (R : Regime) {q : ℕ}
+    (h : c.numQueries ≤ q)
+    (h0 : 0 ≤ R.θLB c.ρ c.denseLen) (h1 : R.θLB c.ρ c.denseLen < 1) :
+    secBits (c.queryErr R) ≤ secBits (({c with numQueries := q}).queryErr R) := by
+  unfold FRIConfig.queryErr
+  exact secBits_queryShape_mono_numQueries h0 h1 h c.grindQuery
+
+/-- **Query knob → proof size (↑).** More queries never *shrink* the (worst-case) proof — the cost
+side of the no-free-lunch pair. -/
+theorem FRIConfig.proofSizeWorst_mono_numQueries (c : FRIConfig) {q : ℕ}
+    (h : c.numQueries ≤ q) :
+    c.proofSizeWorst ≤ ({c with numQueries := q}).proofSizeWorst := by
+  simp only [FRIConfig.proofSizeWorst]
+  exact getFRIProofSizeBits_mono_numQueries _ _ _ _ _ _ h
+
+/-- **Batch knob → soundness (↑).** Batching more polynomials (the `power_batching` path) never
+*lowers* the batching-cell error. -/
+theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) (hp : c.powerBatch = true) {b : ℕ}
+    (h : c.batchSize ≤ b) :
+    c.batchingErr (UDR c.field) ≤ ({c with batchSize := b}).batchingErr (UDR c.field) := by
+  dsimp only [FRIConfig.batchingErr]
+  rw [if_pos hp, if_pos hp]
+  gcongr
+  exact UDR_errPowers_mono_batch c.field c.ρ c.denseLen h
+
+/-- **Batch knob → proof size (↑).** The batched polynomials all ride the initial Merkle
+multi-proof, so batching more of them never *shrinks* the proof. -/
+theorem FRIConfig.proofSizeWorst_mono_batchSize (c : FRIConfig) {b : ℕ}
+    (h : c.batchSize ≤ b) :
+    c.proofSizeWorst ≤ ({c with batchSize := b}).proofSizeWorst := by
+  simp only [FRIConfig.proofSizeWorst]
+  exact getFRIProofSizeBits_mono_batchSize _ _ _ _ _ _ h
 
 end Soundcalc

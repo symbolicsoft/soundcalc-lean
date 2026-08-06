@@ -55,6 +55,7 @@ def Circuit.proofSizeExp : Circuit → ℕ
 /-
   - Jagged circuits are always (and only) UDR.
   - DeepAli circuits support both UDR and JBR, unless the `explicitRegime` field is specified.
+  |-> Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/deep_ali.py#L61
   - SWIRL circuits are either UDR or JBR, according to the `explicitM` field.
 -/
 def Circuit.isUDR : Circuit → Bool

@@ -171,7 +171,7 @@ theorem secBits_anti {a b : ℚ} (ha : 0 < a) (hab : a ≤ b) :
     gives the fewest bits, the min over rounds. Pure order theory.
     Since `secBits` is antitone, the smaller error `min a b` yields the larger
     bit-count `max (secBits a) (secBits b)`. -/
-  theorem secBits_min' {a b : ℚ} (ha : 0 < a) (hb : 0 < b) :
+theorem secBits_min' {a b : ℚ} (ha : 0 < a) (hb : 0 < b) :
     secBits (min a b) = max (secBits a) (secBits b) := by
   -- Split on which of a, b is smaller; in each branch `min`/`max` collapse and
   -- `secBits_anti` supplies the inequality that picks the right `max` side.
@@ -182,9 +182,8 @@ theorem secBits_anti {a b : ℚ} (ha : 0 < a) (hab : a ≤ b) :
 
 /-- **Completeness direction** (the converse of `le_secBits_if`): if `ε ≤ 2^(-k)`
 then `secBits` reports at least `k` bits. Same skeleton, run backwards — and note
-it does NOT need `ε ≤ 1`. (Docstring: grinding is exactly additive in bits,
-matching `apply_grinding`.) -/
-    theorem secBits_ge (ε : ℚ) (hε : 0 < ε) (k : ℕ) :
+it does NOT need `ε ≤ 1`. -/
+theorem secBits_ge (ε : ℚ) (hε : 0 < ε) (k : ℕ) :
     ε ≤ 1 / 2 ^ k → k ≤ secBits ε := by
   intro hk
   -- positivity bookkeeping (as before)

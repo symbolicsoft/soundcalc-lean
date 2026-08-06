@@ -24,14 +24,15 @@ correction — do not simplify to `|F|`.
 
 /-- Parameters for a DEEP-ALI circuit instance (`circuits/deep_ali.py: DeepAliConfig`). -/
 structure DeepAliCfg where
-  name           : String
-  field          : FieldParams
-  densePCS       : PCS
-  numConstraints : N    -- C = 928
-  airMaxDegree   : N    -- deg = 2
-  maxCombo       : N    -- m_max = 2 (max column entries in one constraint)
-  grindDeep      : N    -- = 12
-  gapToRadius      : Option ℚ       := none -- gapToRadius is defined at circuit level
+  name             : String
+  field            : FieldParams
+  densePCS         : PCS
+  numConstraints   : N    -- C = 928
+  airMaxDegree     : N    -- deg = 2
+  maxCombo         : N    -- m_max = 2 (max column entries in one constraint)
+  grindDeep        : N    -- = 12
+  gapToRadius      : Option ℚ               := none -- gapToRadius is defined at circuit level
+  explicitRegime   : Option SupportedRegime := none
   lookups          : List LookupCfg := []
   /- The theorems below enforce coherency between fields
      included in different data structures. -/
@@ -68,7 +69,7 @@ abbrev DeepAliCfg.multiPointOk (c : DeepAliCfg) (R : Regime) : Prop :=
 
 /--
   Enumerates all the soundness errors of a DeepAli circuit for regime `R`:
-  Batching, one commit cell per fold, query, ALI, DEEP, 4 lookups (regime-independent).
+  All the errors stemming from the PCS; ALI, DEEP; lookups (regime-independent).
 -/
 def DeepAliCfg.listErrs (c: DeepAliCfg)(R: Regime) : List ℚ := do
   let mut l : List ℚ := []
@@ -79,14 +80,16 @@ def DeepAliCfg.listErrs (c: DeepAliCfg)(R: Regime) : List ℚ := do
     l := l ++ [lcfg.errUB]
   l
 
-/-- Worst-case (maximum) error across all Airbender cells on regime R.
-    `secBits (airbenderTotalErr R) = ((airbenderRounds R).map secBits).minimum` by `secBits_min'`. -/
+/--
+  Total soundness error of a DeepAli circuit for regime `R`:.
+  Computed as the maximum of all the soundness errors.
+-/
 def DeepAliCfg.totalErr (c: DeepAliCfg)(R: Regime) : ℚ :=
   (listErrs c R).foldr max 0
 
 /-! ## Full DEEP-ALI proof size -/
 
-private def getDeepAliProofSizes (c: DeepAliCfg) (expected: Bool) : ℕ :=
+private def getDeepAliProofSize (c: DeepAliCfg) (expected: Bool) : ℕ :=
   let proofSizePCS :=
     if expected then c.densePCS.proofSizeExp
     else c.densePCS.proofSizeWorst
@@ -94,10 +97,10 @@ private def getDeepAliProofSizes (c: DeepAliCfg) (expected: Bool) : ℕ :=
   proofSizePCS
 
 def DeepAliCfg.proofSizeExp (c: DeepAliCfg) : ℕ :=
-  getDeepAliProofSizes c true
+  getDeepAliProofSize c true
 
 def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
-  getDeepAliProofSizes c false
+  getDeepAliProofSize c false
 
 /-! ## Exit criteria (bundled) -/
 

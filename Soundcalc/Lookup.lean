@@ -9,13 +9,6 @@ import Soundcalc.Common.Log
 * `log2UB` and its certified enclosure theorems live in `Soundcalc.Common.Log`.
 -/
 
-/-
-* *TODO*: The current formalization only captures the multivariate setting, as SP1
-  only considers lookup errors of this type. While the structure now supports
-  the univariate setting, a complete formalization comes later in the roadmap.
-  Explicit TODO markers have been added throughout this file for this purpose.
--/
-
 namespace Soundcalc
 
 structure LookupCfg where
@@ -43,7 +36,7 @@ structure LookupCfg where
     Logarithms are upper-bounded as per `log2UB`, ensuring a bounded
     and verifiable over-approximation of the error.
 -/
-def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
+private def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   let n := log2UB alphabetSize 64
   let m := log2UB numLookupsM 64
   let nm := n + m
@@ -53,7 +46,7 @@ def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
 
     - Multivariate (`multilinear = true`):  `R = max(⌈log₂ S⌉, 1)` (SP1 path).
     - Univariate   (`multilinear = false`): `R = S`                 (Airbender logup path). -/
-def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
+private def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
   if multilinear then max (log2UB S 64) 1 else (S : ℚ)
 
 def LookupCfg.errUB (c : LookupCfg) : ℚ :=

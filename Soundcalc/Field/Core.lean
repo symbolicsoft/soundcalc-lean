@@ -10,7 +10,7 @@ extension (e.g. KoalaBear's degree-4 and degree-5 extensions share one `koalaBea
 * `FieldParams` — a `PrimeField` `base` together with an extension degree `e ≥ 1`, i.e. `𝔽_{p^e}`.
 
 The accessors `FieldParams.p`/`.twoAdicity`/`.prime`/`.card`/`.elementSizeBits` read straight
-through the base, so consumers use a `FieldParams` exactly as before.
+through the base, so consumers use `FieldParams` transparently.
 
 * `prime` — a kernel-checked primality proof (`by norm_num` for the 31-bit presets; a
   `lucas_primality` Pratt certificate for Goldilocks — see `Soundcalc/Field/Goldilocks.lean`).

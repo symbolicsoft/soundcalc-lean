@@ -63,8 +63,6 @@ def FRIConfig.queryErr (c : FRIConfig) (R : Regime) : Q :=
 /--
   Domain size, after low-degree extension
 
-  **TODO**: formal semantic refinement later.
-
   `.toNat` is justified, as the input to `round`
   is always nonnegative, given that:
   - `c.denseLen` is a `Nat`;
@@ -78,11 +76,6 @@ def FRIConfig.D (c: FRIConfig) : ℕ :=
 /--
   Log of the dense length, computed in the Python `soundcalc` as:
   `int(round(log2(trace_length)))`
-  Note: as remarked in `ZkVM/SP1.lean`, the Python `soundcalc` refers
-  to `trace_length` as the *dense* trace length! (our `denseLen`).
-  This is confirmed by the renderer.
-
-  **TODO**: semantic refinement later.
 
   `.toNat` is justified, as `log2UB` is always
   a natural number for relevant configs, given that:
@@ -93,11 +86,6 @@ def FRIConfig.h (c: FRIConfig) : N :=
 
 /--
   Number of folding rounds.
-  **TODO**: semantic refinement later.
-  Python's runtime assert is currently
-  modelled as a per-configuration theorem
-  `FRIConfig.earlyStop_ok`.
-  (e.g., in SP1 core of `ZkVM/SP1.Lean`)
 -/
 def FRIConfig.rounds (c: FRIConfig) : N :=
   c.foldingFactors.length
@@ -124,7 +112,7 @@ def FRIConfig.listErrs (c: FRIConfig) (R: Regime) : List ℚ := do
       leaf so `tupleSize = foldingFactor` and `numLeafs = n / foldingFactor`.
     * Final round: the low-degree polynomial sent in the clear
       (`rate * n_final * fieldSizeBits` bits). -/
-def getFRIProofSizeBits (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
+private def getFRIProofSizeBits (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
     (foldingFactors : List N) (rate : Q) (expected : Bool) : N :=
   let initBits :=
     hashSizeBits +

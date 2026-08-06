@@ -28,7 +28,7 @@ def JaggedCfg.renderCircParams (c: JaggedCfg) : IO String := do
   let floatRateStr := floatToFloatstr floatRate
 
   /- Currently-supported PCS: FRI
-    **FEAT TODO** Extend soundcalc to decouple Jagged+FRI. -/
+    **SOUNDCALC TODO** Extend soundcalc to decouple Jagged+FRI. -/
   match c.densePCS with
   | .fri fcfg =>
     /- Conditional strings -/
@@ -78,7 +78,7 @@ def JaggedCfg.getSecurityLevels (c: JaggedCfg) : IO (List (String × Nat)) := do
     l := l ++ [(lookup.name, (secBits lookup.errUB))]
 
   /- Currently-supported PCS: FRI
-    **FEAT TODO** Extend soundcalc to decouple Jagged+FRI. -/
+    **SOUNDCALC TODO** Extend soundcalc to decouple Jagged+FRI. -/
   match c.densePCS with
   | .fri fcfg =>
   /- FRIConfig secBits: batching, commit round {i}, query phase -/

@@ -109,7 +109,7 @@ private def getJaggedReductionSizeBits (traceLen batchSize fieldBits : N) : N :=
 `getJaggedProofSizeBits` = `proofSizePCS` + `getJaggedReductionSizeBits`.
 
 This matches `JaggedPCS.get_proof_size_bits` / `get_expected_proof_size_bits` in the
-soundcalc Python, which is what the SP1 report numbers are computed from.
+soundcalc Python, which is what Jagged-based zkVMs report numbers are computed from.
 
 Note: lookups are *not* included in the soundcalc proof-size estimate (they appear only in
 the security-level table); `getJaggedProofSizeBits` therefore matches the report exactly

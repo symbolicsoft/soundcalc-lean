@@ -17,6 +17,14 @@ proof `0 < ρ < 1` — and using it as the domain of every field.  The constrain
 therefore part of the type, not a side-condition on each call.
 -/
 
+/--
+  Enumeration of supported regimes.
+  **FEAT TODO** After regimes are appropriately generalized, bind to actual regimes.
+-/
+inductive SupportedRegime where
+  | UDR
+  | JBR
+
 /-- A code rate restricted to the open unit interval `(0, 1)`.
     Both bounds are strict:
     * `0 < ρ` ensures the denominator in `d / ρ` is nonzero.
@@ -47,7 +55,8 @@ rational number representing an error probability or list size.
 
 | field             | meaning                                                            |
 |-------------------|--------------------------------------------------------------------|
-| `θ`               | relative-distance threshold used by the decoder                    |
+| `θLB`             | relative-distance threshold used by the decoder (lower bound)      |
+| `θUB`             | relative-distance threshold used by the decoder (upper bound)      |
 | `listSize`        | worst-case number of codewords output by the decoder               |
 | `errLinear`       | soundness error for a single linear check                          |
 | `errPowers`       | soundness error for a batch of power checks                        |
@@ -102,9 +111,9 @@ def UDR (F : FieldParams) : Regime where
 ## Johnson Bound Regime (JBR)
 
 Conservative rational envelope for the MCA error of BCHKS25 Theorem 4.2.
-Parametrised by the rational gap `η` and the A1 granularity `g`; every `√ρ`
-appearance is replaced by `sqrtLB` or `sqrtUB` in whichever direction keeps the
-result an upper bound.
+Parametrised by sqrt granularity `g`; every `√ρ` appearance is replaced
+by `sqrtLB` or `sqrtUB` in whichever direction keeps the result an upper
+bound, and the `η` JBR gap is derived as below.
 -/
 
 /-- BCHKS25's JBR gap (`soundcalc/proxgaps/johnson_bound.py`'s `get_proximity_parameter`

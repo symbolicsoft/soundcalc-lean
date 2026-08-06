@@ -34,7 +34,8 @@ def Circuit.secParamsUDR : Circuit → IO (List (String × Nat))
   Returns a [header, secbits] list containing all the JBR security bits of a generic Circuit.
 -/
 def Circuit.secParamsJBR : Circuit → IO (List (String × Nat))
-  | .jagged _  => pure []             -- unsupported; *TODO* ìmprove representation.
+  | .jagged _  => pure []             -- unsupported; **FEAT TODO** ìmprove representation,
+                                      -- in line with refactoring of regimes.
   | .deepali c => c.getSecurityLevels (JBR c.field (2^40) c.gapToRadius)
   | .swirl c   => c.getSecurityLevels -- regimes are internally handled by `explicit_m`
 

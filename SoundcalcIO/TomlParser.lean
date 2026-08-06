@@ -31,12 +31,28 @@ private def getOptString (tbl : Table) (key : String) : Except String (Option St
   | some _              => .error s!"key '{key}' exists but is not a string"
   | none                => .ok none
 
+/--
+  Returns an encoding of the LogUp string indexed by `key` if it exists in `tbl`.
+  If a value is indexed by `key` but it is not a LogUp string or it does not exist, return an error.
+-/
 private def getLogUpBoolFromStr (tbl : Table) (key : String) : Except String Bool :=
   let s := getString tbl key
   match s with
   | .ok "univariate"   => .ok false
   | .ok "multivariate" => .ok true
   | _ => .error s!"key '{key}' is an invalid LogUp string."
+
+/--
+  Returns an encoding of the supported regime variable indexed by `key` if it exists in `tbl`.
+  If a value is indexed by `key` but it is not a valid regime string, return an error.
+-/
+private def getOptRegime (tbl : Table) (key : String) : Except String (Option SupportedRegime) :=
+  let s := getOptString tbl key
+  match s with
+  | .ok "unique" => .ok (SupportedRegime.UDR)
+  | .ok "list"   => .ok (SupportedRegime.JBR)
+  | .ok none     => .ok none
+  | _ => .error s!"key '{key}' is an invalid supported regime string."
 
 private def getNat (tbl : Table) (key : String) : Except String Nat :=
   match tbl.find? (.mkSimple key) with
@@ -469,7 +485,7 @@ private def getBoundedSoundEnvelope (circTab: Table)
   well-formedness checks).
   Ref:
   https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/swirl/circuit.py#L21
-  **FEAT TODO**: generalize SWIRL to support arbitrary PCS schemes.
+  **SOUNDCALC TODO**: generalize SWIRL to support arbitrary PCS schemes.
 
   Raises an error if any core fields are missing.
 -/
@@ -714,6 +730,8 @@ private def parseDeepAliCfg (circTab : Table)
   let circ_gap_to_radius_cond ← orExit (getOptFloat circTab "gap_to_radius")
   let circ_gap_to_radius ← orExit (gapToRadiusRat circ_gap_to_radius_cond)
 
+  let circ_explicit_regime ← orExit (getOptRegime circTab "explicit_regime")
+
   let dacfg: DeepAliCfg := {
     name              := circ_name
     field             := zkvm_field
@@ -726,6 +744,7 @@ private def parseDeepAliCfg (circTab : Table)
     h_densePCS_field  := PLift.down (α := PCSconfig.field = zkvm_field) h_densePCS_field
     h_lookups_field   := PLift.down (α := lookupList.all (·.field == zkvm_field) = true) h_lookups_lifted
     gapToRadius       := circ_gap_to_radius
+    explicitRegime    := circ_explicit_regime
   }
 
   pure dacfg
@@ -779,7 +798,7 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
       whereas SWIRL circuits are ALWAYS bundled with WHIR.
       Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L89
 
-      **FEAT TODO** Allow for switching of PCS schemes.
+      **SOUNDCALC TODO** Allow for switching of PCS schemes.
       |-> Possible solution: add a PCS field explicitly within .toml files.
       -/
       let circuit ← match circ_protocol_family with

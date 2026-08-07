@@ -142,13 +142,24 @@ theorem secBits_grinded_le_field {alg : ℚ} {card g : ℕ} (hcard : 0 < card)
   rw [secBits_grind halgpos hhi g]
   exact Nat.add_le_add_right (secBits_le_field hcard hlo) g
 
+/-! ## Division monotonicity (shared finishing steps for the cell lemmas) -/
+
+/-- **Same denominator, monotone in the numerator.** -/
+theorem div_le_div_same {a b c : ℚ} (h : a ≤ b) (hc : 0 < c) : a / c ≤ b / c := by
+  rw [div_le_div_iff₀ hc hc]
+  exact mul_le_mul_of_nonneg_right h hc.le
+
+/-- **Same numerator, antitone in the denominator:** a bigger positive denominator shrinks a
+nonnegative cell. -/
+theorem div_le_div_denom {a b c : ℚ} (ha : 0 ≤ a) (hb : 0 < b) (hbc : b ≤ c) : a / c ≤ a / b := by
+  rw [div_le_div_iff₀ (lt_of_lt_of_le hb hbc) hb]
+  exact mul_le_mul_of_nonneg_left hbc ha
+
 /-- **Grinding is antitone.** Dividing a nonnegative error by more PoW bits never increases it — the
 shared `grind ↓` mechanism behind every grinded cell (`queryErr`, `batchingErr`, `commitErr`,
-`deepErr`, `errUB`). -/
+`deepErr`, `errUB`). A special case of `div_le_div_denom` with `b = 2^g`, `c = 2^g'`. -/
 theorem div_pow_two_antitone {a : ℚ} (ha : 0 ≤ a) {g g' : ℕ} (h : g ≤ g') :
-    a / 2 ^ g' ≤ a / 2 ^ g := by
-  have hg : (2 : ℚ) ^ g ≤ 2 ^ g' := by gcongr; norm_num
-  rw [div_le_div_iff₀ (by positivity) (by positivity)]
-  exact mul_le_mul_of_nonneg_left hg ha
+    a / 2 ^ g' ≤ a / 2 ^ g :=
+  div_le_div_denom ha (by positivity) (by gcongr; norm_num)
 
 end Soundcalc

@@ -16,11 +16,20 @@ FRI/WHIR catalogues lift `UDR_errLinear_mono_dim` (via `errPowers`) and the fiel
 
 namespace Soundcalc
 
+/-! # Foundations (regime / field-level mechanisms)
+
+This whole file is foundations — regime-level facts the FRI/WHIR catalogues lift. There are no
+config-field catalogue entries here (a `Regime` is not a config). -/
+
+/-! ## Johnson vs. unique decoding -/
+
 /-- The Johnson-bound decoding radius `1 - √ρ` is always at least the unique-decoding radius
 `(1-ρ)/2`, slack exactly `(1-√ρ)²/2`. A corollary of `two_sqrt_le`. -/
 theorem johnson_beats_unique {ρ : ℝ} (h0 : 0 ≤ ρ) :
     (1 - ρ) / 2 ≤ 1 - Real.sqrt ρ := by
   have := two_sqrt_le h0; linarith
+
+/-! ## The field ceiling on the linear error -/
 
 /-- **Connector.** The linear (Schwartz–Zippel) soundness error is `≥ 1/|F|` — its numerator
 `θ·(d/ρ) + 1 ≥ 1`. So the field ceiling actually bites on the *algebraic* cells (unlike the query
@@ -41,6 +50,8 @@ field baseline `secBits (1/|F|) = ⌊log₂|F|⌋`. -/
 theorem secBits_errLinear_le_field (F : FieldParams) (ρ : Rate) (d : ℕ) :
     secBits ((UDR F).errLinear ρ d) ≤ secBits (1 / (F.card : ℚ)) :=
   secBits_le_field F.card_pos (one_div_card_le_errLinear F ρ d)
+
+/-! ## `errLinear` / `errPowers` monotonicities (lifted by the FRI/WHIR catalogues) -/
 
 /-- **Smaller instance ⇒ more sound.** The linear (Schwartz–Zippel) error is monotone in the
 dimension `d`. This is the mechanism behind "later FRI rounds are more secure": each fold shrinks
@@ -124,6 +135,22 @@ theorem UDR_errPowers_mono_dim (F : FieldParams) (ρ : Rate) {d d' : ℕ} (h : d
     linarith
   simp only [UDR] at hlin ⊢
   exact mul_le_mul_of_nonneg_right hlin hbb
+
+/-- **Batching soundness cost.** The powers-batching error `errPowers = errLinear·(batch − 1)` is
+monotone in `batchSize`: batching more polynomials weakens the batching cell. -/
+theorem UDR_errPowers_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
+    (UDR F).errPowers ρ d b ≤ (UDR F).errPowers ρ d b' := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  simp only [UDR]
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+    linarith
+  have hbase : (0 : ℚ) ≤ ((1 - r) / 2 * ((d : ℚ) / r) + 1) / (F.card : ℚ) := div_nonneg hnum hc.le
+  have hbb : ((b : ℚ) - 1) ≤ ((b' : ℚ) - 1) := by
+    have : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
+    linarith
+  gcongr
 
 /-- The powers-batching error is nonnegative (for `b ≥ 1`) — needed to apply the grinding
 antitonicity to the batching cell. -/

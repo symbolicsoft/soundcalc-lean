@@ -48,8 +48,8 @@ Backing lemma per cell (`—` cells omitted):
 |---|---|
 | FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_antitone_radius` (ρ enters via `θ_LB = (1−ρ)/2`, which is antitone in ρ) |
 | FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
-| ALI | `\|F\|`: pinned by config (field ceiling `secBits_errLinear_le_field`); `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
-| DEEP | grind: `deepErr_antitone_grindDeep`; ρ/H/`\|F\|`: pinned by config; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
+| ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
+| DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 | JBR `m` = ∗ | `whir_agreement_antitone_m` (helps the query cell) **vs** `whir_listSize_mono_m` (hurts the list-size cells) |
 | FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` (batch ↑) |
@@ -58,15 +58,15 @@ Notes.
 `†` — the list size multiplies the lookup error only in the SWIRL analysis; the FRI-based zkVMs'
 `LookupCfg.errUB` is regime-independent, so its formalized `L` column is actually `—` (the `↑` is the
 SWIRL behavior).
-"pinned" — the cell is blocked as a **record-update knob** by a config invariant (FRI's `h_earlyStop`
-pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`). Two sub-cases:
- - FRI commit/batching `ρ`/`H`/`|F|` **are** backed — by the regime-level `errPowers` lemmas
+"pinned" — the cell cannot be moved by a **single-field record update** (FRI's `h_earlyStop`
+couples `ρ`/`H`; DeepAli's field-coherence invariants couple `|F|`; `ρ`/`H` sit behind the `PCS`
+inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, in one of two ways:
+ - FRI commit/batching `ρ`/`H`/`|F|` — by the regime-level `errPowers` lemmas
    (`UDR_errPowers_antitone_rho` / `_mono_dim` / `_antitone_card`), since those cells *are*
    `errPowers`-shaped.
- - ALI `|F|` and DEEP `ρ`/`H`/`|F|` are **directionally verified against the formula but not
-   individually lemma-backed**: their configs pin the field and these cells are not `errPowers`-shaped
-   (they carry `L⁺` and, for DEEP, the `|F|−H−D` denominator). Adding formula-level `antitone`
-   lemmas for them is a small follow-up.
+ - ALI `|F|` and DEEP `ρ`/`H`/`|F|` — by **two-config** lemmas (`aliErr_antitone_card`,
+   `deepErr_antitone_card` / `_antitone_rho` / `_mono_traceLen`) that compare two configs agreeing on
+   the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
 `∗` — provably non-monotone: `m` has no single direction, and the two opposing lemmas *are* the
 interior optimum.
 JBR row — its knobs are the gap `η` and multiplicity `m`, which are not among the columns: the error
@@ -174,6 +174,10 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 | `DeepAliCfg.deepErr_mono_airMaxDegree` | `airMaxDegree` | Higher AIR degree ⇒ larger DEEP error. |
 | `DeepAliCfg.deepErr_mono_maxCombo` | `maxCombo` | Larger max-combo ⇒ larger DEEP error. |
 | `DeepAliCfg.deepErr_mono_listSize` | regime | Larger list size ⇒ larger DEEP error (`L` column). |
+| `DeepAliCfg.aliErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller ALI error. |
+| `DeepAliCfg.deepErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller DEEP error. |
+| `DeepAliCfg.deepErr_antitone_rho` | rate (2-config) | Higher `ρ` ⇒ smaller DEEP error (via `H/ρ` in the denominator). |
+| `DeepAliCfg.deepErr_mono_traceLen` | trace (2-config) | Longer trace `H` ⇒ larger DEEP error. |
 
 ## `Regime.lean` — foundations (Johnson vs. unique decoding, field ceiling)
 

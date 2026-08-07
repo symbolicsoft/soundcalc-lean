@@ -18,18 +18,10 @@ a record-update knob.
 
 namespace Soundcalc
 
-/-! # Foundations (proof toolkit) -/
+/-! # Foundations (proof toolkit)
 
-/-- Same-denominator monotonicity — the shared finishing step for the lookup cells. -/
-private theorem div_le_div_same {a b c : ℚ} (h : a ≤ b) (hc : 0 < c) : a / c ≤ b / c := by
-  rw [div_le_div_iff₀ hc hc]
-  exact mul_le_mul_of_nonneg_right h hc.le
-
-/-- Antitone in the denominator: a bigger `|F|` shrinks a nonnegative cell. -/
-private theorem div_le_div_denom {a b c : ℚ} (ha : 0 ≤ a) (hb : 0 < b) (hbc : b ≤ c) :
-    a / c ≤ a / b := by
-  rw [div_le_div_iff₀ (lt_of_lt_of_le hb hbc) hb]
-  exact mul_le_mul_of_nonneg_left hbc ha
+The division-monotonicity finishing steps (`div_le_div_same`, `div_le_div_denom`) are shared from
+`Monotonicity.Basic`. -/
 
 /-- `log2UB` is monotone in its argument (`clog₂` and `·^m` are). -/
 theorem log2UB_mono {x x' : ℕ} (h : x ≤ x') (m : ℕ) : log2UB x m ≤ log2UB x' m := by

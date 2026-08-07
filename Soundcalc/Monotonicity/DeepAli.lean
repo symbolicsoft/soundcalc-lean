@@ -20,13 +20,10 @@ The DEEP cells carry the genuine side condition `|F| − H − D > 0` (the multi
 
 namespace Soundcalc
 
-/-! # Foundations (proof toolkit) -/
+/-! # Catalogue — configuration knobs and cross-regime sensitivities
 
-private theorem div_le_div_same {a b c : ℚ} (h : a ≤ b) (hc : 0 < c) : a / c ≤ b / c := by
-  rw [div_le_div_iff₀ hc hc]
-  exact mul_le_mul_of_nonneg_right h hc.le
-
-/-! # Catalogue — configuration knobs and cross-regime sensitivities -/
+The division-monotonicity finishing steps (`div_le_div_same`, `div_le_div_denom`,
+`div_pow_two_antitone`) are shared from `Monotonicity.Basic`. -/
 
 /-- **ALI, list-size knob (↑).** A regime with a larger list size gives a larger ALI error. -/
 theorem DeepAliCfg.aliErr_mono_listSize (c : DeepAliCfg) (R R' : Regime)
@@ -95,5 +92,99 @@ theorem DeepAliCfg.deepErr_mono_maxCombo (c : DeepAliCfg) (R : Regime)
   refine add_le_add (mul_le_mul_of_nonneg_left ?_ (by positivity)) le_rfl
   have : (c.maxCombo : ℚ) ≤ (mc : ℚ) := by exact_mod_cast h
   linarith
+
+/-! ## Pinned columns (`|F|`, `ρ`, `H`) via two coherent configs
+
+`|F|`/`ρ`/`H` cannot be moved by a record update (DeepAli's field-coherence invariants, and the
+`FRIConfig.h_earlyStop` behind `densePCS.ρ`/`traceLen`). We back their directions by comparing two
+configs that **agree on the other projections** — exactly how a "same circuit, bigger field / slower
+rate / longer trace" instance relates to the original. -/
+
+/-- **ALI, `|F|` column (↓).** A larger field (other projections equal) gives a smaller ALI error. -/
+theorem DeepAliCfg.aliErr_antitone_card (c c' : DeepAliCfg) (R : Regime)
+    (hρ : c'.densePCS.ρ = c.densePCS.ρ) (htl : c'.densePCS.traceLen = c.densePCS.traceLen)
+    (hC : c'.numConstraints = c.numConstraints)
+    (hlp : 0 ≤ R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hcard : c.field.card ≤ c'.field.card) :
+    c'.aliErr R ≤ c.aliErr R := by
+  simp only [DeepAliCfg.aliErr, hρ, htl, hC]
+  exact div_le_div_denom (mul_nonneg hlp (by positivity))
+    (by exact_mod_cast c.field.card_pos) (by exact_mod_cast hcard)
+
+/-- **DEEP, `|F|` column (↓).** A larger field (other projections equal, `|F|−H−D > 0`) gives a
+smaller DEEP error. -/
+theorem DeepAliCfg.deepErr_antitone_card (c c' : DeepAliCfg) (R : Regime)
+    (hρ : c'.densePCS.ρ = c.densePCS.ρ) (htl : c'.densePCS.traceLen = c.densePCS.traceLen)
+    (hdeg : c'.airMaxDegree = c.airMaxDegree) (hmc : c'.maxCombo = c.maxCombo)
+    (hg : c'.grindDeep = c.grindDeep)
+    (hlp : 0 ≤ R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hnum : 0 ≤ (c.airMaxDegree : ℚ) * ((c.densePCS.traceLen : ℚ) + (c.maxCombo : ℚ) - 1)
+        + ((c.densePCS.traceLen : ℚ) - 1))
+    (hden : 0 < (c.field.card : ℚ) - (c.densePCS.traceLen : ℚ)
+        - (c.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ))
+    (hcard : c.field.card ≤ c'.field.card) :
+    c'.deepErr R ≤ c.deepErr R := by
+  simp only [DeepAliCfg.deepErr, hρ, htl, hdeg, hmc, hg]
+  refine div_le_div_same (div_le_div_denom (mul_nonneg hlp hnum) hden ?_) (by positivity)
+  have : (c.field.card : ℚ) ≤ (c'.field.card : ℚ) := by exact_mod_cast hcard
+  linarith
+
+/-- **DEEP, `ρ` column (↓).** A higher rate (other projections + list size equal) gives a smaller
+DEEP error, via the `H/ρ` term in the `|F|−H−D` denominator. -/
+theorem DeepAliCfg.deepErr_antitone_rho (c c' : DeepAliCfg) (R : Regime)
+    (htl : c'.densePCS.traceLen = c.densePCS.traceLen) (hfield : c'.field = c.field)
+    (hdeg : c'.airMaxDegree = c.airMaxDegree) (hmc : c'.maxCombo = c.maxCombo)
+    (hg : c'.grindDeep = c.grindDeep)
+    (hlpeq : R.listSize c'.densePCS.ρ c.densePCS.traceLen
+        = R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hlp : 0 ≤ R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hnum : 0 ≤ (c.airMaxDegree : ℚ) * ((c.densePCS.traceLen : ℚ) + (c.maxCombo : ℚ) - 1)
+        + ((c.densePCS.traceLen : ℚ) - 1))
+    (hρpos : 0 < (c.densePCS.ρ : ℚ))
+    (hden : 0 < (c.field.card : ℚ) - (c.densePCS.traceLen : ℚ)
+        - (c.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ))
+    (hρ : (c.densePCS.ρ : ℚ) ≤ (c'.densePCS.ρ : ℚ)) :
+    c'.deepErr R ≤ c.deepErr R := by
+  simp only [DeepAliCfg.deepErr, htl, hfield, hdeg, hmc, hg, hlpeq]
+  refine div_le_div_same (div_le_div_denom (mul_nonneg hlp hnum) hden ?_) (by positivity)
+  have hDmono : (c.densePCS.traceLen : ℚ) / (c'.densePCS.ρ : ℚ)
+      ≤ (c.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ) :=
+    div_le_div_denom (by positivity) hρpos hρ
+  exact sub_le_sub_left hDmono _
+
+/-- **DEEP, `H` column (↑).** A longer trace (other projections + list size equal) gives a larger
+DEEP error — it grows the numerator and shrinks the `|F|−H−D` denominator. -/
+theorem DeepAliCfg.deepErr_mono_traceLen (c c' : DeepAliCfg) (R : Regime)
+    (hfield : c'.field = c.field) (hρ : c'.densePCS.ρ = c.densePCS.ρ)
+    (hdeg : c'.airMaxDegree = c.airMaxDegree) (hmc : c'.maxCombo = c.maxCombo)
+    (hg : c'.grindDeep = c.grindDeep)
+    (hlpeq : R.listSize c.densePCS.ρ c'.densePCS.traceLen
+        = R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hlp : 0 ≤ R.listSize c.densePCS.ρ c.densePCS.traceLen)
+    (hρpos : 0 < (c.densePCS.ρ : ℚ))
+    (hnum' : 0 ≤ (c.airMaxDegree : ℚ) * ((c'.densePCS.traceLen : ℚ) + (c.maxCombo : ℚ) - 1)
+        + ((c'.densePCS.traceLen : ℚ) - 1))
+    (hdenH : 0 < (c.field.card : ℚ) - (c.densePCS.traceLen : ℚ)
+        - (c.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ))
+    (hdenH' : 0 < (c.field.card : ℚ) - (c'.densePCS.traceLen : ℚ)
+        - (c'.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ))
+    (htl : c.densePCS.traceLen ≤ c'.densePCS.traceLen) :
+    c.deepErr R ≤ c'.deepErr R := by
+  simp only [DeepAliCfg.deepErr, hfield, hρ, hdeg, hmc, hg, hlpeq]
+  refine div_le_div_same ?_ (by positivity)
+  have htlQ : (c.densePCS.traceLen : ℚ) ≤ (c'.densePCS.traceLen : ℚ) := by exact_mod_cast htl
+  have hd0 : (0 : ℚ) ≤ (c.airMaxDegree : ℚ) := by positivity
+  have hnumMono :
+      (c.airMaxDegree : ℚ) * ((c.densePCS.traceLen : ℚ) + (c.maxCombo : ℚ) - 1)
+          + ((c.densePCS.traceLen : ℚ) - 1)
+        ≤ (c.airMaxDegree : ℚ) * ((c'.densePCS.traceLen : ℚ) + (c.maxCombo : ℚ) - 1)
+          + ((c'.densePCS.traceLen : ℚ) - 1) := by
+    nlinarith [mul_nonneg hd0 (sub_nonneg.2 htlQ), htlQ]
+  have hDmono : (c.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ)
+      ≤ (c'.densePCS.traceLen : ℚ) / (c.densePCS.ρ : ℚ) := div_le_div_same htlQ hρpos
+  refine le_trans (div_le_div_same (mul_le_mul_of_nonneg_left hnumMono hlp) hdenH) ?_
+  refine div_le_div_denom (mul_nonneg hlp hnum') hdenH' ?_
+  rw [sub_sub, sub_sub]
+  exact sub_le_sub_left (add_le_add htlQ hDmono) _
 
 end Soundcalc

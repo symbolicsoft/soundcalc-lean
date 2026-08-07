@@ -96,23 +96,10 @@ theorem getFRIProofSizeBits_mono_numQueries (hashBits fieldBits batchSize domain
   obtain ⟨hbits, hfin⟩ := friFold_mono hashBits fieldBits hq folds _ _ domainSize hinit
   exact Nat.add_le_add hbits (Nat.le_of_eq (by rw [hfin]))
 
-/-! ## Batching tradeoff: more batched polynomials cost soundness *and* proof size -/
+/-! ## Batching tradeoff: more batched polynomials cost soundness *and* proof size
 
-/-- **Batching soundness cost.** The powers-batching error `errPowers = errLinear·(batch − 1)` is
-monotone in `batchSize`: batching more polynomials weakens the batching cell. -/
-theorem UDR_errPowers_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
-    (UDR F).errPowers ρ d b ≤ (UDR F).errPowers ρ d b' := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  simp only [UDR]
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
-    linarith
-  have hbase : (0 : ℚ) ≤ ((1 - r) / 2 * ((d : ℚ) / r) + 1) / (F.card : ℚ) := div_nonneg hnum hc.le
-  have hbb : ((b : ℚ) - 1) ≤ ((b' : ℚ) - 1) := by
-    have : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
-    linarith
-  gcongr
+The soundness side (`UDR_errPowers_mono_batch`) lives with the other `errPowers` monotonicities in
+`Monotonicity.Regime`; the proof-size side is below. -/
 
 /-- The worst-case Merkle multi-proof is monotone in the folding-block (leaf) size `tupleSize`. -/
 theorem getSizeOfMerkleMultiProofBits_worst_mono_tupleSize

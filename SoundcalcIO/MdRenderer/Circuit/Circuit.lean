@@ -1,8 +1,8 @@
 import Soundcalc
 import SoundcalcIO.Common
-import SoundcalcIO.MdRenderer.Jagged
-import SoundcalcIO.MdRenderer.DeepAli
-import SoundcalcIO.MdRenderer.SWIRL
+import SoundcalcIO.MdRenderer.Circuit.Jagged
+import SoundcalcIO.MdRenderer.Circuit.DeepAli
+import SoundcalcIO.MdRenderer.Circuit.SWIRL
 
 open Soundcalc
 open SoundcalcIO

@@ -30,22 +30,42 @@ Each file is organised in **two tiers**:
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
 `—` the knob does not occur, `∗` provably non-monotone (interior optimum). Directions verified
-against the UDR formulas; each has (or will have) a backing lemma. `H` is the trace/dense length.
+against the UDR formulas; each is backed by a named lemma (below the table). `H` is the trace/dense
+length, `L` the decoder list size.
 
-| Error term | queries `q` | grind | rate `ρ` | `H` | batch | `\|F\|` | backing lemma(s) |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| FRI query `(1−θ)^q/2^g` | ↓ | ↓ | ↑ | — | — | — | `queryErr_antitone_numQueries`, `queryErr_antitone_grindQuery`, `queryErr_antitone_radius` |
-| FRI commit / batching | — | ↓ | ↓ | ↑ | ↑ | ↓ | `batchingErr_antitone_grindBatch`; `UDR_errPowers_antitone_rho`; `UDR_errPowers_mono_dim` (H); `batchingErr_mono_batchSize`; `UDR_errPowers_antitone_card` |
-| FRI proof size | ↑ | — | — | — | ↑ | — | `proofSizeWorst_mono_numQueries`, `proofSizeWorst_mono_batchSize` |
-| ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | `aliErr_mono_numConstraints` (C↑), `aliErr_mono_listSize` (L↑); `\|F\|` pinned by config |
-| DEEP | — | ↓ | ↓ | ↑ | — | ↓ | `deepErr_antitone_grindDeep`, `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo`, `deepErr_mono_listSize`; ρ/H/`\|F\|` pinned |
-| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | `errUB_antitone_grindBitsLookup`, `errUB_mono_rowsT` (H), `errUB_mono_numLookupsM`/`errUB_mono_numColumnsS` (batch), `errUB_antitone_card` |
-| JBR gap `η` / multiplicity `m` | | | | | | | `m`: ∗ — `whir_agreement_antitone_m` (helps query) vs `whir_listSize_mono_m` (hurts list size) |
+| Error term | `q` | grind | `ρ` | `H` | batch | `\|F\|` | `L` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| FRI query `(1−θ)^q·2^{−g}` | ↓ | ↓ | ↑ | — | — | — | — |
+| FRI commit / batching | — | ↓ | ↓ | ↑ | ↑ | ↓ | — |
+| ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | ↑ |
+| DEEP | — | ↓ | ↓ | ↑ | — | ↓ | ↑ |
+| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | ↑† |
+| JBR terms in `η`/`m` (own knobs, not columns) | — | — | — | — | — | — | — |
 
-Notes: cells marked "pinned" are blocked as record-update knobs by a config invariant
-(FRI's `h_earlyStop` pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`), so their
-sensitivity is proved at the regime/`errPowers` level or left as pinned. `∗` = provably non-monotone
-(the `m` column has no single direction — the two opposing lemmas *are* the interior optimum).
+Backing lemma per cell (`—` cells omitted):
+
+| Error term | backing lemmas |
+|---|---|
+| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_antitone_radius` / `johnson_beats_unique` (ρ, via θ) |
+| FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
+| ALI | `\|F\|`: pinned by config (field ceiling `secBits_errLinear_le_field`); `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
+| DEEP | grind: `deepErr_antitone_grindDeep`; ρ/H/`\|F\|`: pinned by config; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
+| LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
+| JBR `m` = ∗ | `whir_agreement_antitone_m` (helps the query cell) **vs** `whir_listSize_mono_m` (hurts the list-size cells) |
+| FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` (batch ↑) |
+
+Notes.
+`†` — the list size multiplies the lookup error only in the SWIRL analysis; the FRI-based zkVMs'
+`LookupCfg.errUB` is regime-independent, so its formalized `L` column is actually `—` (the `↑` is the
+SWIRL behavior).
+"pinned" — the cell is blocked as a **record-update knob** by a config invariant (FRI's `h_earlyStop`
+pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`); its direction is proved at the
+regime/`errPowers`/field-ceiling level instead, or left pinned.
+`∗` — provably non-monotone: `m` has no single direction, and the two opposing lemmas *are* the
+interior optimum.
+JBR row — its knobs are the gap `η` and multiplicity `m`, which are not among the columns: the error
+is `↓` in `η` (larger gap ⇒ smaller error) and `∗` in `m` (interior optimum). `η` is derived from
+`(F, ρ, g)` in our model (`etaLB`/`etaUB`), so it is not a free record-update knob.
 
 ---
 

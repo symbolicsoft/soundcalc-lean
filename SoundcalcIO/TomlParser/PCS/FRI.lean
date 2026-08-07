@@ -29,8 +29,6 @@ namespace Soundcalc
 def FRIConfig.parseFromToml (circTab : Table)
                             (zkvmTab : Table)
                             (isJagged : Bool) : IO FRIConfig := do
-
-
   let circ_field ← getCircField circTab zkvmTab
   let circ_hash_bits ← getCircHashBits circTab zkvmTab
 

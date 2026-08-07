@@ -9,6 +9,7 @@ open SoundcalcIO
 open SoundcalcIO.TomlParser
 
 open Lake.Toml
+
 /-
   We work in the `Soundcalc` namespace to extend `SWIRLCfg` with appropriate parsing methods.
   These methods are defined here (as opposed to being defined in directly in `Soundcalc`),
@@ -105,7 +106,6 @@ def SWIRLCfg.parseFromToml (circTab : Table)
                            (zkvmTab : Table)
                            (swirlTab : Table)
                            (wcfg : WHIRConfig): IO SWIRLCfg := do
-  /- Global zkVM values -/
   /- Global zkVM values -/
   let zkvm_field ← orExit (getString zkvmTab "field")
   let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)

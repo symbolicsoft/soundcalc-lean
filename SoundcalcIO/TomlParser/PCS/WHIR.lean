@@ -26,7 +26,6 @@ namespace Soundcalc
 -/
 def WHIRConfig.parseFromToml (circTab : Table)
                              (zkvmTab : Table) : IO WHIRConfig := do
-
   let circ_field ← getCircField circTab zkvmTab
   let circ_hash_bits ← getCircHashBits circTab zkvmTab
 

@@ -9,6 +9,7 @@ open SoundcalcIO
 open SoundcalcIO.TomlParser
 
 open Lake.Toml
+
 /-
   We work in the `Soundcalc` namespace to extend `DeepAliCfg` with appropriate parsing methods.
   These methods are defined here (as opposed to being defined in directly in `Soundcalc`),

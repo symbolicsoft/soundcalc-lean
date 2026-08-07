@@ -1,8 +1,8 @@
 import Soundcalc
 import SoundcalcIO.TomlParser
-import SoundcalcIO.MdRenderer.ZkVM
 import SoundcalcIO.MdRenderer.Common
-import SoundcalcIO.MdRenderer.Circuit
+import SoundcalcIO.MdRenderer.Circuit.Circuit
+import SoundcalcIO.MdRenderer.ZkVM
 
 open Soundcalc
 open SoundcalcIO
@@ -219,7 +219,7 @@ private def renderSummary (inVMs: List ZkVM) (outReportMdFile: String): IO Unit 
     s!"| zkVM | Version | Security | Expected Proof Size | Worst-Case Proof Size | Proof system | Field | Circuits |\n" ++
     s!"|------|---------|----------|---------------------|-----------------------|--------------|-------|----------|\n"
 
-  /- Sort zkVMs as per soundcalc (alphabetic order) -/
+  /- Sort zkVMs as per `soundcalc` (alphabetic order) -/
   let sortedZkVMs := inVMs.mergeSort (fun a b => a.name.toLower ≤ b.name.toLower)
 
   for vm in sortedZkVMs do
@@ -230,7 +230,7 @@ private def renderSummary (inVMs: List ZkVM) (outReportMdFile: String): IO Unit 
       | some v => v
       | none   => "—"
 
-      /- soundcalc's _format_security_value is not needed: secBits are only exact naturals! -/
+      /- `soundcalc`'s `_format_security_value` is not needed: `secBits` are only exact naturals! -/
       let (_, bestRegimeSecBits, bestRegime) := vm.bestSecurityAcrossCircuits hne
 
       let proofSizeExpStr := s!"{vm.finalProofSizeExpKiB hne} KiB"
@@ -283,18 +283,22 @@ def main (args: List String): IO Unit := do
   /- Default: we parse all the supported zkVMs. -/
   if args.length = 0 then
     let relPath := "./SoundcalcIO/ZkVM"
+    let tomlDir := "Ref"        -- input path for `soundcalc`'s `.toml` files.
+    let reportsDir := "Reports" -- output path for our `.md` reports.
 
     let mut vmList : List ZkVM := []
     for vmname in supportedvms do
-       let inTomlFile := s!"{relPath}/Ref/{vmname}.toml"
-       let outMdFile  := s!"{relPath}/{vmname}.md"
+       /- Create the output directory for `.md` files (if not existing) -/
+       IO.FS.createDirAll s!"{relPath}/{reportsDir}/"
+       let inTomlFile := s!"{relPath}/{tomlDir}/{vmname}.toml"
+       let outMdFile  := s!"{relPath}/{reportsDir}/{vmname}.md"
 
        let zkVM ← tomlToZkVM inTomlFile
        renderMd zkVM outMdFile
        IO.println s!"Successfully parsed {inTomlFile} to {outMdFile}!"
        vmList := vmList ++ [zkVM]
 
-    renderSummary vmList s!"{relPath}/summary.md"
+    renderSummary vmList s!"{relPath}/{reportsDir}/summary.md"
   /- Extended usage: specify and render one specific zkVM. -/
   else if h: args.length = 2 then
     /- The arguments below always exist. -/

@@ -46,7 +46,7 @@ Backing lemma per cell (`—` cells omitted):
 
 | Error term | backing lemmas |
 |---|---|
-| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_antitone_radius` / `johnson_beats_unique` (ρ, via θ) |
+| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_antitone_radius` (ρ enters via `θ_LB = (1−ρ)/2`, which is antitone in ρ) |
 | FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: pinned by config (field ceiling `secBits_errLinear_le_field`); `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ/H/`\|F\|`: pinned by config; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
@@ -59,8 +59,14 @@ Notes.
 `LookupCfg.errUB` is regime-independent, so its formalized `L` column is actually `—` (the `↑` is the
 SWIRL behavior).
 "pinned" — the cell is blocked as a **record-update knob** by a config invariant (FRI's `h_earlyStop`
-pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`); its direction is proved at the
-regime/`errPowers`/field-ceiling level instead, or left pinned.
+pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`). Two sub-cases:
+ - FRI commit/batching `ρ`/`H`/`|F|` **are** backed — by the regime-level `errPowers` lemmas
+   (`UDR_errPowers_antitone_rho` / `_mono_dim` / `_antitone_card`), since those cells *are*
+   `errPowers`-shaped.
+ - ALI `|F|` and DEEP `ρ`/`H`/`|F|` are **directionally verified against the formula but not
+   individually lemma-backed**: their configs pin the field and these cells are not `errPowers`-shaped
+   (they carry `L⁺` and, for DEEP, the `|F|−H−D` denominator). Adding formula-level `antitone`
+   lemmas for them is a small follow-up.
 `∗` — provably non-monotone: `m` has no single direction, and the two opposing lemmas *are* the
 interior optimum.
 JBR row — its knobs are the gap `η` and multiplicity `m`, which are not among the columns: the error

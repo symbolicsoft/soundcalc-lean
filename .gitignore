@@ -1,4 +1,4 @@
 .DS_Store
 .lake/
 # Reports re-rendered by `lake exe mdrenderer` (compared against Ref/ goldens in CI)
-SoundcalcIO/ZkVM/*.md
+SoundcalcIO/ZkVM/Reports/*.md

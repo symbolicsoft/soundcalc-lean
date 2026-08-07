@@ -107,7 +107,7 @@ jobs:
 
                 for ref in "${refs[@]}"; do
                     f=$(basename "$ref")
-                    gen="SoundcalcIO/ZkVM/$f"
+                    gen="SoundcalcIO/ZkVM/Reports/$f"
                     if [ ! -f "$gen" ]; then
                         echo "$f: not re-rendered (missing $gen)"
                         failed+=("$f")

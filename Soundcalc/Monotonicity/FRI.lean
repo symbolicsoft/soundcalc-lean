@@ -1,4 +1,5 @@
 import Soundcalc.Monotonicity.Basic
+import Soundcalc.Monotonicity.Regime
 import Soundcalc.PCS.FRI
 
 /-!
@@ -243,5 +244,22 @@ theorem FRIConfig.proofSizeWorst_mono_batchSize (c : FRIConfig) {b : ℕ}
     c.proofSizeWorst ≤ ({c with batchSize := b}).proofSizeWorst := by
   simp only [FRIConfig.proofSizeWorst]
   exact getFRIProofSizeBits_mono_batchSize _ _ _ _ _ _ h
+
+/-- **Query-grind knob → soundness (↓).** More query-phase PoW bits never raise the query-cell
+error (`div_pow_two_antitone` on `(1 − θ)^numQueries`). -/
+theorem FRIConfig.queryErr_antitone_grindQuery (c : FRIConfig) (R : Regime) {g : ℕ}
+    (h : c.grindQuery ≤ g) (hb : 0 ≤ 1 - R.θLB c.ρ c.denseLen) :
+    ({c with grindQuery := g}).queryErr R ≤ c.queryErr R := by
+  unfold FRIConfig.queryErr
+  exact div_pow_two_antitone (pow_nonneg hb _) h
+
+/-- **Batch-grind knob → soundness (↓).** More batching-phase PoW bits never raise the batching-cell
+error (`power_batching` path, `batchSize ≥ 1`). -/
+theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig) (hp : c.powerBatch = true)
+    (hbs : 1 ≤ c.batchSize) {g : ℕ} (h : c.grindBatch ≤ g) :
+    ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
+  dsimp only [FRIConfig.batchingErr]
+  rw [if_pos hp, if_pos hp]
+  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ c.denseLen hbs) h
 
 end Soundcalc

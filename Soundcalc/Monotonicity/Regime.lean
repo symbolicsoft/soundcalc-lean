@@ -54,4 +54,90 @@ theorem UDR_errLinear_mono_dim (F : FieldParams) (ρ : Rate) {d d' : ℕ} (h : d
   simp only [UDR]
   gcongr
 
+/-- **Larger field ⇒ smaller error.** The linear error is antitone in `|F|` (it divides by `|F|`,
+numerator field-independent). Backs the `|F| ↓` column. -/
+theorem UDR_errLinear_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate) (d : ℕ) :
+    (UDR F').errLinear ρ d ≤ (UDR F).errLinear ρ d := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hF : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hcQ : (F.card : ℚ) ≤ (F'.card : ℚ) := by exact_mod_cast hc
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+    linarith
+  simp only [UDR]
+  gcongr
+
+/-- **Higher rate ⇒ smaller error.** The linear error is antitone in the rate `ρ`: the algebraic
+term `(1−ρ)/2 · (d/ρ) = d(1−ρ)/(2ρ)` falls as `ρ` grows (`1/ρ` shrinks). Backs the `ρ ↓` column. -/
+theorem UDR_errLinear_antitone_rho (F : FieldParams) {ρ ρ' : Rate}
+    (h : (ρ : ℚ) ≤ (ρ' : ℚ)) (d : ℕ) :
+    (UDR F).errLinear ρ' d ≤ (UDR F).errLinear ρ d := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  obtain ⟨r', hr0', hr1'⟩ := ρ'
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have e : ∀ x : ℚ, 0 < x → (1 - x) / 2 * ((d : ℚ) / x) = (d : ℚ) / 2 * (1 / x - 1) := by
+    intro x hx; field_simp
+  have hrec : 1 / r' ≤ 1 / r := one_div_le_one_div_of_le hr0 h
+  have hd : (0 : ℚ) ≤ (d : ℚ) / 2 := by positivity
+  have hkey : (1 - r') / 2 * ((d : ℚ) / r') ≤ (1 - r) / 2 * ((d : ℚ) / r) := by
+    rw [e r' hr0', e r hr0]
+    exact mul_le_mul_of_nonneg_left (by linarith) hd
+  have hnum : (1 - r') / 2 * ((d : ℚ) / r') + 1 ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by linarith
+  simp only [UDR]
+  rw [div_le_div_iff₀ hc hc]
+  exact mul_le_mul_of_nonneg_right hnum hc.le
+
+/-- Powers-batching error is antitone in `|F|` (corollary of `UDR_errLinear_antitone_card`, `b ≥ 1`). -/
+theorem UDR_errPowers_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate) (d : ℕ)
+    {b : ℕ} (hb : 1 ≤ b) :
+    (UDR F').errPowers ρ d b ≤ (UDR F).errPowers ρ d b := by
+  have hlin := UDR_errLinear_antitone_card hc ρ d
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  simp only [UDR] at hlin ⊢
+  exact mul_le_mul_of_nonneg_right hlin hbb
+
+/-- Powers-batching error is antitone in the rate `ρ` (corollary of `UDR_errLinear_antitone_rho`). -/
+theorem UDR_errPowers_antitone_rho (F : FieldParams) {ρ ρ' : Rate} (h : (ρ : ℚ) ≤ (ρ' : ℚ)) (d : ℕ)
+    {b : ℕ} (hb : 1 ≤ b) :
+    (UDR F).errPowers ρ' d b ≤ (UDR F).errPowers ρ d b := by
+  have hlin := UDR_errLinear_antitone_rho F h d
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  obtain ⟨r', hr0', hr1'⟩ := ρ'
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  simp only [UDR] at hlin ⊢
+  exact mul_le_mul_of_nonneg_right hlin hbb
+
+/-- Powers-batching error is monotone in the dimension `d` (corollary of `UDR_errLinear_mono_dim`).
+Backs the `H ↑` column for the commit/batching cell. -/
+theorem UDR_errPowers_mono_dim (F : FieldParams) (ρ : Rate) {d d' : ℕ} (h : d ≤ d')
+    {b : ℕ} (hb : 1 ≤ b) :
+    (UDR F).errPowers ρ d b ≤ (UDR F).errPowers ρ d' b := by
+  have hlin := UDR_errLinear_mono_dim F ρ h
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  simp only [UDR] at hlin ⊢
+  exact mul_le_mul_of_nonneg_right hlin hbb
+
+/-- The powers-batching error is nonnegative (for `b ≥ 1`) — needed to apply the grinding
+antitonicity to the batching cell. -/
+theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) (d : ℕ) {b : ℕ} (hb : 1 ≤ b) :
+    0 ≤ (UDR F).errPowers ρ d b := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+    linarith
+  simp only [UDR]
+  exact mul_nonneg (div_nonneg hnum hc.le) hbb
+
 end Soundcalc

@@ -34,16 +34,18 @@ against the UDR formulas; each has (or will have) a backing lemma. `H` is the tr
 
 | Error term | queries `q` | grind | rate `ρ` | `H` | batch | `\|F\|` | backing lemma(s) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
-| FRI query `(1−θ)^q/2^g` | ↓ | ↓ | ↑ | — | — | — | `queryErr_antitone_numQueries`, `queryErr_antitone_radius` |
-| FRI commit / batching | — | ↓ | ↓ | ↑ | ↑ | ↓ | `batchingErr_mono_batchSize`; `UDR_errLinear_mono_dim` (H); ρ, `\|F\|`: *planned* |
+| FRI query `(1−θ)^q/2^g` | ↓ | ↓ | ↑ | — | — | — | `queryErr_antitone_numQueries`, `queryErr_antitone_grindQuery`, `queryErr_antitone_radius` |
+| FRI commit / batching | — | ↓ | ↓ | ↑ | ↑ | ↓ | `batchingErr_antitone_grindBatch`; `UDR_errPowers_antitone_rho`; `UDR_errPowers_mono_dim` (H); `batchingErr_mono_batchSize`; `UDR_errPowers_antitone_card` |
 | FRI proof size | ↑ | — | — | — | ↑ | — | `proofSizeWorst_mono_numQueries`, `proofSizeWorst_mono_batchSize` |
-| ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | *planned* (`DeepAliCfg`) |
-| DEEP | — | ↓ | ↓ | ↑ | — | ↓ | *planned* (`DeepAliCfg`) |
-| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | *planned* (`LookupCfg`) |
-| JBR gap `η` / multiplicity `m` | | | | | | | `η`: ↓ error; `m`: ∗ — `whir_agreement_list_le_unique` + `whir_listSize_ge_one` |
+| ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | `aliErr_mono_numConstraints` (C↑), `aliErr_mono_listSize` (L↑); `\|F\|` pinned by config |
+| DEEP | — | ↓ | ↓ | ↑ | — | ↓ | `deepErr_antitone_grindDeep`, `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo`, `deepErr_mono_listSize`; ρ/H/`\|F\|` pinned |
+| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | `errUB_antitone_grindBitsLookup`, `errUB_mono_rowsT` (H), `errUB_mono_numLookupsM`/`errUB_mono_numColumnsS` (batch), `errUB_antitone_card` |
+| JBR gap `η` / multiplicity `m` | | | | | | | `m`: ∗ — `whir_agreement_antitone_m` (helps query) vs `whir_listSize_mono_m` (hurts list size) |
 
-Currently populated: the FRI query, commit/batching (partial), and proof-size rows. The ALI / DEEP /
-LogUp rows and the ρ / `|F|` cells are the follow-up (new configs, not yet lifted).
+Notes: cells marked "pinned" are blocked as record-update knobs by a config invariant
+(FRI's `h_earlyStop` pins `ρ`/`H`; DeepAli's `h_densePCS_field` pins `ρ`/`H`/`|F|`), so their
+sensitivity is proved at the regime/`errPowers` level or left as pinned. `∗` = provably non-monotone
+(the `m` column has no single direction — the two opposing lemmas *are* the interior optimum).
 
 ---
 
@@ -64,6 +66,8 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.proofSizeWorst_mono_numQueries` | `numQueries` | **No free lunch:** more queries never shrink the proof (cost side). |
 | `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error (`power_batching` path). |
 | `FRIConfig.proofSizeWorst_mono_batchSize` | `batchSize` | **Batching proof-size cost:** the batched polys ride the initial multi-proof, so more of them ⇒ bigger proof. |
+| `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
+| `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
 
 ### Foundations
 
@@ -99,6 +103,51 @@ list, so the query-count sensitivity is the shared shape lemma in `Basic.lean`).
 |---|---|
 | `whir_agreement_list_le_unique` | List-regime agreement `√ρ·(1 + 1/2m)` ≤ unique `(1+ρ)/2` — exactly when `√ρ ≤ m·(1−√ρ)²`. |
 | `whir_listSize_ge_one` | List-regime list size `(m+½)/√ρ ≥ 1` — the cost that offsets the query-cell win. |
+| `whir_agreement_antitone_m` | **Interior optimum (`∗`):** the agreement `√ρ·(1+1/2m)` *improves* (antitone) as the multiplicity `m` grows. |
+| `whir_listSize_mono_m` | **Interior optimum (`∗`):** the list size `(m+½)/√ρ` *grows* (monotone) with `m` — the opposing force. |
+
+## `Lookup.lean`
+
+`errUB = (baseError + gkrError) / 2^grindBitsLookup` with `baseError = numLookupsM·H·R / |F|`
+(`H = rowsL + rowsT`, `R = columnAggregFactor`). `LookupCfg` has no coherence invariant, so every
+field is a record-update knob.
+
+### Catalogue
+
+| theorem | knob | description |
+|---|---|---|
+| `LookupCfg.errUB_antitone_grindBitsLookup` | `grindBitsLookup` | More PoW bits ⇒ smaller lookup error (needs `reductionErr ≥ 0`). |
+| `LookupCfg.errUB_antitone_card` | `field` | Larger field ⇒ smaller lookup error (`|F|` column). |
+| `LookupCfg.errUB_mono_rowsT` | `rowsT` | More table rows ⇒ larger lookup error (`H` column). |
+| `LookupCfg.errUB_mono_numLookupsM` | `numLookupsM` | More lookups ⇒ larger error (batch). |
+| `LookupCfg.errUB_mono_numColumnsS` | `numColumnsS` | More columns ⇒ larger error (batch, via `R`; GKR is `S`-independent). |
+
+### Foundations
+
+| theorem | description |
+|---|---|
+| `log2UB_mono` / `log2UB_nonneg` | `log2UB` is monotone and nonnegative. |
+| `columnAggregFactor_mono` / `columnAggregFactor_nonneg` | The column-aggregation factor `R` is monotone in `S` and nonnegative. |
+| `gkrErrorUB_mono_alphabet` / `gkrErrorUB_mono_lookups` | The GKR term grows with the alphabet size and the lookup count. |
+| `gkrErrorUB_antitone_card` / `gkrErrorUB_nonneg` | The GKR term is antitone in `|F|` and nonnegative. |
+
+## `DeepAli.lean`
+
+`aliErr = L⁺·C / |F|` and `deepErr = L⁺·num / (|F| − H − D) / 2^grindDeep`
+(`num = deg·(H + m_max − 1) + (H − 1)`, `H = traceLen`, `D = H/ρ`, `L⁺ = R.listSize`). `DeepAliCfg`
+pins `field`/`densePCS`/`lookups` via its coherence invariants, so `|F|`/`ρ`/`H` are **not**
+record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 0`.
+
+### Catalogue
+
+| theorem | knob | description |
+|---|---|---|
+| `DeepAliCfg.aliErr_mono_numConstraints` | `numConstraints` | More constraints ⇒ larger ALI error (`C`). |
+| `DeepAliCfg.aliErr_mono_listSize` | regime | Larger list size ⇒ larger ALI error (`L` column). |
+| `DeepAliCfg.deepErr_antitone_grindDeep` | `grindDeep` | More PoW bits ⇒ smaller DEEP error. |
+| `DeepAliCfg.deepErr_mono_airMaxDegree` | `airMaxDegree` | Higher AIR degree ⇒ larger DEEP error. |
+| `DeepAliCfg.deepErr_mono_maxCombo` | `maxCombo` | Larger max-combo ⇒ larger DEEP error. |
+| `DeepAliCfg.deepErr_mono_listSize` | regime | Larger list size ⇒ larger DEEP error (`L` column). |
 
 ## `Regime.lean` — foundations (Johnson vs. unique decoding, field ceiling)
 
@@ -108,6 +157,10 @@ list, so the query-count sensitivity is the shared shape lemma in `Basic.lean`).
 | `one_div_card_le_errLinear` | The linear soundness error is `≥ 1/|F|`, so the field ceiling bites on algebraic cells. |
 | `secBits_errLinear_le_field` | The linear cell can never report more bits than the field baseline `⌊log₂|F|⌋`. |
 | `UDR_errLinear_mono_dim` | The linear error is monotone in the dimension `d` — smaller instance ⇒ more sound (lifted by FRI's `H` cells). |
+| `UDR_errLinear_antitone_card` / `UDR_errPowers_antitone_card` | Larger field ⇒ smaller error (`|F|` column). |
+| `UDR_errLinear_antitone_rho` / `UDR_errPowers_antitone_rho` | Higher rate `ρ` ⇒ smaller error (`ρ` column). |
+| `UDR_errPowers_mono_dim` | Powers error monotone in the dimension (`H` column for the commit/batching cell). |
+| `UDR_errPowers_nonneg` | The powers-batching error is nonnegative (`b ≥ 1`) — used by the grind knobs. |
 
 ## `Basic.lean` — shared foundations
 

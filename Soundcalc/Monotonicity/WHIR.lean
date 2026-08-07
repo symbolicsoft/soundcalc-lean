@@ -94,4 +94,27 @@ theorem whir_listSize_ge_one {ρ : ℝ} (h1 : ρ ≤ 1) {m : ℝ} (hm : 1 ≤ m)
       _ = 1 := Real.sqrt_one
   linarith
 
+/-! ## The multiplicity `m` is an interior optimum (the sensitivity catalog's `∗`)
+
+The JBR/list multiplicity `m` is **not** monotone in the total error: raising it *tightens* the query
+agreement (helps the query cell) but *inflates* the list size (hurts the list-size cells). The two
+lemmas below are the opposing monotonicities whose tension is exactly the interior optimum — there is
+no single direction, so the catalog marks this cell `∗` rather than `↑`/`↓`. -/
+
+/-- **Agreement improves with `m`.** The list-regime agreement `√ρ·(1 + 1/2m)` is *antitone* in the
+multiplicity `m` (it tightens toward `√ρ`). -/
+theorem whir_agreement_antitone_m {ρ : ℝ} (hsr : 0 ≤ Real.sqrt ρ) {m m' : ℝ}
+    (hm : 0 < m) (h : m ≤ m') :
+    Real.sqrt ρ * (1 + 1 / (2 * m')) ≤ Real.sqrt ρ * (1 + 1 / (2 * m)) := by
+  have hmm : 1 / (2 * m') ≤ 1 / (2 * m) :=
+    one_div_le_one_div_of_le (by linarith) (by linarith)
+  exact mul_le_mul_of_nonneg_left (by linarith) hsr
+
+/-- **List size grows with `m`.** The list-regime list size `(m + ½)/√ρ` is *monotone* in `m` — the
+opposing force that turns `m` into an interior optimum. -/
+theorem whir_listSize_mono_m {ρ : ℝ} (hsr : 0 < Real.sqrt ρ) {m m' : ℝ} (h : m ≤ m') :
+    (m + 1 / 2) / Real.sqrt ρ ≤ (m' + 1 / 2) / Real.sqrt ρ := by
+  rw [div_le_div_iff₀ hsr hsr]
+  exact mul_le_mul_of_nonneg_right (by linarith) hsr.le
+
 end Soundcalc

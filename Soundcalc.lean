@@ -29,3 +29,5 @@ import Soundcalc.Monotonicity.Basic
 import Soundcalc.Monotonicity.Regime
 import Soundcalc.Monotonicity.FRI
 import Soundcalc.Monotonicity.WHIR
+import Soundcalc.Monotonicity.Lookup
+import Soundcalc.Monotonicity.DeepAli

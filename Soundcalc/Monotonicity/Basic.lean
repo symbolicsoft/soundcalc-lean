@@ -142,4 +142,13 @@ theorem secBits_grinded_le_field {alg : ℚ} {card g : ℕ} (hcard : 0 < card)
   rw [secBits_grind halgpos hhi g]
   exact Nat.add_le_add_right (secBits_le_field hcard hlo) g
 
+/-- **Grinding is antitone.** Dividing a nonnegative error by more PoW bits never increases it — the
+shared `grind ↓` mechanism behind every grinded cell (`queryErr`, `batchingErr`, `commitErr`,
+`deepErr`, `errUB`). -/
+theorem div_pow_two_antitone {a : ℚ} (ha : 0 ≤ a) {g g' : ℕ} (h : g ≤ g') :
+    a / 2 ^ g' ≤ a / 2 ^ g := by
+  have hg : (2 : ℚ) ^ g ≤ 2 ^ g' := by gcongr; norm_num
+  rw [div_le_div_iff₀ (by positivity) (by positivity)]
+  exact mul_le_mul_of_nonneg_left hg ha
+
 end Soundcalc

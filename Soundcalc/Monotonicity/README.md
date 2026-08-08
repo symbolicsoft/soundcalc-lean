@@ -190,6 +190,22 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 | `DeepAliCfg.deepErr_antitone_rho` | rate (2-config) | Higher `ρ` ⇒ smaller DEEP error (via `H/ρ` in the denominator). |
 | `DeepAliCfg.deepErr_mono_traceLen` | trace (2-config) | Longer trace `H` ⇒ larger DEEP error. |
 
+## `Jagged.lean`
+
+`zerocheckErr = (C + (deg+2)·⌈log₂ H⌉)/|F|` and `reduceErr = (⌈log₂ w⌉ + …)/|F|`. `JaggedCfg` pins
+`field`/`densePCS`/`lookups`; `traceLength`/`traceWidth`/`numConstraints`/`airMaxDegree` are free
+knobs. Proof size is omitted — `getJaggedProofSizeBits` is private and reads only the pinned dense
+PCS, so it has no Jagged-level knob and inherits the dense PCS's proof-size monotonicity.
+
+| theorem | knob | description |
+|---|---|---|
+| `JaggedCfg.zerocheckErr_mono_numConstraints` | `numConstraints` | More constraints ⇒ larger zerocheck error. |
+| `JaggedCfg.zerocheckErr_mono_airMaxDegree` | `airMaxDegree` | Higher AIR degree ⇒ larger zerocheck error. |
+| `JaggedCfg.zerocheckErr_mono_traceLength` | `traceLength` | Longer trace ⇒ larger zerocheck error (via `⌈log₂ H⌉`). |
+| `JaggedCfg.reduceErr_mono_traceWidth` | `traceWidth` | Wider trace ⇒ larger reduction error (via `⌈log₂ w⌉`). |
+| `JaggedCfg.zerocheckErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller zerocheck error. |
+| `JaggedCfg.reduceErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller reduction error. |
+
 ## `Regime.lean` — foundations (Johnson vs. unique decoding, field ceiling)
 
 | theorem | description |

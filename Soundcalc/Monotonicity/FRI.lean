@@ -18,8 +18,10 @@ Organised in two tiers:
   the Merkle proof-size atoms, the proof-size `foldl` monotonicity, and the folding-product /
   dimension lemmas. Not part of the catalogue; they are the proof toolkit.
 
-Proof-size results are for the worst case (`expected = false`); the `expected = true` amortized
-hash count has a much harder monotonicity and is left.
+Proof-size results are worst case (`expected = false`) except the `batchSize` knob, which is proven
+for **both** `expected` values (`proofSizeExp_mono_batchSize`) since `batchSize` only scales the
+initial multi-proof's leaves. The `numQueries` knob for `expected = true` is still open — it needs
+monotonicity of the `numHashes` inclusion–exclusion sum in the number of openings.
 -/
 
 namespace Soundcalc
@@ -81,6 +83,50 @@ theorem friFold_mono (hashBits fieldBits : ℕ) {q q' : ℕ} (hq : q ≤ q') (l 
     have hm := getSizeOfMerkleMultiProofBits_worst_mono_numOpenings (n / factor) factor fieldBits hashBits hq
     omega
 
+/-- The proof-size `foldl` is monotone in the **starting bits** for a *fixed* `numQueries` and any
+`expected`: every round adds the same amount to both threads (it depends only on the shared domain
+`acc.2`), so a larger initial value stays larger and the domain thread is identical. This is the
+`batchSize`-knob analogue of `friFold_mono` — it needs no per-round monotonicity, so it holds for the
+`expected = true` amortized count too. -/
+theorem friFold_mono_init (hashBits fieldBits numQueries : ℕ) (expected : Bool) (l : List ℕ) :
+    ∀ (b b' n : ℕ), b ≤ b' →
+      (l.foldl (fun (acc : ℕ × ℕ) factor =>
+          (acc.1 + hashBits + getSizeOfMerkleMultiProofBits (acc.2 / factor) numQueries factor fieldBits hashBits expected,
+           acc.2 / factor)) (b, n)).1
+        ≤ (l.foldl (fun (acc : ℕ × ℕ) factor =>
+          (acc.1 + hashBits + getSizeOfMerkleMultiProofBits (acc.2 / factor) numQueries factor fieldBits hashBits expected,
+           acc.2 / factor)) (b', n)).1
+      ∧ (l.foldl (fun (acc : ℕ × ℕ) factor =>
+          (acc.1 + hashBits + getSizeOfMerkleMultiProofBits (acc.2 / factor) numQueries factor fieldBits hashBits expected,
+           acc.2 / factor)) (b, n)).2
+        = (l.foldl (fun (acc : ℕ × ℕ) factor =>
+          (acc.1 + hashBits + getSizeOfMerkleMultiProofBits (acc.2 / factor) numQueries factor fieldBits hashBits expected,
+           acc.2 / factor)) (b', n)).2 := by
+  induction l with
+  | nil => intro b b' n hb; exact ⟨hb, rfl⟩
+  | cons factor l' ih =>
+    intro b b' n hb
+    simp only [List.foldl_cons]
+    apply ih
+    omega
+
+/-- The Merkle multi-proof is monotone in the folding-block (leaf) size `tupleSize` for **either**
+`expected` value: worst case scales the per-opening path, and the expected case scales `leafsSize`
+(`numOpenings·tupleSize·elemBits`) while the hash-count term is `tupleSize`-independent. -/
+theorem getSizeOfMerkleMultiProofBits_mono_tupleSize
+    (numLeafs numOpenings elemBits hashBits : ℕ) (expected : Bool) {t t' : ℕ} (h : t ≤ t') :
+    getSizeOfMerkleMultiProofBits numLeafs numOpenings t elemBits hashBits expected
+      ≤ getSizeOfMerkleMultiProofBits numLeafs numOpenings t' elemBits hashBits expected := by
+  unfold getSizeOfMerkleMultiProofBits
+  cases expected with
+  | false =>
+    simp only [Bool.false_eq_true, if_false]
+    gcongr
+    exact getSizeOfMerkleProofBits_mono_tupleSize numLeafs elemBits hashBits h
+  | true =>
+    simp only [if_true, getSizeOfMerkleMultiProofBitsExpected]
+    gcongr
+
 /-- **No free lunch (worst case).** The FRI proof size is monotone in `numQueries`: every extra
 query enlarges the proof. Paired with `secBits_query_mono_numQueries` (more queries ⇒ more
 security), this is the formal statement that query-security is *bought* with proof size. -/
@@ -111,20 +157,21 @@ theorem getSizeOfMerkleMultiProofBits_worst_mono_tupleSize
   gcongr
   exact getSizeOfMerkleProofBits_mono_tupleSize numLeafs elemBits hashBits h
 
-/-- **Batching proof-size cost.** The FRI proof size is monotone in `batchSize`: the batched
-polynomials all ride in the *initial* Merkle multi-proof (`tupleSize = batchSize`), so batching
-more of them enlarges the proof. (The fold rounds don't see `batchSize`, so `friFold_mono` with the
-same `numQueries` on both sides carries it through.) -/
+/-- **Batching proof-size cost — worst *and* expected.** The FRI proof size is monotone in
+`batchSize` for **either** `expected` value: the batched polynomials all ride in the *initial* Merkle
+multi-proof (`tupleSize = batchSize`), and the fold rounds don't see `batchSize`, so `friFold_mono_init`
+(no per-round monotonicity needed) carries the initial difference through — even for the harder
+`expected = true` amortized count. -/
 theorem getFRIProofSizeBits_mono_batchSize (hashBits fieldBits numQueries domainSize : ℕ)
-    (folds : List ℕ) (rate : ℚ) {b b' : ℕ} (hb : b ≤ b') :
-    getFRIProofSizeBits hashBits fieldBits b numQueries domainSize folds rate false
-      ≤ getFRIProofSizeBits hashBits fieldBits b' numQueries domainSize folds rate false := by
+    (folds : List ℕ) (rate : ℚ) (expected : Bool) {b b' : ℕ} (hb : b ≤ b') :
+    getFRIProofSizeBits hashBits fieldBits b numQueries domainSize folds rate expected
+      ≤ getFRIProofSizeBits hashBits fieldBits b' numQueries domainSize folds rate expected := by
   unfold getFRIProofSizeBits
-  have hinit : hashBits + getSizeOfMerkleMultiProofBits domainSize numQueries b fieldBits hashBits false
-      ≤ hashBits + getSizeOfMerkleMultiProofBits domainSize numQueries b' fieldBits hashBits false := by
-    have := getSizeOfMerkleMultiProofBits_worst_mono_tupleSize domainSize numQueries fieldBits hashBits hb
+  have hinit : hashBits + getSizeOfMerkleMultiProofBits domainSize numQueries b fieldBits hashBits expected
+      ≤ hashBits + getSizeOfMerkleMultiProofBits domainSize numQueries b' fieldBits hashBits expected := by
+    have := getSizeOfMerkleMultiProofBits_mono_tupleSize domainSize numQueries fieldBits hashBits expected hb
     omega
-  obtain ⟨hbits, hfin⟩ := friFold_mono hashBits fieldBits (le_refl numQueries) folds _ _ domainSize hinit
+  obtain ⟨hbits, hfin⟩ := friFold_mono_init hashBits fieldBits numQueries expected folds _ _ domainSize hinit
   exact Nat.add_le_add hbits (Nat.le_of_eq (by rw [hfin]))
 
 /-! ## Later rounds process smaller instances (the FRI analog of `WHIRConfig.logDegree_anti`)
@@ -230,7 +277,18 @@ theorem FRIConfig.proofSizeWorst_mono_batchSize (c : FRIConfig) {b : ℕ}
     (h : c.batchSize ≤ b) :
     c.proofSizeWorst ≤ ({c with batchSize := b}).proofSizeWorst := by
   simp only [FRIConfig.proofSizeWorst]
-  exact getFRIProofSizeBits_mono_batchSize _ _ _ _ _ _ h
+  exact getFRIProofSizeBits_mono_batchSize _ _ _ _ _ _ _ h
+
+/-- **Batch knob → expected proof size (↑).** The amortized (`expected = true`) FRI proof size is
+also monotone in `batchSize`: `batchSize` only scales the initial multi-proof's leaves, which the
+expected-size formula counts linearly. (Closes the `expected = true` batch cell; the `numQueries`
+cell for `expected = true` stays open — it needs monotonicity of the `numHashes` inclusion–exclusion
+sum in the number of openings.) -/
+theorem FRIConfig.proofSizeExp_mono_batchSize (c : FRIConfig) {b : ℕ}
+    (h : c.batchSize ≤ b) :
+    c.proofSizeExp ≤ ({c with batchSize := b}).proofSizeExp := by
+  simp only [FRIConfig.proofSizeExp]
+  exact getFRIProofSizeBits_mono_batchSize _ _ _ _ _ _ _ h
 
 /-- **Query-grind knob → soundness (↓).** More query-phase PoW bits never raise the query-cell
 error (`div_pow_two_antitone` on `(1 − θ)^numQueries`). -/

@@ -52,7 +52,7 @@ Backing lemma per cell (`—` cells omitted):
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 | JBR `m` = ∗ | `whir_multiplicity_interior_optimum` (**proves** the reported security is non-monotone in `m` — strict interior maximum), built from `whir_agreement_antitone_m` (query security rises) **vs** `whir_listSize_mono_m` (algebraic security falls) via `min_rise_fall_interior_max` |
-| FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` (batch ↑) |
+| FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` / `proofSizeExp_mono_batchSize` (batch ↑, worst **and** expected) |
 
 Notes.
 `†` — the list size multiplies the lookup error only in the SWIRL analysis; the FRI-based zkVMs'
@@ -93,6 +93,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.proofSizeWorst_mono_numQueries` | `numQueries` | **No free lunch:** more queries never shrink the proof (cost side). |
 | `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error (`power_batching` path). |
 | `FRIConfig.proofSizeWorst_mono_batchSize` | `batchSize` | **Batching proof-size cost:** the batched polys ride the initial multi-proof, so more of them ⇒ bigger proof. |
+| `FRIConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, for the **expected** (amortized, `expected = true`) proof size — `batchSize` scales only the initial leaves. |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
 | `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |

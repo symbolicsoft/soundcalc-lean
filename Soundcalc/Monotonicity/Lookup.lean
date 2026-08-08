@@ -180,4 +180,14 @@ theorem LookupCfg.errUB_mono_numColumnsS (c : LookupCfg) {S : ℕ} (h : c.numCol
     (mul_le_mul_of_nonneg_left (columnAggregFactor_mono h _) (by positivity))
     (by exact_mod_cast c.field.card_pos)
 
+/-- **Auxiliary-error knob → soundness (↑).** A larger `reductionErr` never lowers the lookup error
+(it is added on top in the multivariate GKR branch; the univariate branch ignores it). -/
+theorem LookupCfg.errUB_mono_reductionErr (c : LookupCfg) {r : ℚ} (h : c.reductionErr ≤ r) :
+    c.errUB ≤ ({c with reductionErr := r}).errUB := by
+  dsimp only [LookupCfg.errUB]
+  refine div_le_div_same (add_le_add le_rfl ?_) (by positivity)
+  split_ifs with hm
+  · linarith
+  · exact le_rfl
+
 end Soundcalc

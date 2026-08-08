@@ -305,7 +305,16 @@ theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig) (hp : c.powerB
     ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
   dsimp only [FRIConfig.batchingErr]
   rw [if_pos hp, if_pos hp]
-  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ c.denseLen hbs) h
+  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hbs) h
+
+/-- **Commit-grind knob → soundness (↓).** More commit-phase PoW bits never raise the per-round
+commit-cell error `commitErr i = errPowers(ρ, denseLen/∏kⱼ, kᵢ) / 2^grindCommit`. The companion of
+`batchingErr_antitone_grindBatch` for the commit cell. -/
+theorem FRIConfig.commitErr_antitone_grindCommit (c : FRIConfig) (i : ℕ)
+    (hf : 1 ≤ c.foldingFactors.getD i 1) {g : ℕ} (h : c.grindCommit ≤ g) :
+    ({c with grindCommit := g}).commitErr (UDR c.field) i ≤ c.commitErr (UDR c.field) i := by
+  dsimp only [FRIConfig.commitErr]
+  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hf) h
 
 /-- **Query, rate column (↑).** At `UDR` the query error is `(1 − θ)^q / 2^g = ((1+ρ)/2)^q / 2^g`,
 which is **monotone in the rate** `ρ`: a higher rate widens `1 − θ`, so the query cell is larger.

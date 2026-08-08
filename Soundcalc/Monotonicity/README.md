@@ -47,7 +47,7 @@ Backing lemma per cell (`—` cells omitted):
 | Error term | backing lemmas |
 |---|---|
 | FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_mono_rho` (ρ — `((1+ρ)/2)^q/2^g` is monotone in ρ) |
-| FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
+| FRI commit / batching | `batchingErr_antitone_grindBatch` / `commitErr_antitone_grindCommit` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
@@ -82,14 +82,16 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 `getFRIProofSizeBits`. The record-update knobs are `numQueries` and `batchSize` (the others —
 `denseLen`, `ρ`, `foldingFactors` — are pinned together by the config's `h_earlyStop` invariant).
 
-### Sensitivity (`q` = numQueries, `gQ`/`gB` = grind query/batch, `H` = denseLen)
+### Sensitivity (`q` = numQueries, `gQ`/`gB`/`gC` = grind query/batch/commit, `H` = denseLen)
 
-| cell | `q` | `gQ` | `gB` | `ρ` | `H` | batch | `\|F\|` |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `queryErr` | ↓ | ↓ | — | ↑ | — | — | — |
-| `batchingErr` | — | — | ↓ | ↓ | ↑ | ↑ | ↓ |
+| cell | `q` | `gQ` | `gB` | `gC` | `ρ` | `H` | batch | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `queryErr` | ↓ | ↓ | — | — | ↑ | — | — | — |
+| `batchingErr` | — | — | ↓ | — | ↓ | ↑ | ↑ | ↓ |
+| `commitErr` | — | — | — | ↓ | ↓ | ↑ | — | ↓ |
 
-`ρ`/`H`/`\|F\|` on `batchingErr` are proved at the regime level (`UDR_errPowers_*`).
+`ρ`/`H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`UDR_errPowers_*`);
+`commitErr`'s batch arg is the folding factor `kᵢ` (pinned), so the `batch` column is `—` there.
 **Proof size** (a size, not an error): proven monotone in `q` and `batch` (`batch` worst **and**
 expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), which are pinned by
 `h_earlyStop`, so those aren't `—` — just not turned into theorems.
@@ -110,6 +112,7 @@ expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), 
 | `FRIConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, for the **expected** (amortized, `expected = true`) proof size — `batchSize` scales only the initial leaves. |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
+| `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
 | `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |
 
 ### Foundations
@@ -183,11 +186,12 @@ field is a record-update knob.
 
 ### Sensitivity (one cell, `errUB`)
 
-| knob | `grindBitsLookup` | `rowsL`/`rowsT` (`H`) | `numLookupsM` | `numColumnsS` | `\|F\|` |
-|---|:---:|:---:|:---:|:---:|:---:|
-| `errUB` | ↓ | ↑ | ↑ | ↑ | ↓ |
+| knob | `grindBitsLookup` | `rowsL`/`rowsT` (`H`) | `numLookupsM` | `numColumnsS` | `reductionErr` | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| `errUB` | ↓ | ↑ | ↑ | ↑ | ↑ | ↓ |
 
-(`H = rowsL + rowsT` — both halves are proven; `numLookupsM`/`numColumnsS` are the two batch knobs.)
+(`H = rowsL + rowsT` — both halves proven; `numLookupsM`/`numColumnsS` are the two batch knobs;
+`reductionErr` ↑ only in the multivariate branch.)
 
 ### Catalogue
 
@@ -199,6 +203,7 @@ field is a record-update knob.
 | `LookupCfg.errUB_mono_rowsL` | `rowsL` | The other `H` half — more `rowsL` rows ⇒ larger lookup error. |
 | `LookupCfg.errUB_mono_numLookupsM` | `numLookupsM` | More lookups ⇒ larger error (batch). |
 | `LookupCfg.errUB_mono_numColumnsS` | `numColumnsS` | More columns ⇒ larger error (batch, via `R`; GKR is `S`-independent). |
+| `LookupCfg.errUB_mono_reductionErr` | `reductionErr` | A larger auxiliary reduction error ⇒ larger lookup error (multivariate branch). |
 
 ### Foundations
 

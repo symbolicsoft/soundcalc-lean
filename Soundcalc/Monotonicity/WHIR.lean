@@ -169,7 +169,7 @@ theorem WHIRConfig.batchingErr_antitone_grindBatch (c : WHIRConfig) (hp : c.powe
   dsimp only [WHIRConfig.batchingErr]
   rw [if_pos hp, if_pos hp]
   exact div_pow_two_antitone
-    (UDR_errPowers_nonneg c.field (c.rate 0) (c.dim 0 0) c.h_batchSize) h
+    (UDR_errPowers_nonneg c.field (c.rate 0) (by positivity) c.h_batchSize) h
 
 /-! ## Proof size — closing the FRI↔WHIR asymmetry (batch knob)
 

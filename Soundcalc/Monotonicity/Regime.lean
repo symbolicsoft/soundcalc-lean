@@ -152,17 +152,18 @@ theorem UDR_errPowers_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' :
     linarith
   gcongr
 
-/-- The powers-batching error is nonnegative (for `b ≥ 1`) — needed to apply the grinding
-antitonicity to the batching cell. -/
-theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) (d : ℕ) {b : ℕ} (hb : 1 ≤ b) :
+/-- The powers-batching error is nonnegative (for `b ≥ 1` and a nonnegative dimension) — needed to
+apply the grinding antitonicity to the batching/commit cells. The dimension is a rational so that
+this also serves `commitErr`, whose dimension is `denseLen / ∏ foldingFactors`. -/
+theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) {d : ℚ} (hd : 0 ≤ d) {b : ℕ} (hb : 1 ≤ b) :
     0 ≤ (UDR F).errPowers ρ d b := by
   obtain ⟨r, hr0, hr1⟩ := ρ
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
   have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
     have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
     linarith
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * (d / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * (d / r) := mul_nonneg (by linarith) (div_nonneg hd hr0.le)
     linarith
   simp only [UDR]
   exact mul_nonneg (div_nonneg hnum hc.le) hbb

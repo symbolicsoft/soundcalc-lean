@@ -46,7 +46,7 @@ Backing lemma per cell (`—` cells omitted):
 
 | Error term | backing lemmas |
 |---|---|
-| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_antitone_radius` (ρ enters via `θ_LB = (1−ρ)/2`, which is antitone in ρ) |
+| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_mono_rho` (ρ — `((1+ρ)/2)^q/2^g` is monotone in ρ) |
 | FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
@@ -95,6 +95,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.proofSizeWorst_mono_batchSize` | `batchSize` | **Batching proof-size cost:** the batched polys ride the initial multi-proof, so more of them ⇒ bigger proof. |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
+| `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |
 
 ### Foundations
 

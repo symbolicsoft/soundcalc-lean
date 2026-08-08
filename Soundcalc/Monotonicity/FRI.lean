@@ -249,4 +249,18 @@ theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig) (hp : c.powerB
   rw [if_pos hp, if_pos hp]
   exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ c.denseLen hbs) h
 
+/-- **Query, rate column (↑).** At `UDR` the query error is `(1 − θ)^q / 2^g = ((1+ρ)/2)^q / 2^g`,
+which is **monotone in the rate** `ρ`: a higher rate widens `1 − θ`, so the query cell is larger.
+`ρ` is pinned by `h_earlyStop`, so — like the DEEP `ρ`/`H`/`|F|` cells — this compares two configs
+that agree on the other query inputs (`numQueries`, `grindQuery`), at a common `UDR` regime. -/
+theorem FRIConfig.queryErr_mono_rho (c c' : FRIConfig) (F : FieldParams)
+    (hq : c'.numQueries = c.numQueries) (hg : c'.grindQuery = c.grindQuery)
+    (hρ : (c.ρ : ℚ) ≤ (c'.ρ : ℚ)) :
+    c.queryErr (UDR F) ≤ c'.queryErr (UDR F) := by
+  simp only [FRIConfig.queryErr, UDR]
+  rw [hq, hg]
+  refine div_le_div_same (pow_le_pow_left₀ ?_ ?_ _) (by positivity)
+  · have := c.ρ.2.1; linarith
+  · linarith
+
 end Soundcalc

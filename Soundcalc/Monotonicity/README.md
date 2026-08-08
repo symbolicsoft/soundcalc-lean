@@ -3,15 +3,12 @@
 Monotonicity / optimality theorems for the PCS soundness and proof-size formulas: the "more than a
 point-wise calculator" layer.
 
-Each file is organised in **two tiers**:
-
-- **Catalogue** — the user-facing results. Config-level theorems that say how a *cell* (soundness
-  error, security bits, or proof size) moves when you turn one *knob* — either a configuration field
-  (`{c with numQueries := …}`) or the decoding regime (UDR vs JBR). These are the rows of the
-  sensitivity catalog below.
-- **Foundations** — the bare-parameter mechanisms the catalogue is built from (the query-cell shape,
-  the Merkle proof-size atoms, the `scanl`/`foldl` monotonicities, the real-analysis facts). Not
-  user-facing; they are the proof toolkit.
+This is the **catalogue** — config-level results that say how a *cell* (soundness error, security
+bits, or proof size) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`)
+or the decoding regime (UDR vs JBR). The cross-cutting table comes first, then one grid per component.
+(The supporting lemmas — the query-cell shape, Merkle proof-size atoms, `scanl`/`foldl` monotonicities,
+`errLinear`/`errPowers` mechanisms, and real-analysis facts — live in `Basic.lean` / `Regime.lean` and
+the foundations of each file; they're the proof toolkit, not catalogued here.)
 
 ## Shared quantities (referenced by several theorems)
 
@@ -115,21 +112,6 @@ expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), 
 | `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
 | `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |
 
-### Foundations
-
-| theorem | description |
-|---|---|
-| `getSizeOfMerkleProofBits_mono_tupleSize` | A bigger folding factor makes each Merkle opening larger (the folding-leaf cost). |
-| `getSizeOfMerkleMultiProofBits_worst_mono_numOpenings` | Worst-case multi-proof grows with the query count (the shared proof-size atom). |
-| `getSizeOfMerkleMultiProofBits_worst_mono_tupleSize` | Worst multi-proof grows with the folding-leaf size `tupleSize`. |
-| `getSizeOfMerkleMultiProofBits_mono_tupleSize` | Multi-proof grows with `tupleSize` for **either** `expected` value (shared by FRI and WHIR proof size). |
-| `friFold_mono` | The proof-size `foldl` is monotone in `numQueries` (domain thread shared, bit thread grows). |
-| `friFold_mono_init` | The proof-size `foldl` is monotone in the *starting bits* (fixed `numQueries`, any `expected`) — the `batchSize` mechanism. |
-| `getFRIProofSizeBits_mono_numQueries` / `_mono_batchSize` | Bare-parameter proof-size monotonicity (lifted to the catalogue above). |
-| `UDR_errPowers_mono_batch` | Regime-level: `errPowers = errLinear·(batch−1)` grows with `batchSize` (lifted above). |
-| `friAcc_mono` | The accumulated folding factor `∏_{j≤i} kⱼ` grows with the round `i`. |
-| `friDimension_antitone` | **The folded dimension shrinks each round** — the FRI analog of `logDegree_anti`; with `UDR_errLinear_mono_dim`, later rounds are more secure. |
-
 ## `WHIR.lean`
 
 Query cell `epsilonQuery R i = (1 − δᵢ)^tᵢ / 2^gᵢ`; per-iteration recurrence `mᵢ₊₁ = mᵢ − kᵢ`,
@@ -154,7 +136,7 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 `batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
 in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature. The JBR
 multiplicity `m` (a regime quantity, not a config field) is the catalog's one `∗` cell —
-`whir_multiplicity_interior_optimum` (see the top-level table / foundations below).
+`whir_multiplicity_interior_optimum` (see the top-level table).
 
 ### Catalogue
 
@@ -168,19 +150,6 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 | `WHIRConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, expected/amortized proof size (FRI analog). |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
-
-### Foundations
-
-| theorem | description |
-|---|---|
-| `whir_agreement_list_le_unique` | List-regime agreement `√ρ·(1 + 1/2m)` ≤ unique `(1+ρ)/2` — exactly when `√ρ ≤ m·(1−√ρ)²`. |
-| `whir_listSize_ge_one` | List-regime list size `(m+½)/√ρ ≥ 1` — the cost that offsets the query-cell win. |
-| `whir_agreement_antitone_m` | Interior optimum (`∗`), force 1: the agreement `√ρ·(1+1/2m)` *improves* (antitone) as `m` grows — query security rises. |
-| `whir_listSize_mono_m` | Interior optimum (`∗`), force 2: the list size `(m+½)/√ρ` *grows* (monotone) with `m` — algebraic security falls. |
-| `min_rise_fall_interior_max` | The `min` of a rising and a falling function has a strict interior maximum (the reported-security mechanism). |
-| `whir_multiplicity_interior_optimum` | **Proves `∗`:** the reported security `min(rise, fall)` is non-monotone in `m` — a strict interior maximum (`2 < 4 > 2` at `m = 2,4,6`). |
-| `foldl_add_le` | A left fold `acc ↦ acc + g x` is monotone under a pointwise `g ≤ g'` (the proof-size mechanism). |
-| `getWHIRProofSizeBits_mono_batchSize` | Bare proof-size monotonicity in `batchSize` (any `expected`); `proofSize{Worst,Exp}` above lift it. |
 
 ## `Lookup.lean`
 
@@ -208,15 +177,6 @@ field is a record-update knob.
 | `LookupCfg.errUB_mono_numLookupsM` | `numLookupsM` | More lookups ⇒ larger error (batch). |
 | `LookupCfg.errUB_mono_numColumnsS` | `numColumnsS` | More columns ⇒ larger error (batch, via `R`; GKR is `S`-independent). |
 | `LookupCfg.errUB_mono_reductionErr` | `reductionErr` | A larger auxiliary reduction error ⇒ larger lookup error (multivariate branch). |
-
-### Foundations
-
-| theorem | description |
-|---|---|
-| `log2UB_mono` / `log2UB_nonneg` | `log2UB` is monotone and nonnegative. |
-| `columnAggregFactor_mono` / `columnAggregFactor_nonneg` | The column-aggregation factor `R` is monotone in `S` and nonnegative. |
-| `gkrErrorUB_mono_alphabet` / `gkrErrorUB_mono_lookups` | The GKR term grows with the alphabet size and the lookup count. |
-| `gkrErrorUB_antitone_card` / `gkrErrorUB_nonneg` | The GKR term is antitone in `|F|` and nonnegative. |
 
 ## `DeepAli.lean`
 
@@ -277,32 +237,8 @@ only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
 | `JaggedCfg.zerocheckErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller zerocheck error. |
 | `JaggedCfg.reduceErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller reduction error. |
 
-## `Regime.lean` — foundations (Johnson vs. unique decoding, field ceiling)
+---
 
-| theorem | description |
-|---|---|
-| `johnson_beats_unique` | The Johnson radius `1 − √ρ` beats the unique-decoding radius `(1−ρ)/2` (slack `(1−√ρ)²/2`). |
-| `one_div_card_le_errLinear` | The linear soundness error is `≥ 1/|F|`, so the field ceiling bites on algebraic cells. |
-| `secBits_errLinear_le_field` | The linear cell can never report more bits than the field baseline `⌊log₂|F|⌋`. |
-| `UDR_errLinear_mono_dim` | The linear error is monotone in the dimension `d` — smaller instance ⇒ more sound (lifted by FRI's `H` cells). |
-| `UDR_errLinear_antitone_card` / `UDR_errPowers_antitone_card` | Larger field ⇒ smaller error (`|F|` column). |
-| `UDR_errLinear_antitone_rho` / `UDR_errPowers_antitone_rho` | Higher rate `ρ` ⇒ smaller error (`ρ` column). |
-| `UDR_errPowers_mono_dim` | Powers error monotone in the dimension (`H` column for the commit/batching cell). |
-| `UDR_errPowers_nonneg` | The powers-batching error is nonnegative (`b ≥ 1`) — used by the grind knobs. |
-
-## `Basic.lean` — shared foundations
-
-| theorem | description |
-|---|---|
-| `two_sqrt_le` | AM–GM root `2√ρ ≤ 1 + ρ`; both the FRI radius and WHIR agreement bounds are corollaries. |
-| `scanl_step_le` / `scanl_step_ge` | `scanl` is non-decreasing / non-increasing when every step is. |
-| `queryShape_antitone_radius` | The query cell `(1 − θ)ᵗ/2ᵍ` is antitone in the decoding radius `θ`. |
-| `secBits_queryShape_mono_radius` | A larger decoding radius never gives fewer query-cell bits. |
-| `queryShape_antitone_numQueries` | The query cell is antitone in the query count `t` (base `≤ 1`). |
-| `secBits_queryShape_mono_numQueries` | More queries never reduce query-cell security. |
-| `FieldParams.card_pos` | `0 < |F|`. |
-| `secBits_le_field` | Field ceiling: `1/|F| ≤ ε ⇒ secBits ε ≤ secBits(1/|F|)`. |
-| `secBits_grind` | Grinding is exactly additive: `secBits(ε / 2ᵍ) = secBits ε + g`. |
-| `secBits_grinded_le_field` | A grinded algebraic cell reports `≤ ⌊log₂|F|⌋ + g` bits (statistical + PoW). |
-| `div_le_div_same` / `div_le_div_denom` | Cell division: monotone in the numerator / antitone in the denominator (the shared finishing steps). |
-| `div_pow_two_antitone` | **Grinding is antitone:** a nonnegative cell `/2^g` never grows with more PoW bits `g`. |
+The supporting lemmas (`Regime.lean` — Johnson-vs-unique, field ceiling, `errLinear`/`errPowers`
+monotonicities; `Basic.lean` — query-cell shape, `scanl` steps, `secBits` grinding, division helpers)
+are the proof toolkit behind the catalogue above; see the source files.

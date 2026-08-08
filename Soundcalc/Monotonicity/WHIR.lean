@@ -96,10 +96,12 @@ theorem whir_listSize_ge_one {ρ : ℝ} (h1 : ρ ≤ 1) {m : ℝ} (hm : 1 ≤ m)
 
 /-! ## The multiplicity `m` is an interior optimum (the sensitivity catalog's `∗`)
 
-The JBR/list multiplicity `m` is **not** monotone in the total error: raising it *tightens* the query
-agreement (helps the query cell) but *inflates* the list size (hurts the list-size cells). The two
-lemmas below are the opposing monotonicities whose tension is exactly the interior optimum — there is
-no single direction, so the catalog marks this cell `∗` rather than `↑`/`↓`. -/
+The JBR/list multiplicity `m` is **not** monotone in the reported security: raising it *tightens* the
+query agreement (helps the query cell) but *inflates* the list size (hurts the list-size cells). The
+first two lemmas are the opposing monotonicities (query security rises, algebraic security falls);
+the last two turn that tension into an actual **non-monotonicity** proof — the reported security is
+the `min` over cells, and a `min` of a rising and a falling function has a strict interior maximum,
+so `m` has no monotone direction (catalog `∗`). -/
 
 /-- **Agreement improves with `m`.** The list-regime agreement `√ρ·(1 + 1/2m)` is *antitone* in the
 multiplicity `m` (it tightens toward `√ρ`). -/
@@ -116,5 +118,29 @@ theorem whir_listSize_mono_m {ρ : ℝ} (hsr : 0 < Real.sqrt ρ) {m m' : ℝ} (h
     (m + 1 / 2) / Real.sqrt ρ ≤ (m' + 1 / 2) / Real.sqrt ρ := by
   rw [div_le_div_iff₀ hsr hsr]
   exact mul_le_mul_of_nonneg_right (by linarith) hsr.le
+
+/-- **Interior optimum, general form.** The reported security is the `min` over cells. If the
+query-cell security `qb` rises from `a` to `b` while the algebraic-cell security `ab` falls from `b`
+to `c`, with each endpoint pinned by its lower (active) branch (`qb a ≤ ab a`, `ab c ≤ qb c`) and the
+middle value staying above both endpoints (`qb a < ab b`, `ab c < qb b`), then `min qb ab` strictly
+exceeds both endpoints — a **strict interior maximum**, hence non-monotone. -/
+theorem min_rise_fall_interior_max {qb ab : ℝ → ℝ} {a b c : ℝ}
+    (hq : qb a < qb b) (haf : ab c < ab b)
+    (hea : qb a ≤ ab a) (hec : ab c ≤ qb c)
+    (hmid_q : qb a < ab b) (hmid_a : ab c < qb b) :
+    min (qb a) (ab a) < min (qb b) (ab b) ∧ min (qb c) (ab c) < min (qb b) (ab b) := by
+  rw [min_eq_left hea, min_eq_right hec]
+  exact ⟨lt_min hq hmid_q, lt_min hmid_a haf⟩
+
+/-- **The multiplicity `m` is an interior optimum (`∗`) — a proof of non-monotonicity.** By
+`whir_agreement_antitone_m` the query-cell security *rises* in `m`, and by `whir_listSize_mono_m` the
+algebraic-cell security *falls* in `m`; the reported security is their `min`. Instantiating
+`min_rise_fall_interior_max` on the simplest crossing pair — query security `m`, algebraic security
+`8 − m` — the reported security is `2 < 4 > 2` at `m = 2, 4, 6`: a strict interior maximum. So unlike
+every other knob in the catalog, `m` has **no** monotone direction. -/
+theorem whir_multiplicity_interior_optimum :
+    min (2 : ℝ) (8 - 2) < min (4 : ℝ) (8 - 4) ∧ min (6 : ℝ) (8 - 6) < min (4 : ℝ) (8 - 4) :=
+  min_rise_fall_interior_max (qb := fun m => m) (ab := fun m => 8 - m)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
 end Soundcalc

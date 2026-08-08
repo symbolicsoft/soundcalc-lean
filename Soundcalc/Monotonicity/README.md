@@ -51,7 +51,7 @@ Backing lemma per cell (`—` cells omitted):
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
-| JBR `m` = ∗ | `whir_agreement_antitone_m` (helps the query cell) **vs** `whir_listSize_mono_m` (hurts the list-size cells) |
+| JBR `m` = ∗ | `whir_multiplicity_interior_optimum` (**proves** the reported security is non-monotone in `m` — strict interior maximum), built from `whir_agreement_antitone_m` (query security rises) **vs** `whir_listSize_mono_m` (algebraic security falls) via `min_rise_fall_interior_max` |
 | FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` (batch ↑) |
 
 Notes.
@@ -67,8 +67,9 @@ inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, 
  - ALI `|F|` and DEEP `ρ`/`H`/`|F|` — by **two-config** lemmas (`aliErr_antitone_card`,
    `deepErr_antitone_card` / `_antitone_rho` / `_mono_traceLen`) that compare two configs agreeing on
    the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
-`∗` — provably non-monotone: `m` has no single direction, and the two opposing lemmas *are* the
-interior optimum.
+`∗` — provably non-monotone: `whir_multiplicity_interior_optimum` proves the reported security
+(`min` over cells) has a *strict interior maximum* in `m`, since query security rises while algebraic
+security falls; so `m` has no monotone direction.
 JBR row — its knobs are the gap `η` and multiplicity `m`, which are not among the columns: the error
 is `↓` in `η` (larger gap ⇒ smaller error) and `∗` in `m` (interior optimum). `η` is derived from
 `(F, ρ, g)` in our model (`etaLB`/`etaUB`), so it is not a free record-update knob.
@@ -129,8 +130,10 @@ list, so the query-count sensitivity is the shared shape lemma in `Basic.lean`).
 |---|---|
 | `whir_agreement_list_le_unique` | List-regime agreement `√ρ·(1 + 1/2m)` ≤ unique `(1+ρ)/2` — exactly when `√ρ ≤ m·(1−√ρ)²`. |
 | `whir_listSize_ge_one` | List-regime list size `(m+½)/√ρ ≥ 1` — the cost that offsets the query-cell win. |
-| `whir_agreement_antitone_m` | **Interior optimum (`∗`):** the agreement `√ρ·(1+1/2m)` *improves* (antitone) as the multiplicity `m` grows. |
-| `whir_listSize_mono_m` | **Interior optimum (`∗`):** the list size `(m+½)/√ρ` *grows* (monotone) with `m` — the opposing force. |
+| `whir_agreement_antitone_m` | Interior optimum (`∗`), force 1: the agreement `√ρ·(1+1/2m)` *improves* (antitone) as `m` grows — query security rises. |
+| `whir_listSize_mono_m` | Interior optimum (`∗`), force 2: the list size `(m+½)/√ρ` *grows* (monotone) with `m` — algebraic security falls. |
+| `min_rise_fall_interior_max` | The `min` of a rising and a falling function has a strict interior maximum (the reported-security mechanism). |
+| `whir_multiplicity_interior_optimum` | **Proves `∗`:** the reported security `min(rise, fall)` is non-monotone in `m` — a strict interior maximum (`2 < 4 > 2` at `m = 2,4,6`). |
 
 ## `Lookup.lean`
 

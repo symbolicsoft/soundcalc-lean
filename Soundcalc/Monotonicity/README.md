@@ -130,6 +130,22 @@ lemma in `Basic.lean`), but `batchSize` **is** a record-update knob — a *semi-
 `h_batchSize : 1 ≤ batchSize` must be re-supplied. Its batching-error and proof-size monotonicities
 mirror FRI exactly, closing the FRI↔WHIR asymmetry on the batch knob.
 
+### Sensitivity (`batch` = batchSize, `gB` = grindBatch; plus regime radius `δ`, round index `i`)
+
+WHIR's knobs are a mix: config fields (`batch`, `gB`), the decoding radius `δ` (regime), and the
+round index `i` (structural — the fixed-domain-shift recurrences, no FRI analog).
+
+| cell / quantity | batch | `gB` | radius `δ` | round `i` |
+|---|:---:|:---:|:---:|:---:|
+| `epsilonQuery` (query error) | — | — | ↓ | — |
+| `batchingErr` | ↑ | ↓ | — | — |
+| proof size | ↑ | — | — | — |
+| `logInvRate μᵢ` (rate `= 2^−μ` falls) | — | — | — | ↑ |
+| `logDegree mᵢ` (degree) | — | — | — | ↓ |
+
+`batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
+in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature.
+
 ### Catalogue
 
 | theorem | knob | description |

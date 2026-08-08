@@ -82,6 +82,17 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 `getFRIProofSizeBits`. The record-update knobs are `numQueries` and `batchSize` (the others —
 `denseLen`, `ρ`, `foldingFactors` — are pinned together by the config's `h_earlyStop` invariant).
 
+### Sensitivity (`q` = numQueries, `gQ`/`gB` = grind query/batch, `H` = denseLen)
+
+| cell | `q` | `gQ` | `gB` | `ρ` | `H` | batch | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `queryErr` | ↓ | ↓ | — | ↑ | — | — | — |
+| `batchingErr` | — | — | ↓ | ↓ | ↑ | ↑ | ↓ |
+| proof size | ↑ | — | — | — | — | ↑ | — |
+
+`ρ`/`H`/`\|F\|` on `batchingErr` are proved at the regime level (`UDR_errPowers_*`); proof size is
+worst **and** expected for the `batch` cell.
+
 ### Catalogue
 
 | theorem | knob | description |
@@ -149,6 +160,14 @@ mirror FRI exactly, closing the FRI↔WHIR asymmetry on the batch knob.
 (`H = rowsL + rowsT`, `R = columnAggregFactor`). `LookupCfg` has no coherence invariant, so every
 field is a record-update knob.
 
+### Sensitivity (one cell, `errUB`)
+
+| knob | `grindBitsLookup` | `rowsT` (`H`) | `numLookupsM` | `numColumnsS` | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `errUB` | ↓ | ↑ | ↑ | ↑ | ↓ |
+
+(`rowsL` is the symmetric `H` half; `numLookupsM`/`numColumnsS` are the two batch knobs.)
+
 ### Catalogue
 
 | theorem | knob | description |
@@ -175,6 +194,15 @@ field is a record-update knob.
 pins `field`/`densePCS`/`lookups` via its coherence invariants, so `|F|`/`ρ`/`H` are **not**
 record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 0`.
 
+### Sensitivity (`C` = numConstraints, `deg` = airMaxDegree, `mₓ` = maxCombo, `gD` = grindDeep)
+
+| cell | `C` | `deg` | `mₓ` | `gD` | `ρ` | `H` | `\|F\|` | `L` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `aliErr` | ↑ | — | — | — | — | — | ↓ | ↑ |
+| `deepErr` | — | ↑ | ↑ | ↓ | ↓ | ↑ | ↓ | ↑ |
+
+`ρ`/`H`/`\|F\|` are two-config lemmas (those fields are pinned); `L` is cross-regime (`listSize`).
+
 ### Catalogue
 
 | theorem | knob | description |
@@ -196,6 +224,18 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 `field`/`densePCS`/`lookups`; `traceLength`/`traceWidth`/`numConstraints`/`airMaxDegree` are free
 knobs. Proof size is omitted — `getJaggedProofSizeBits` is private and reads only the pinned dense
 PCS, so it has no Jagged-level knob and inherits the dense PCS's proof-size monotonicity.
+
+### Sensitivity (`C` = numConstraints, `deg` = airMaxDegree, `H` = traceLength, `w` = traceWidth)
+
+| cell | `C` | `deg` | `H` | `w` | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `zerocheckErr` | ↑ | ↑ | ↑ | — | ↓ |
+| `reduceErr` | — | — | — | ↑ | ↓ |
+
+`reduceErr`'s `H` is the *dense-PCS* trace length (`—` here, since Jagged's own `traceLength` feeds
+only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
+
+### Catalogue
 
 | theorem | knob | description |
 |---|---|---|

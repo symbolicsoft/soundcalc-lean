@@ -50,7 +50,7 @@ Backing lemma per cell (`—` cells omitted):
 | FRI commit / batching | `batchingErr_antitone_grindBatch` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
-| LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
+| LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 | JBR `m` = ∗ | `whir_multiplicity_interior_optimum` (**proves** the reported security is non-monotone in `m` — strict interior maximum), built from `whir_agreement_antitone_m` (query security rises) **vs** `whir_listSize_mono_m` (algebraic security falls) via `min_rise_fall_interior_max` |
 | FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` / `proofSizeExp_mono_batchSize` (batch ↑, worst **and** expected) |
 
@@ -88,10 +88,13 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | `queryErr` | ↓ | ↓ | — | ↑ | — | — | — |
 | `batchingErr` | — | — | ↓ | ↓ | ↑ | ↑ | ↓ |
-| proof size | ↑ | — | — | — | — | ↑ | — |
 
-`ρ`/`H`/`\|F\|` on `batchingErr` are proved at the regime level (`UDR_errPowers_*`); proof size is
-worst **and** expected for the `batch` cell.
+`ρ`/`H`/`\|F\|` on `batchingErr` are proved at the regime level (`UDR_errPowers_*`).
+**Proof size** (a size, not an error): proven monotone in `q` and `batch` (`batch` worst **and**
+expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), which are pinned by
+`h_earlyStop`, so those aren't `—` — just not turned into theorems.
+**Per round** (structural, not a knob): the folded dimension shrinks each round
+(`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`).
 
 ### Catalogue
 
@@ -144,7 +147,9 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 | `logDegree mᵢ` (degree) | — | — | — | ↓ |
 
 `batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
-in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature.
+in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature. The JBR
+multiplicity `m` (a regime quantity, not a config field) is the catalog's one `∗` cell —
+`whir_multiplicity_interior_optimum` (see the top-level table / foundations below).
 
 ### Catalogue
 
@@ -178,11 +183,11 @@ field is a record-update knob.
 
 ### Sensitivity (one cell, `errUB`)
 
-| knob | `grindBitsLookup` | `rowsT` (`H`) | `numLookupsM` | `numColumnsS` | `\|F\|` |
+| knob | `grindBitsLookup` | `rowsL`/`rowsT` (`H`) | `numLookupsM` | `numColumnsS` | `\|F\|` |
 |---|:---:|:---:|:---:|:---:|:---:|
 | `errUB` | ↓ | ↑ | ↑ | ↑ | ↓ |
 
-(`rowsL` is the symmetric `H` half; `numLookupsM`/`numColumnsS` are the two batch knobs.)
+(`H = rowsL + rowsT` — both halves are proven; `numLookupsM`/`numColumnsS` are the two batch knobs.)
 
 ### Catalogue
 
@@ -191,6 +196,7 @@ field is a record-update knob.
 | `LookupCfg.errUB_antitone_grindBitsLookup` | `grindBitsLookup` | More PoW bits ⇒ smaller lookup error (needs `reductionErr ≥ 0`). |
 | `LookupCfg.errUB_antitone_card` | `field` | Larger field ⇒ smaller lookup error (`|F|` column). |
 | `LookupCfg.errUB_mono_rowsT` | `rowsT` | More table rows ⇒ larger lookup error (`H` column). |
+| `LookupCfg.errUB_mono_rowsL` | `rowsL` | The other `H` half — more `rowsL` rows ⇒ larger lookup error. |
 | `LookupCfg.errUB_mono_numLookupsM` | `numLookupsM` | More lookups ⇒ larger error (batch). |
 | `LookupCfg.errUB_mono_numColumnsS` | `numColumnsS` | More columns ⇒ larger error (batch, via `R`; GKR is `S`-independent). |
 

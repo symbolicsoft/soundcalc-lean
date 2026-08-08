@@ -142,6 +142,21 @@ theorem LookupCfg.errUB_mono_rowsT (c : LookupCfg) {t : ℕ} (h : c.rowsT ≤ t)
     · exact add_le_add (gkrErrorUB_mono_alphabet c.field hH c.numLookupsM) le_rfl
     · exact le_rfl
 
+/-- **Small-table knob → soundness (↑).** The other half of `H`: more `rowsL` rows never lower the
+lookup error (mirror of `errUB_mono_rowsT`). -/
+theorem LookupCfg.errUB_mono_rowsL (c : LookupCfg) {l : ℕ} (h : c.rowsL ≤ l) :
+    c.errUB ≤ ({c with rowsL := l}).errUB := by
+  dsimp only [LookupCfg.errUB]
+  have hH : c.rowsL + c.rowsT ≤ l + c.rowsT := by omega
+  refine div_le_div_same (add_le_add ?_ ?_) (by positivity)
+  · exact div_le_div_same
+      (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left (by exact_mod_cast hH) (by positivity))
+        (columnAggregFactor_nonneg _ _))
+      (by exact_mod_cast c.field.card_pos)
+  · split_ifs with hm
+    · exact add_le_add (gkrErrorUB_mono_alphabet c.field hH c.numLookupsM) le_rfl
+    · exact le_rfl
+
 /-- **Lookup-count knob → soundness (↑).** More lookups never lower the lookup error (batch). -/
 theorem LookupCfg.errUB_mono_numLookupsM (c : LookupCfg) {M : ℕ} (h : c.numLookupsM ≤ M) :
     c.errUB ≤ ({c with numLookupsM := M}).errUB := by

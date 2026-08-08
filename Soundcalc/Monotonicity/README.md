@@ -114,8 +114,10 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 ## `WHIR.lean`
 
 Query cell `epsilonQuery R i = (1 − δᵢ)^tᵢ / 2^gᵢ`; per-iteration recurrence `mᵢ₊₁ = mᵢ − kᵢ`,
-`μᵢ₊₁ = μᵢ + (kᵢ − 1)`. WHIR has no record-update config-field knob (its query counts `tᵢ` are a
-list, so the query-count sensitivity is the shared shape lemma in `Basic.lean`).
+`μᵢ₊₁ = μᵢ + (kᵢ − 1)`. The query counts `tᵢ` are a list (query-count sensitivity is the shared shape
+lemma in `Basic.lean`), but `batchSize` **is** a record-update knob — a *semi-pinned* one, since
+`h_batchSize : 1 ≤ batchSize` must be re-supplied. Its batching-error and proof-size monotonicities
+mirror FRI exactly, closing the FRI↔WHIR asymmetry on the batch knob.
 
 ### Catalogue
 
@@ -123,6 +125,10 @@ list, so the query-count sensitivity is the shared shape lemma in `Basic.lean`).
 |---|---|---|
 | `WHIRConfig.epsilonQuery_antitone_radius` | regime | `epsilonQuery` is antitone in the decoding radius `δᵢ` (FRI analog). |
 | `WHIRConfig.epsilonQuery_bits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (FRI analog). |
+| `WHIRConfig.batchingErr_mono_batchSize` | `batchSize` | More batched polys ⇒ larger batching error (FRI analog of `batchingErr_mono_batchSize`). |
+| `WHIRConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (FRI analog). |
+| `WHIRConfig.proofSizeWorst_mono_batchSize` | `batchSize` | More batched polys ⇒ bigger proof — worst case (FRI analog). |
+| `WHIRConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, expected/amortized proof size (FRI analog). |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
 

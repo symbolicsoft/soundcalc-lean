@@ -1,4 +1,6 @@
 import Soundcalc.Monotonicity.Basic
+import Soundcalc.Monotonicity.Regime
+import Soundcalc.Monotonicity.FRI
 import Soundcalc.PCS.WHIR
 
 /-!
@@ -142,5 +144,77 @@ theorem whir_multiplicity_interior_optimum :
     min (2 : ℝ) (8 - 2) < min (4 : ℝ) (8 - 4) ∧ min (6 : ℝ) (8 - 6) < min (4 : ℝ) (8 - 4) :=
   min_rise_fall_interior_max (qb := fun m => m) (ab := fun m => 8 - m)
     (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+
+/-! ## Batching error — closing the FRI↔WHIR asymmetry
+
+WHIR's `batchingErr = base / 2^grindBatch` (with `base = errPowers (rate 0) (dim 0 0) batchSize` on
+the `power_batching` path) has the *same shape* as FRI's, so it gets the same monotonicity. `batchSize`
+is a *semi-pinned* knob: `h_batchSize : 1 ≤ batchSize` must be re-supplied on the record update. -/
+
+/-- **Batch knob → batching soundness (↑)** — the WHIR analogue of `FRIConfig.batchingErr_mono_batchSize`. -/
+theorem WHIRConfig.batchingErr_mono_batchSize (c : WHIRConfig) (hp : c.powerBatch = true)
+    {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
+    c.batchingErr (UDR c.field)
+      ≤ ({c with batchSize := b, h_batchSize := hb1}).batchingErr (UDR c.field) := by
+  dsimp only [WHIRConfig.batchingErr]
+  rw [if_pos hp, if_pos hp]
+  gcongr
+  exact UDR_errPowers_mono_batch c.field (c.rate 0) (c.dim 0 0) h
+
+/-- **Batch-grind knob → batching soundness (↓)** — the WHIR analogue of
+`FRIConfig.batchingErr_antitone_grindBatch`. -/
+theorem WHIRConfig.batchingErr_antitone_grindBatch (c : WHIRConfig) (hp : c.powerBatch = true)
+    {g : ℕ} (h : c.grindBatch ≤ g) :
+    ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
+  dsimp only [WHIRConfig.batchingErr]
+  rw [if_pos hp, if_pos hp]
+  exact div_pow_two_antitone
+    (UDR_errPowers_nonneg c.field (c.rate 0) (c.dim 0 0) c.h_batchSize) h
+
+/-! ## Proof size — closing the FRI↔WHIR asymmetry (batch knob)
+
+`batchSize` sits in exactly one place in `getWHIRProofSizeBits`: the initial (`i = 0`) multi-proof's
+leaf size (`tupleSize = 2^{k_0} · batchSize`). Every other summand is `batchSize`-independent, so the
+proof size is monotone in `batchSize` for either `expected` value — the WHIR analogue of
+`FRIConfig.proofSize{Worst,Exp}_mono_batchSize`. -/
+
+/-- Monotonicity of a left fold `acc ↦ acc + g x` under a pointwise `g ≤ g'`. -/
+theorem foldl_add_le {α : Type*} {g g' : α → ℕ} (hg : ∀ x, g x ≤ g' x) (l : List α)
+    {i i' : ℕ} (hi : i ≤ i') :
+    l.foldl (fun acc x => acc + g x) i ≤ l.foldl (fun acc x => acc + g' x) i' := by
+  induction l generalizing i i' with
+  | nil => exact hi
+  | cons x xs ih => simp only [List.foldl_cons]; exact ih (by have := hg x; omega)
+
+/-- **Batch knob → WHIR proof size (↑), worst and expected.** `batchSize` enlarges only the initial
+multi-proof's leaf size, so the proof size is monotone in it for either `expected` value. -/
+theorem WHIRConfig.getWHIRProofSizeBits_mono_batchSize (c : WHIRConfig) (expected : Bool)
+    {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
+    getWHIRProofSizeBits c expected
+      ≤ getWHIRProofSizeBits ({c with batchSize := b, h_batchSize := hb1}) expected := by
+  have emi : ({c with batchSize := b, h_batchSize := hb1}).mi = c.mi := rfl
+  have emui : ({c with batchSize := b, h_batchSize := hb1}).mui = c.mui := rfl
+  have eki : ({c with batchSize := b, h_batchSize := hb1}).ki = c.ki := rfl
+  simp only [getWHIRProofSizeBits, emi, emui, eki]
+  gcongr
+  refine foldl_add_le (fun i => ?_) _ le_rfl
+  by_cases hi0 : i = 0
+  · subst hi0
+    apply getSizeOfMerkleMultiProofBits_mono_tupleSize
+    show 2 ^ c.ki 0 * c.batchSize ≤ 2 ^ c.ki 0 * b
+    gcongr
+  · exact le_of_eq (by simp only [if_neg hi0])
+
+/-- WHIR worst-case proof size is monotone in `batchSize` (mirrors `FRIConfig.proofSizeWorst_mono_batchSize`). -/
+theorem WHIRConfig.proofSizeWorst_mono_batchSize (c : WHIRConfig) {b : ℕ} (hb1 : 1 ≤ b)
+    (h : c.batchSize ≤ b) :
+    c.proofSizeWorst ≤ ({c with batchSize := b, h_batchSize := hb1}).proofSizeWorst :=
+  c.getWHIRProofSizeBits_mono_batchSize false hb1 h
+
+/-- WHIR expected proof size is monotone in `batchSize` (mirrors `FRIConfig.proofSizeExp_mono_batchSize`). -/
+theorem WHIRConfig.proofSizeExp_mono_batchSize (c : WHIRConfig) {b : ℕ} (hb1 : 1 ≤ b)
+    (h : c.batchSize ≤ b) :
+    c.proofSizeExp ≤ ({c with batchSize := b, h_batchSize := hb1}).proofSizeExp :=
+  c.getWHIRProofSizeBits_mono_batchSize true hb1 h
 
 end Soundcalc

@@ -122,7 +122,9 @@ expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), 
 | `getSizeOfMerkleProofBits_mono_tupleSize` | A bigger folding factor makes each Merkle opening larger (the folding-leaf cost). |
 | `getSizeOfMerkleMultiProofBits_worst_mono_numOpenings` | Worst-case multi-proof grows with the query count (the shared proof-size atom). |
 | `getSizeOfMerkleMultiProofBits_worst_mono_tupleSize` | Worst multi-proof grows with the folding-leaf size `tupleSize`. |
+| `getSizeOfMerkleMultiProofBits_mono_tupleSize` | Multi-proof grows with `tupleSize` for **either** `expected` value (shared by FRI and WHIR proof size). |
 | `friFold_mono` | The proof-size `foldl` is monotone in `numQueries` (domain thread shared, bit thread grows). |
+| `friFold_mono_init` | The proof-size `foldl` is monotone in the *starting bits* (fixed `numQueries`, any `expected`) — the `batchSize` mechanism. |
 | `getFRIProofSizeBits_mono_numQueries` / `_mono_batchSize` | Bare-parameter proof-size monotonicity (lifted to the catalogue above). |
 | `UDR_errPowers_mono_batch` | Regime-level: `errPowers = errLinear·(batch−1)` grows with `batchSize` (lifted above). |
 | `friAcc_mono` | The accumulated folding factor `∏_{j≤i} kⱼ` grows with the round `i`. |
@@ -177,6 +179,8 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 | `whir_listSize_mono_m` | Interior optimum (`∗`), force 2: the list size `(m+½)/√ρ` *grows* (monotone) with `m` — algebraic security falls. |
 | `min_rise_fall_interior_max` | The `min` of a rising and a falling function has a strict interior maximum (the reported-security mechanism). |
 | `whir_multiplicity_interior_optimum` | **Proves `∗`:** the reported security `min(rise, fall)` is non-monotone in `m` — a strict interior maximum (`2 < 4 > 2` at `m = 2,4,6`). |
+| `foldl_add_le` | A left fold `acc ↦ acc + g x` is monotone under a pointwise `g ≤ g'` (the proof-size mechanism). |
+| `getWHIRProofSizeBits_mono_batchSize` | Bare proof-size monotonicity in `batchSize` (any `expected`); `proofSize{Worst,Exp}` above lift it. |
 
 ## `Lookup.lean`
 
@@ -300,3 +304,5 @@ only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
 | `secBits_le_field` | Field ceiling: `1/|F| ≤ ε ⇒ secBits ε ≤ secBits(1/|F|)`. |
 | `secBits_grind` | Grinding is exactly additive: `secBits(ε / 2ᵍ) = secBits ε + g`. |
 | `secBits_grinded_le_field` | A grinded algebraic cell reports `≤ ⌊log₂|F|⌋ + g` bits (statistical + PoW). |
+| `div_le_div_same` / `div_le_div_denom` | Cell division: monotone in the numerator / antitone in the denominator (the shared finishing steps). |
+| `div_pow_two_antitone` | **Grinding is antitone:** a nonnegative cell `/2^g` never grows with more PoW bits `g`. |

@@ -82,6 +82,12 @@ PCS, so they inherit these. Both the worst-case (`proofSizeWorst`, `expected = f
 amortized (`proofSizeExp`, `expected = true`) sizes are covered. `↑` = proven monotone; `open` = the
 direction is expected but not yet a theorem.
 
+We catalogue only the parameters that **trade proof size against a soundness gain** — the design
+levers `numQueries` and `batchSize` (more queries/batching buys security *and* costs proof size).
+Proof size also grows with other parameters (hash/field element size, domain size, folding structure,
+and WHIR's `constraintDegree`/`numOodSamples`), but those don't buy soundness — and several are pinned
+— so they're outside the "no free lunch" story this table is about.
+
 ### FRI proof size
 
 | cell | `numQueries` | `batchSize` |
@@ -102,11 +108,8 @@ Theorems: `FRIConfig.proofSizeWorst_mono_numQueries`, `FRIConfig.proofSizeWorst_
 Theorems: `WHIRConfig.proofSizeWorst_mono_batchSize`, `WHIRConfig.proofSizeExp_mono_batchSize`
 (`batchSize` semi-pinned: `1 ≤ batchSize` is re-supplied on the record update).
 
-Notes. Only `numQueries` and `batchSize` are turned into theorems — the design levers paired with the
-query/batch **soundness** gains (the "no free lunch": more queries buy security *and* cost proof
-size). Proof size also grows with the domain size and hash/field width, but those are pinned (FRI's
-`h_earlyStop`) or not central and aren't proven. `†` — the `expected = true` `numQueries` cell is
-open: it needs monotonicity of the `numHashes` inclusion–exclusion sum in the number of openings.
+`†` — the `expected = true` `numQueries` cell is open: it needs monotonicity of the `numHashes`
+inclusion–exclusion sum in the number of openings.
 
 ---
 

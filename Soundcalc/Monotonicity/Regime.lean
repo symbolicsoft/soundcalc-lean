@@ -216,7 +216,7 @@ private theorem jbr_dom {ms t : ℚ} (hms : 7 / 2 ≤ ms) (ht : -1 ≤ t) :
 `η ≤ 1`, and `0 < sqrtLB ρ g ≤ 1`). The crux for the JBR batching/commit monotonicities. -/
 theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
     (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (hη : η ≤ 1) (hsr0 : 0 < sqrtLB ρ g) (hsr1 : sqrtLB ρ g ≤ 1)
-    (d : ℕ) :
+    {d : ℚ} (hd : 0 ≤ d) :
     0 ≤ jbrErrLinear F η g ρ d := by
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
   have hm3 : 3 ≤ jbrM ρ η g := le_max_right _ 3
@@ -228,12 +228,146 @@ theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
       mul_nonneg (by linarith) hρ0.le
     nlinarith [hpos, hρ1]
   have hdom := jbr_dom hms hθρ
-  have hn : (0 : ℚ) ≤ (d : ℚ) / ρ := div_nonneg (by positivity) hρ0.le
+  have hn : (0 : ℚ) ≤ d / ρ := div_nonneg hd hρ0.le
   have hden : (0 : ℚ) < 3 * ρ * sqrtLB ρ g :=
     mul_pos (mul_pos (by norm_num) hρ0) hsr0
   simp only [jbrErrLinear]
   refine div_nonneg (add_nonneg ?_ ?_) hc.le
   · exact div_nonneg (mul_nonneg hdom hn) hden.le
   · exact div_nonneg (by linarith) hsr0.le
+
+/-- The JBR regime's linear error is nonnegative (packaging `jbrErrLinear_nonneg` at the `JBR`
+regime). The `sqrtLB`/`etaLB` side conditions hold for every real config. -/
+theorem JBR_errLinear_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) :
+    0 ≤ (JBR F g gap).errLinear ρ d := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR]
+  exact jbrErrLinear_nonneg F hr0 hr1 hη hsr0 hsr1 hd
+
+/-- **Batching cost at JBR.** `JBR.errPowers = jbrErrLinear·(b−1)` is monotone in `batchSize`. -/
+theorem JBR_errPowers_mono_batch (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b b' : ℕ} (h : b ≤ b') :
+    (JBR F g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d b' := by
+  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  have hbb : ((b : ℚ) - 1) ≤ ((b' : ℚ) - 1) := by
+    have : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
+    linarith
+  exact mul_le_mul_of_nonneg_left hbb hlin
+
+/-- **Multilinear batching cost at JBR** (SP1's mode). `JBR.errMultilinear = jbrErrLinear·⌈log₂ b⌉`. -/
+theorem JBR_errMultilinear_mono_batch (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b b' : ℕ} (h : b ≤ b') :
+    (JBR F g gap).errMultilinear ρ d b ≤ (JBR F g gap).errMultilinear ρ d b' := by
+  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  have hclog : (Nat.clog 2 b : ℚ) ≤ (Nat.clog 2 b' : ℚ) := by
+    exact_mod_cast Nat.clog_mono_right 2 h
+  exact mul_le_mul_of_nonneg_left hclog hlin
+
+/-- The JBR powers error is nonnegative (`b ≥ 1`) — for the JBR grind knobs. -/
+theorem JBR_errPowers_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b : ℕ} (hb : 1 ≤ b) :
+    0 ≤ (JBR F g gap).errPowers ρ d b := by
+  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  exact mul_nonneg hlin hbb
+
+/-- The JBR multilinear error is nonnegative — for the JBR grind knob on SP1's mode. -/
+theorem JBR_errMultilinear_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) (b : ℕ) :
+    0 ≤ (JBR F g gap).errMultilinear ρ d b := by
+  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  exact mul_nonneg hlin (by positivity)
+
+/-- **The `H` cell at JBR.** `jbrErrLinear` is monotone in the dimension `d` (it enters linearly via
+`n = d/ρ`, and the coefficient is nonnegative). Unlike `ρ`/`|F|`, `d` does not thread through the gap
+`etaLB`, so this is clean. -/
+theorem JBR_errLinear_mono_dim (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d d' : ℚ}
+    (hdd : d ≤ d') (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) :
+    (JBR F g gap).errLinear ρ d ≤ (JBR F g gap).errLinear ρ d' := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hm3 : 3 ≤ jbrM r (etaLB r g F.card gap) g := le_max_right _ 3
+  have hms : (7 : ℚ) / 2 ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) + 1 / 2 := by
+    have : (3 : ℚ) ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) := by exact_mod_cast hm3
+    linarith
+  have hθρ : (-1 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g) * r := by
+    have hpos : (0 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g + 1) * r :=
+      mul_nonneg (by linarith) hr0.le
+    nlinarith [hpos, hr1]
+  have hdom := jbr_dom hms hθρ
+  have hden : (0 : ℚ) < 3 * r * sqrtLB r g := mul_pos (mul_pos (by norm_num) hr0) hsr0
+  simp only [JBR, jbrErrLinear]
+  gcongr
+
+/-- Powers error at JBR is monotone in the dimension (`H ↑` for the commit/batching cell). -/
+theorem JBR_errPowers_mono_dim (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d d' : ℚ}
+    (hdd : d ≤ d') (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b : ℕ} (hb : 1 ≤ b) :
+    (JBR F g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d' b := by
+  have hlin := JBR_errLinear_mono_dim F g gap ρ hdd hsr0 hsr1 hη
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  exact mul_le_mul_of_nonneg_right hlin hbb
+
+/-- **The `|F|` cell at JBR.** `jbrErrLinear` is antitone in `|F|` (it divides by `|F|`) **provided the
+gap agrees** — `etaLB` depends on `card` only through the `card > 2^150` threshold, so two fields on the
+same side of it give the same `η`, making the numerator `|F|`-independent. -/
+theorem JBR_errLinear_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hηeq : etaLB (ρ : ℚ) g F'.card gap = etaLB (ρ : ℚ) g F.card gap)
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) (hcard : F.card ≤ F'.card) :
+    (JBR F' g gap).errLinear ρ d ≤ (JBR F g gap).errLinear ρ d := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hcF : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hcQ : (F.card : ℚ) ≤ (F'.card : ℚ) := by exact_mod_cast hcard
+  have hm3 : 3 ≤ jbrM r (etaLB r g F.card gap) g := le_max_right _ 3
+  have hms : (7 : ℚ) / 2 ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) + 1 / 2 := by
+    have : (3 : ℚ) ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) := by exact_mod_cast hm3
+    linarith
+  have hθρ : (-1 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g) * r := by
+    have hpos : (0 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g + 1) * r :=
+      mul_nonneg (by linarith) hr0.le
+    nlinarith [hpos, hr1]
+  have hdom := jbr_dom hms hθρ
+  have hn : (0 : ℚ) ≤ d / r := div_nonneg hd hr0.le
+  have hden : (0 : ℚ) < 3 * r * sqrtLB r g := mul_pos (mul_pos (by norm_num) hr0) hsr0
+  simp only [JBR, jbrErrLinear, hηeq]
+  refine div_le_div_denom (add_nonneg ?_ ?_) hcF hcQ
+  · exact div_nonneg (mul_nonneg hdom hn) hden.le
+  · exact div_nonneg (by linarith) hsr0.le
+
+/-- Powers error at JBR is antitone in `|F|` (same gap-agreement condition). -/
+theorem JBR_errPowers_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
+    (hηeq : etaLB (ρ : ℚ) g F'.card gap = etaLB (ρ : ℚ) g F.card gap)
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) (hcard : F.card ≤ F'.card) {b : ℕ} (hb : 1 ≤ b) :
+    (JBR F' g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d b := by
+  have hlin := JBR_errLinear_antitone_card g gap ρ hηeq hd hsr0 hsr1 hη hcard
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  simp only [JBR] at hlin ⊢
+  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
+    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+    linarith
+  exact mul_le_mul_of_nonneg_right hlin hbb
 
 end Soundcalc

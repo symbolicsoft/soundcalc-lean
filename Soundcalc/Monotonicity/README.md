@@ -65,6 +65,17 @@ inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, 
  - ALI `|F|` and DEEP `ρ`/`H`/`|F|` — by **two-config** lemmas (`aliErr_antitone_card`,
    `deepErr_antitone_card` / `_antitone_rho` / `_mono_traceLen`) that compare two configs agreeing on
    the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
+
+**Both regimes.** The catalogue's soundness theorems are stated at a decoding regime — a general `R`
+for the query cell, and `UDR`/`JBR` for the algebraic (`errPowers`-shaped) cells. FRI/ZisK zkVMs report
+at **JBR**, so the batching/commit knobs (`batchSize`, `grindBatch`, `grindCommit`), `H`, and `|F|` are
+proven at **both** `UDR` and `JBR` (the `_jbr` theorems and `JBR_errPowers_*`, built on
+`jbrErrLinear_nonneg`). The `|F|` cell at JBR carries a gap-agreement hypothesis (`etaLB` depends on
+`card` only through the `card > 2^150` threshold, so two fields on the same side of it give the same
+`η`). The **one cell left open** is `ρ` at JBR: there `ρ` threads through `√ρ`, `n = d/ρ`, the gap
+`η = etaLB(ρ)`, and the multiplicity `jbrM` simultaneously, with opposing effects — it is confounded
+and may not even be monotone, so it is deliberately left unproven (like the expected-`numQueries`
+proof-size cell).
 `∗` — provably non-monotone: `whir_multiplicity_interior_optimum` proves the reported security
 (`min` over cells) has a *strict interior maximum* in `m`, since query security rises while algebraic
 security falls; so `m` has no monotone direction.
@@ -145,6 +156,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
 | `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
+| `FRIConfig.batchingErr_mono_batchSize_jbr` / `_antitone_grindBatch_jbr` / `commitErr_antitone_grindCommit_jbr` | `batchSize`/`grindBatch`/`grindCommit` at **JBR** | The same batching/commit knobs at the JBR regime (both batching modes), carrying the config's `sqrtLB`/`etaLB` side conditions. |
 | `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |
 
 ## `WHIR.lean`
@@ -182,6 +194,7 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 | `WHIRConfig.epsilonQuery_bits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (FRI analog). |
 | `WHIRConfig.batchingErr_mono_batchSize` | `batchSize` | More batched polys ⇒ larger batching error (FRI analog of `batchingErr_mono_batchSize`). |
 | `WHIRConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (FRI analog). |
+| `WHIRConfig.batchingErr_mono_batchSize_jbr` / `_antitone_grindBatch_jbr` | `batchSize`/`grindBatch` at **JBR** | The batching knobs at the JBR regime (the `errLinear` else-branch is batch-independent). |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
 

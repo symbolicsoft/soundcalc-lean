@@ -318,6 +318,46 @@ theorem FRIConfig.commitErr_antitone_grindCommit (c : FRIConfig) (i : ℕ)
   dsimp only [FRIConfig.commitErr]
   exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hf) h
 
+/-! ### The same cells at the JBR regime
+
+Airbender/OpenVM/Pico/ZisK report at JBR, so the batching/commit cells must move the same way there.
+JBR keeps the `errPowers = errLinear·(b−1)` structure, so these are `JBR_errPowers_*` in place of
+`UDR_errPowers_*` — carrying the config's `sqrtLB`/`etaLB` side conditions (met by every real config).
+`g`/`gap` are the JBR granularity and gap. -/
+
+/-- **Batch knob → soundness (↑) at JBR** (both batching modes). -/
+theorem FRIConfig.batchingErr_mono_batchSize_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ)
+    (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj) (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1)
+    (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1) {b : ℕ} (h : c.batchSize ≤ b) :
+    c.batchingErr (JBR c.field gj gap) ≤ ({c with batchSize := b}).batchingErr (JBR c.field gj gap) := by
+  dsimp only [FRIConfig.batchingErr]
+  split_ifs with hp
+  · gcongr; exact JBR_errPowers_mono_batch c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη h
+  · gcongr; exact JBR_errMultilinear_mono_batch c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη h
+
+/-- **Batch-grind knob → soundness (↓) at JBR** (both batching modes). -/
+theorem FRIConfig.batchingErr_antitone_grindBatch_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ)
+    (hbs : 1 ≤ c.batchSize) (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj) (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1)
+    (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1) {gb : ℕ} (h : c.grindBatch ≤ gb) :
+    ({c with grindBatch := gb}).batchingErr (JBR c.field gj gap) ≤ c.batchingErr (JBR c.field gj gap) := by
+  dsimp only [FRIConfig.batchingErr]
+  split_ifs with hp
+  · exact div_pow_two_antitone
+      (JBR_errPowers_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη hbs) h
+  · exact div_pow_two_antitone
+      (JBR_errMultilinear_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη c.batchSize) h
+
+/-- **Commit-grind knob → soundness (↓) at JBR.** -/
+theorem FRIConfig.commitErr_antitone_grindCommit_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ) (i : ℕ)
+    (hf : 1 ≤ c.foldingFactors.getD i 1) (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj)
+    (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1) (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1)
+    {gc : ℕ} (h : c.grindCommit ≤ gc) :
+    ({c with grindCommit := gc}).commitErr (JBR c.field gj gap) i
+      ≤ c.commitErr (JBR c.field gj gap) i := by
+  dsimp only [FRIConfig.commitErr]
+  exact div_pow_two_antitone
+    (JBR_errPowers_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη hf) h
+
 /-- **Query, rate column (↑).** At `UDR` the query error is `(1 − θ)^q / 2^g = ((1+ρ)/2)^q / 2^g`,
 which is **monotone in the rate** `ρ`: a higher rate widens `1 − θ`, so the query cell is larger.
 `ρ` is pinned by `h_earlyStop`, so — like the DEEP `ρ`/`H`/`|F|` cells — this compares two configs

@@ -171,6 +171,32 @@ theorem WHIRConfig.batchingErr_antitone_grindBatch (c : WHIRConfig) (hp : c.powe
   exact div_pow_two_antitone
     (UDR_errPowers_nonneg c.field (c.rate 0) (by positivity) c.h_batchSize) h
 
+/-- **Batch knob → batching soundness (↑) at JBR** (both modes; the `errLinear` else-branch is
+`batchSize`-independent). -/
+theorem WHIRConfig.batchingErr_mono_batchSize_jbr (c : WHIRConfig) (gj : ℕ) (gap : Option ℚ)
+    (hsr0 : 0 < sqrtLB (c.rate 0 : ℚ) gj) (hsr1 : sqrtLB (c.rate 0 : ℚ) gj ≤ 1)
+    (hη : etaLB (c.rate 0 : ℚ) gj c.field.card gap ≤ 1) {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
+    c.batchingErr (JBR c.field gj gap)
+      ≤ ({c with batchSize := b, h_batchSize := hb1}).batchingErr (JBR c.field gj gap) := by
+  dsimp only [WHIRConfig.batchingErr]
+  split_ifs with hp
+  · gcongr
+    exact JBR_errPowers_mono_batch c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη h
+  · exact le_rfl
+
+/-- **Batch-grind knob → batching soundness (↓) at JBR** (both modes). -/
+theorem WHIRConfig.batchingErr_antitone_grindBatch_jbr (c : WHIRConfig) (gj : ℕ) (gap : Option ℚ)
+    (hsr0 : 0 < sqrtLB (c.rate 0 : ℚ) gj) (hsr1 : sqrtLB (c.rate 0 : ℚ) gj ≤ 1)
+    (hη : etaLB (c.rate 0 : ℚ) gj c.field.card gap ≤ 1) {gb : ℕ} (h : c.grindBatch ≤ gb) :
+    ({c with grindBatch := gb}).batchingErr (JBR c.field gj gap)
+      ≤ c.batchingErr (JBR c.field gj gap) := by
+  dsimp only [WHIRConfig.batchingErr]
+  split_ifs with hp
+  · exact div_pow_two_antitone
+      (JBR_errPowers_nonneg c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη c.h_batchSize) h
+  · exact div_pow_two_antitone
+      (JBR_errLinear_nonneg c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη) h
+
 /-! ## Proof size — closing the FRI↔WHIR asymmetry (batch knob)
 
 `batchSize` sits in exactly one place in `getWHIRProofSizeBits`: the initial (`i = 0`) multi-proof's

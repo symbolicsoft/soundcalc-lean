@@ -145,10 +145,10 @@ theorem whir_multiplicity_interior_optimum :
   min_rise_fall_interior_max (qb := fun m => m) (ab := fun m => 8 - m)
     (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
-/-! ## Batching error — closing the FRI↔WHIR asymmetry
+/-! ## Batching error (`batchSize` / `grindBatch` knobs)
 
 WHIR's `batchingErr = base / 2^grindBatch` (with `base = errPowers (rate 0) (dim 0 0) batchSize` on
-the `power_batching` path) has the *same shape* as FRI's, so it gets the same monotonicity. `batchSize`
+the `powerBatch` path) has the *same shape* as FRI's, so it gets the same monotonicity. `batchSize`
 is a *semi-pinned* knob: `h_batchSize : 1 ≤ batchSize` must be re-supplied on the record update. -/
 
 /-- **Batch knob → batching soundness (↑)** — the WHIR analogue of `FRIConfig.batchingErr_mono_batchSize`. -/
@@ -197,7 +197,7 @@ theorem WHIRConfig.batchingErr_antitone_grindBatch_jbr (c : WHIRConfig) (gj : �
   · exact div_pow_two_antitone
       (JBR_errLinear_nonneg c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη) h
 
-/-! ## Proof size — closing the FRI↔WHIR asymmetry (batch knob)
+/-! ## Proof size (`batchSize` knob)
 
 `batchSize` sits in exactly one place in `getWHIRProofSizeBits`: the initial (`i = 0`) multi-proof's
 leaf size (`tupleSize = 2^{k_0} · batchSize`). Every other summand is `batchSize`-independent, so the

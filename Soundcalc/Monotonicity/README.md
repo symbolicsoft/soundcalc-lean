@@ -67,8 +67,8 @@ inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, 
    the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
 
 **Both regimes.** The catalogue's soundness theorems are stated at a decoding regime — a general `R`
-for the query cell, and `UDR`/`JBR` for the algebraic (`errPowers`-shaped) cells. FRI/ZisK zkVMs report
-at **JBR**, so the batching/commit knobs (`batchSize`, `grindBatch`, `grindCommit`), `H`, and `|F|` are
+for the query cell, and `UDR`/`JBR` for the algebraic (`errPowers`-shaped) cells. Several FRI-based
+zkVMs (Airbender/OpenVM/Pico/ZisK) report at **JBR**, so the batching/commit knobs (`batchSize`, `grindBatch`, `grindCommit`), `H`, and `|F|` are
 proven at **both** `UDR` and `JBR` (the `_jbr` theorems and `JBR_errPowers_*`, built on
 `jbrErrLinear_nonneg`). The `|F|` cell at JBR carries a gap-agreement hypothesis (`etaLB` depends on
 `card` only through the `card > 2^150` threshold, so two fields on the same side of it give the same
@@ -152,7 +152,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.queryBits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (`UDR ≤ JBR` on the query cell). |
 | `FRIConfig.queryErr_antitone_numQueries` | `numQueries` | More queries never raise the query-cell error. |
 | `FRIConfig.queryBits_mono_numQueries` | `numQueries` | More queries never lower the query-cell security (benefit side). |
-| `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error — **both** paths (`errPowers` and the SP1 `errMultilinear` path). |
+| `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error — **both** paths (the `powerBatch` `errPowers` path and the multilinear `errMultilinear` path). |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
 | `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
@@ -165,7 +165,7 @@ Query cell `epsilonQuery R i = (1 − δᵢ)^tᵢ / 2^gᵢ`; per-iteration recur
 `μᵢ₊₁ = μᵢ + (kᵢ − 1)`. The query counts `tᵢ` are a list (query-count sensitivity is the shared shape
 lemma in `Basic.lean`), but `batchSize` **is** a record-update knob — a *semi-pinned* one, since
 `h_batchSize : 1 ≤ batchSize` must be re-supplied. Its batching-error and proof-size monotonicities
-mirror FRI exactly, closing the FRI↔WHIR asymmetry on the batch knob.
+mirror FRI exactly.
 
 ### Sensitivity (`batch` = batchSize, `gB` = grindBatch; plus regime radius `δ`, round index `i`)
 
@@ -197,6 +197,12 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 | `WHIRConfig.batchingErr_mono_batchSize_jbr` / `_antitone_grindBatch_jbr` | `batchSize`/`grindBatch` at **JBR** | The batching knobs at the JBR regime (the `errLinear` else-branch is batch-independent). |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
+
+WHIR's remaining per-round cells — `epsilonFold`, `epsilonOut`, `epsilonShift` — are not individually
+catalogued. `epsilonFinal = epsilonQuery` is covered by the query rows above; the other three have
+list-valued per-round grinds (not scalar config knobs) and regime-confounded terms, so their moving
+parts are covered only at the mechanism level (the shared `div_pow_two_antitone` grind lever and the
+`errPowers`/query-shape lemmas), not as cell-level catalogue rows.
 
 ## `Lookup.lean`
 

@@ -262,8 +262,7 @@ theorem FRIConfig.proofSizeWorst_mono_numQueries (c : FRIConfig) {q : ℕ}
   exact getFRIProofSizeBits_mono_numQueries _ _ _ _ _ _ h
 
 /-- **Batch knob → soundness (↑).** Batching more polynomials never *lowers* the batching-cell error —
-on **either** batching path (`power_batching` ⇒ `errPowers`, or the SP1 multilinear path ⇒
-`errMultilinear`). -/
+on **either** batching path (`powerBatch` ⇒ `errPowers`, or the multilinear path ⇒ `errMultilinear`). -/
 theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) {b : ℕ}
     (h : c.batchSize ≤ b) :
     c.batchingErr (UDR c.field) ≤ ({c with batchSize := b}).batchingErr (UDR c.field) := by
@@ -282,9 +281,9 @@ theorem FRIConfig.proofSizeWorst_mono_batchSize (c : FRIConfig) {b : ℕ}
 
 /-- **Batch knob → expected proof size (↑).** The amortized (`expected = true`) FRI proof size is
 also monotone in `batchSize`: `batchSize` only scales the initial multi-proof's leaves, which the
-expected-size formula counts linearly. (Closes the `expected = true` batch cell; the `numQueries`
-cell for `expected = true` stays open — it needs monotonicity of the `numHashes` inclusion–exclusion
-sum in the number of openings.) -/
+expected-size formula counts linearly. The `numQueries` direction for `expected = true` is *not*
+covered here — it needs monotonicity of the `numHashes` inclusion–exclusion sum in the number of
+openings. -/
 theorem FRIConfig.proofSizeExp_mono_batchSize (c : FRIConfig) {b : ℕ}
     (h : c.batchSize ≤ b) :
     c.proofSizeExp ≤ ({c with batchSize := b}).proofSizeExp := by

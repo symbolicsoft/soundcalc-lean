@@ -169,8 +169,8 @@ theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) {d : ℚ} (hd : 0 ≤
   exact mul_nonneg (div_nonneg hnum hc.le) hbb
 
 /-- **Multilinear-batching soundness cost.** The multilinear-batching error
-`errMultilinear = errLinear·⌈log₂ batch⌉` is monotone in `batchSize` — the SP1 (`multilinBatch`) path's
-analogue of `UDR_errPowers_mono_batch`. -/
+`errMultilinear = errLinear·⌈log₂ batch⌉` is monotone in `batchSize` — the `multilinBatch`-path
+counterpart of `UDR_errPowers_mono_batch` (the `powerBatch` path). -/
 theorem UDR_errMultilinear_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
     (UDR F).errMultilinear ρ d b ≤ (UDR F).errMultilinear ρ d b' := by
   obtain ⟨r, hr0, hr1⟩ := ρ

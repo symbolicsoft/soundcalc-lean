@@ -49,7 +49,8 @@ Backing lemma per cell (`—` cells omitted):
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 | JBR `m` = ∗ | `whir_multiplicity_interior_optimum` (**proves** the reported security is non-monotone in `m` — strict interior maximum), built from `whir_agreement_antitone_m` (query security rises) **vs** `whir_listSize_mono_m` (algebraic security falls) via `min_rise_fall_interior_max` |
-| FRI proof size (size, not error) | `proofSizeWorst_mono_numQueries` (q ↑), `proofSizeWorst_mono_batchSize` / `proofSizeExp_mono_batchSize` (batch ↑, worst **and** expected) |
+
+(Proof **size** is a separate quantity — see its own section below; it is only carried for FRI/WHIR.)
 
 Notes.
 `†` — the list size multiplies the lookup error only in the SWIRL analysis; the FRI-based zkVMs'
@@ -73,6 +74,42 @@ is `↓` in `η` (larger gap ⇒ smaller error) and `∗` in `m` (interior optim
 
 ---
 
+## Proof size
+
+Proof *size* (bits) is a separate quantity from the soundness error, and only **FRI and WHIR** carry
+proof-size monotonicity theorems — the circuit/lookup cells route their proof size through the dense
+PCS, so they inherit these. Both the worst-case (`proofSizeWorst`, `expected = false`) and the
+amortized (`proofSizeExp`, `expected = true`) sizes are covered. `↑` = proven monotone; `open` = the
+direction is expected but not yet a theorem.
+
+### FRI proof size
+
+| cell | `numQueries` | `batchSize` |
+|---|:---:|:---:|
+| `proofSizeWorst` | ↑ | ↑ |
+| `proofSizeExp` | open† | ↑ |
+
+Theorems: `FRIConfig.proofSizeWorst_mono_numQueries`, `FRIConfig.proofSizeWorst_mono_batchSize`,
+`FRIConfig.proofSizeExp_mono_batchSize`.
+
+### WHIR proof size
+
+| cell | `batchSize` |
+|---|:---:|
+| `proofSizeWorst` | ↑ |
+| `proofSizeExp` | ↑ |
+
+Theorems: `WHIRConfig.proofSizeWorst_mono_batchSize`, `WHIRConfig.proofSizeExp_mono_batchSize`
+(`batchSize` semi-pinned: `1 ≤ batchSize` is re-supplied on the record update).
+
+Notes. Only `numQueries` and `batchSize` are turned into theorems — the design levers paired with the
+query/batch **soundness** gains (the "no free lunch": more queries buy security *and* cost proof
+size). Proof size also grows with the domain size and hash/field width, but those are pinned (FRI's
+`h_earlyStop`) or not central and aren't proven. `†` — the `expected = true` `numQueries` cell is
+open: it needs monotonicity of the `numHashes` inclusion–exclusion sum in the number of openings.
+
+---
+
 ## `FRI.lean`
 
 Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size accumulator
@@ -89,9 +126,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 
 `ρ`/`H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`UDR_errPowers_*`);
 `commitErr`'s batch arg is the folding factor `kᵢ` (pinned), so the `batch` column is `—` there.
-**Proof size** (a size, not an error): proven monotone in `q` and `batch` (`batch` worst **and**
-expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), which are pinned by
-`h_earlyStop`, so those aren't `—` — just not turned into theorems.
+(Proof size has its own section above.)
 **Per round** (structural, not a knob): the folded dimension shrinks each round
 (`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`).
 
@@ -103,10 +138,7 @@ expected). It also grows with the domain (`H`, `ρ`) and field width (`\|F\|`), 
 | `FRIConfig.queryBits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (`UDR ≤ JBR` on the query cell). |
 | `FRIConfig.queryErr_antitone_numQueries` | `numQueries` | More queries never raise the query-cell error. |
 | `FRIConfig.queryBits_mono_numQueries` | `numQueries` | More queries never lower the query-cell security (benefit side). |
-| `FRIConfig.proofSizeWorst_mono_numQueries` | `numQueries` | **No free lunch:** more queries never shrink the proof (cost side). |
 | `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error (`power_batching` path). |
-| `FRIConfig.proofSizeWorst_mono_batchSize` | `batchSize` | **Batching proof-size cost:** the batched polys ride the initial multi-proof, so more of them ⇒ bigger proof. |
-| `FRIConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, for the **expected** (amortized, `expected = true`) proof size — `batchSize` scales only the initial leaves. |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
 | `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
 | `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
@@ -129,9 +161,10 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 |---|:---:|:---:|:---:|:---:|
 | `epsilonQuery` (query error) | — | — | ↓ | — |
 | `batchingErr` | ↑ | ↓ | — | — |
-| proof size | ↑ | — | — | — |
 | `logInvRate μᵢ` (rate `= 2^−μ` falls) | — | — | — | ↑ |
 | `logDegree mᵢ` (degree) | — | — | — | ↓ |
+
+(Proof size has its own section above.)
 
 `batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
 in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature. The JBR
@@ -146,8 +179,6 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 | `WHIRConfig.epsilonQuery_bits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (FRI analog). |
 | `WHIRConfig.batchingErr_mono_batchSize` | `batchSize` | More batched polys ⇒ larger batching error (FRI analog of `batchingErr_mono_batchSize`). |
 | `WHIRConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (FRI analog). |
-| `WHIRConfig.proofSizeWorst_mono_batchSize` | `batchSize` | More batched polys ⇒ bigger proof — worst case (FRI analog). |
-| `WHIRConfig.proofSizeExp_mono_batchSize` | `batchSize` | Same, expected/amortized proof size (FRI analog). |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
 

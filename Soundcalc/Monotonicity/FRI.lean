@@ -261,15 +261,16 @@ theorem FRIConfig.proofSizeWorst_mono_numQueries (c : FRIConfig) {q : ℕ}
   simp only [FRIConfig.proofSizeWorst]
   exact getFRIProofSizeBits_mono_numQueries _ _ _ _ _ _ h
 
-/-- **Batch knob → soundness (↑).** Batching more polynomials (the `power_batching` path) never
-*lowers* the batching-cell error. -/
-theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) (hp : c.powerBatch = true) {b : ℕ}
+/-- **Batch knob → soundness (↑).** Batching more polynomials never *lowers* the batching-cell error —
+on **either** batching path (`power_batching` ⇒ `errPowers`, or the SP1 multilinear path ⇒
+`errMultilinear`). -/
+theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) {b : ℕ}
     (h : c.batchSize ≤ b) :
     c.batchingErr (UDR c.field) ≤ ({c with batchSize := b}).batchingErr (UDR c.field) := by
   dsimp only [FRIConfig.batchingErr]
-  rw [if_pos hp, if_pos hp]
-  gcongr
-  exact UDR_errPowers_mono_batch c.field c.ρ c.denseLen h
+  split_ifs with hp
+  · gcongr; exact UDR_errPowers_mono_batch c.field c.ρ c.denseLen h
+  · gcongr; exact UDR_errMultilinear_mono_batch c.field c.ρ c.denseLen h
 
 /-- **Batch knob → proof size (↑).** The batched polynomials all ride the initial Merkle
 multi-proof, so batching more of them never *shrinks* the proof. -/
@@ -299,13 +300,14 @@ theorem FRIConfig.queryErr_antitone_grindQuery (c : FRIConfig) (R : Regime) {g :
   exact div_pow_two_antitone (pow_nonneg hb _) h
 
 /-- **Batch-grind knob → soundness (↓).** More batching-phase PoW bits never raise the batching-cell
-error (`power_batching` path, `batchSize ≥ 1`). -/
-theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig) (hp : c.powerBatch = true)
+error, on **either** batching path (`errPowers` or `errMultilinear`). -/
+theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig)
     (hbs : 1 ≤ c.batchSize) {g : ℕ} (h : c.grindBatch ≤ g) :
     ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
   dsimp only [FRIConfig.batchingErr]
-  rw [if_pos hp, if_pos hp]
-  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hbs) h
+  split_ifs with hp
+  · exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hbs) h
+  · exact div_pow_two_antitone (UDR_errMultilinear_nonneg c.field c.ρ c.denseLen c.batchSize) h
 
 /-- **Commit-grind knob → soundness (↓).** More commit-phase PoW bits never raise the per-round
 commit-cell error `commitErr i = errPowers(ρ, denseLen/∏kⱼ, kᵢ) / 2^grindCommit`. The companion of

@@ -168,4 +168,31 @@ theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) {d : ℚ} (hd : 0 ≤
   simp only [UDR]
   exact mul_nonneg (div_nonneg hnum hc.le) hbb
 
+/-- **Multilinear-batching soundness cost.** The multilinear-batching error
+`errMultilinear = errLinear·⌈log₂ batch⌉` is monotone in `batchSize` — the SP1 (`multilinBatch`) path's
+analogue of `UDR_errPowers_mono_batch`. -/
+theorem UDR_errMultilinear_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
+    (UDR F).errMultilinear ρ d b ≤ (UDR F).errMultilinear ρ d b' := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+    linarith
+  have hbase : (0 : ℚ) ≤ ((1 - r) / 2 * ((d : ℚ) / r) + 1) / (F.card : ℚ) := div_nonneg hnum hc.le
+  have hclog : (Nat.clog 2 b : ℚ) ≤ (Nat.clog 2 b' : ℚ) := by
+    exact_mod_cast Nat.clog_mono_right 2 h
+  simp only [UDR]
+  exact mul_le_mul_of_nonneg_left hclog hbase
+
+/-- The multilinear-batching error is nonnegative — needed to grind the `multilinBatch` cell. -/
+theorem UDR_errMultilinear_nonneg (F : FieldParams) (ρ : Rate) (d : ℕ) (b : ℕ) :
+    0 ≤ (UDR F).errMultilinear ρ d b := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
+    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
+    linarith
+  simp only [UDR]
+  exact mul_nonneg (div_nonneg hnum hc.le) (by positivity)
+
 end Soundcalc

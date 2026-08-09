@@ -195,4 +195,45 @@ theorem UDR_errMultilinear_nonneg (F : FieldParams) (ρ : Rate) (d : ℕ) (b : �
   simp only [UDR]
   exact mul_nonneg (div_nonneg hnum hc.le) (by positivity)
 
+/-! ## The JBR (Johnson-bound) regime
+
+`JBR.errLinear = jbrErrLinear`, whose numerator `2·ms⁵ + 3·ms·(θρ)` is nonnegative because the
+`2·ms⁵` term (with `ms = jbrM + ½ ≥ 3.5`, since `jbrM ≥ 3`) dominates. That nonnegativity is the crux
+that lets the batching/commit monotonicities carry over from `UDR` to `JBR` (both have
+`errPowers = errLinear·(b−1)`, `errMultilinear = errLinear·⌈log₂ b⌉`). -/
+
+/-- Domination: `2·ms⁵` beats `3·ms·t` once `ms ≥ 7/2` and `t ≥ −1`. -/
+private theorem jbr_dom {ms t : ℚ} (hms : 7 / 2 ≤ ms) (ht : -1 ≤ t) :
+    0 ≤ 2 * ms ^ 5 + 3 * ms * t := by
+  have h0 : (0 : ℚ) ≤ ms := by linarith
+  have h2 : (12 : ℚ) ≤ ms ^ 2 := by nlinarith [sq_nonneg (ms - 7 / 2)]
+  have h4 : (144 : ℚ) ≤ ms ^ 4 := by nlinarith [sq_nonneg (ms ^ 2 - 12), h2]
+  have key : 2 * ms ^ 5 + 3 * ms * t = ms * (2 * ms ^ 4 + 3 * t) := by ring
+  rw [key]
+  exact mul_nonneg h0 (by linarith)
+
+/-- **The JBR linear error is nonnegative** (under the standard config conditions: `0 < ρ < 1`,
+`η ≤ 1`, and `0 < sqrtLB ρ g ≤ 1`). The crux for the JBR batching/commit monotonicities. -/
+theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
+    (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (hη : η ≤ 1) (hsr0 : 0 < sqrtLB ρ g) (hsr1 : sqrtLB ρ g ≤ 1)
+    (d : ℕ) :
+    0 ≤ jbrErrLinear F η g ρ d := by
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have hm3 : 3 ≤ jbrM ρ η g := le_max_right _ 3
+  have hms : (7 : ℚ) / 2 ≤ (jbrM ρ η g : ℚ) + 1 / 2 := by
+    have : (3 : ℚ) ≤ (jbrM ρ η g : ℚ) := by exact_mod_cast hm3
+    linarith
+  have hθρ : (-1 : ℚ) ≤ ((1 - η) - sqrtLB ρ g) * ρ := by
+    have hpos : (0 : ℚ) ≤ ((1 - η) - sqrtLB ρ g + 1) * ρ :=
+      mul_nonneg (by linarith) hρ0.le
+    nlinarith [hpos, hρ1]
+  have hdom := jbr_dom hms hθρ
+  have hn : (0 : ℚ) ≤ (d : ℚ) / ρ := div_nonneg (by positivity) hρ0.le
+  have hden : (0 : ℚ) < 3 * ρ * sqrtLB ρ g :=
+    mul_pos (mul_pos (by norm_num) hρ0) hsr0
+  simp only [jbrErrLinear]
+  refine div_nonneg (add_nonneg ?_ ?_) hc.le
+  · exact div_nonneg (mul_nonneg hdom hn) hden.le
+  · exact div_nonneg (by linarith) hsr0.le
+
 end Soundcalc

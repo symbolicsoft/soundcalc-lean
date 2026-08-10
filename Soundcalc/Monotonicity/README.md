@@ -27,9 +27,9 @@ or the decoding regime (UDR vs JBR).
 ## Sensitivity catalog
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
-`—` the knob does not occur, `∗` provably non-monotone (interior optimum). Every direction is backed
-by a named lemma (below the table) that holds at **every** decoding regime — no cell is verified at
-UDR only. `H` is the trace/dense length, `L` the decoder list size.
+`—` the knob does not occur. **Every bound in this catalogue is backed at both decoding regimes.**
+That is the entry criterion: a direction that holds only at UDR, or only at JBR, is not listed here
+at all. `H` is the trace/dense length, `L` the decoder list size.
 
 | Error term | `q` | grind | `ρ` | `H` | batch | `\|F\|` | `L` |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -37,8 +37,7 @@ UDR only. `H` is the trace/dense length, `L` the decoder list size.
 | FRI commit / batching | — | ↓ | — | ↑ | ↑ | ↓ | — |
 | ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | ↑ |
 | DEEP | — | ↓ | ↓ | ↑ | — | ↓ | ↑ |
-| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | ↑† |
-| JBR terms in `η`/`m` (own knobs, not columns) | — | — | — | — | — | — | — |
+| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | — |
 
 Backing lemma per cell (`—` cells omitted):
 
@@ -49,14 +48,10 @@ Backing lemma per cell (`—` cells omitted):
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
-| JBR `m` = ∗ | `whir_multiplicity_interior_optimum` (**proves** the reported security is non-monotone in `m` — strict interior maximum), built from `whir_agreement_antitone_m` (query security rises) **vs** `whir_listSize_mono_m` (algebraic security falls) via `min_rise_fall_interior_max` |
 
 (Proof **size** is a separate quantity — see its own section below; it is only carried for FRI/WHIR.)
 
 Notes.
-`†` — the list size multiplies the lookup error only in the SWIRL analysis; the FRI-based zkVMs'
-`LookupCfg.errUB` is regime-independent, so its formalized `L` column is actually `—` (the `↑` is the
-SWIRL behavior).
 "pinned" — the cell cannot be moved by a **single-field record update** (FRI's `h_earlyStop`
 couples `ρ`/`H`; DeepAli's field-coherence invariants couple `|F|`; `ρ`/`H` sit behind the `PCS`
 inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, in one of two ways:
@@ -95,12 +90,6 @@ threshold, so two fields on the same side of it give the same `η`).
 The rate `ρ` is deliberately **not** a catalogued FRI knob: it is pinned by `h_earlyStop`, and its
 direction is genuinely regime-dependent (confounded at JBR through `√ρ`, `d/ρ`, and `η = etaLB(ρ)`),
 so tracking it would break exactly the regime-independence above.
-`∗` — provably non-monotone: `whir_multiplicity_interior_optimum` proves the reported security
-(`min` over cells) has a *strict interior maximum* in `m`, since query security rises while algebraic
-security falls; so `m` has no monotone direction.
-JBR row — its knobs are the gap `η` and multiplicity `m`, which are not among the columns: the error
-is `↓` in `η` (larger gap ⇒ smaller error) and `∗` in `m` (interior optimum). `η` is derived from
-`(F, ρ, g)` in our model (`etaLB`/`etaUB`), so it is not a free record-update knob.
 
 ---
 
@@ -205,9 +194,7 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 (Proof size has its own section above.)
 
 `batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
-in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature. The JBR
-multiplicity `m` (a regime quantity, not a config field) is the catalog's one `∗` cell —
-`whir_multiplicity_interior_optimum` (see the top-level table).
+in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature.
 
 ### Catalogue
 

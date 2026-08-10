@@ -31,13 +31,13 @@ How each error term moves as a knob **grows** — `↓` error falls (security ri
 That is the entry criterion: a direction that holds only at UDR, or only at JBR, is not listed here
 at all. `H` is the trace/dense length, `L` the decoder list size.
 
-| Error term | `q` | grind | `ρ` | `H` | batch | `\|F\|` | `L` |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| FRI query `(1−θ)^q·2^{−g}` | ↓ | ↓ | — | — | — | — | — |
-| FRI commit / batching | — | ↓ | — | ↑ | ↑ | ↓ | — |
-| ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | ↑ |
-| DEEP | — | ↓ | ↓ | ↑ | — | ↓ | ↑ |
-| LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | — |
+| Error term | `q` | grind | `H` | batch | `\|F\|` | `L` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| FRI query `(1−θ)^q·2^{−g}` | ↓ | ↓ | — | — | — | — |
+| FRI commit / batching | — | ↓ | ↑ | ↑ | ↓ | — |
+| ALI `L⁺·C/\|F\|` | — | — | — | — | ↓ | ↑ |
+| DEEP | — | ↓ | ↑ | — | ↓ | ↑ |
+| LogUp / GKR | — | ↓ | ↑ | ↑ | ↓ | — |
 
 Backing lemma per cell (`—` cells omitted):
 
@@ -46,7 +46,7 @@ Backing lemma per cell (`—` cells omitted):
 | FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind) |
 | FRI commit / batching | `batchingErr_antitone_grindBatch` / `commitErr_antitone_grindCommit` (grind), `errPowers_mono_dim` / `errMultilinear_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_`/`JBR_err{Powers,Multilinear}_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
-| DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
+| DEEP | grind: `deepErr_antitone_grindDeep`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 
 Two terms used throughout. A knob is **pinned** when it cannot be moved by a single-field record
@@ -82,10 +82,6 @@ threshold, so two fields on the same side of it give the same `η`).
 ---
 
 ## `FRI.lean`
-
-Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`. The record-update knobs are
-`numQueries` and `batchSize` (the others — `denseLen`, `ρ`, `foldingFactors` — are pinned together
-by the config's `h_earlyStop` invariant).
 
 ### Sensitivity (`q` = numQueries, `gQ`/`gB`/`gC` = grind query/batch/commit, `H` = denseLen)
 
@@ -172,9 +168,6 @@ field is a record-update knob.
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
 | `errUB` | ↓ | ↑ | ↑ | ↑ | ↑ | ↓ |
 
-(`H = rowsL + rowsT` — both halves proven; `numLookupsM`/`numColumnsS` are the two batch knobs;
-`reductionErr` ↑ only in the multivariate branch.)
-
 ### Catalogue
 
 | theorem | knob | description |
@@ -200,8 +193,6 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | `aliErr` | ↑ | — | — | — | — | — | ↓ | ↑ |
 | `deepErr` | — | ↑ | ↑ | ↓ | ↓ | ↑ | ↓ | ↑ |
-
-`ρ`/`H`/`\|F\|` are two-config lemmas (those fields are pinned); `L` is cross-regime (`listSize`).
 
 ### Catalogue
 

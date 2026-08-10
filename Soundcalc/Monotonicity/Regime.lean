@@ -2,16 +2,20 @@ import Soundcalc.Monotonicity.Basic
 import Soundcalc.Regime
 
 /-!
-# Monotonicity — Regime (Johnson vs. unique decoding, and the field ceiling on `errLinear`)
+# Monotonicity — Regime (Johnson vs. unique decoding, and the regime-independent cell mechanisms)
 
 * `johnson_beats_unique` — the Johnson decoding radius `1 − √ρ` always beats the unique-decoding
   radius `(1-ρ)/2` (a corollary of `two_sqrt_le`). This is *why* JBR helps the query cell.
-* `one_div_card_le_errLinear` / `secBits_errLinear_le_field` — the linear (Schwartz–Zippel) error is
-  `≥ 1/|F|`, so the field ceiling actually bites on the algebraic cells.
-* `UDR_errLinear_mono_dim` — the linear error is monotone in the instance dimension.
+* `Regime.Standard` — **the regime-independence device.** A `Prop`-bundle saying a regime has the
+  standard algebraic shape: `errPowers = errLinear·(b−1)`, `errMultilinear = errLinear·⌈log₂ b⌉`,
+  the linear error is `≥ 1/|F|` (so the field ceiling bites), and it is monotone in the instance
+  dimension. Every algebraic *cell* lemma below — and every algebraic catalogue theorem in
+  `Monotonicity.FRI` / `.WHIR` — is stated for an **arbitrary** regime satisfying it.
+* `UDR_standard` / `JBR_standard` — the only two regime-specific proofs in the whole catalogue.
+  Everything else is regime-polymorphic, so there are no `UDR_`/`JBR_` cell duplicates to keep in
+  sync (the sole exception is the `|F|` knob, which *is* a change of regime — see below).
 
-These are **foundations** (regime/field-level mechanisms), not config-field catalogue entries; the
-FRI/WHIR catalogues lift `UDR_errLinear_mono_dim` (via `errPowers`) and the field ceiling.
+These are **foundations** (regime/field-level mechanisms), not config-field catalogue entries.
 -/
 
 namespace Soundcalc
@@ -29,178 +33,176 @@ theorem johnson_beats_unique {ρ : ℝ} (h0 : 0 ≤ ρ) :
     (1 - ρ) / 2 ≤ 1 - Real.sqrt ρ := by
   have := two_sqrt_le h0; linarith
 
-/-! ## The field ceiling on the linear error -/
+/-! ## The standard regime shape — what makes the catalogue regime-independent
 
-/-- **Connector.** The linear (Schwartz–Zippel) soundness error is `≥ 1/|F|` — its numerator
-`θ·(d/ρ) + 1 ≥ 1`. So the field ceiling actually bites on the *algebraic* cells (unlike the query
-cell `(1-θ)^t/2^g`, which has no `|F|` and is bounded by *repetition*, not the field). -/
-theorem one_div_card_le_errLinear (F : FieldParams) (ρ : Rate) (d : ℕ) :
-    1 / (F.card : ℚ) ≤ (UDR F).errLinear ρ d := by
-  obtain ⟨r, hr0, _⟩ := ρ
+Both regimes in the model (`UDR`, `JBR`) build *every* algebraic error out of one scalar, the linear
+(Schwartz–Zippel / MCA) error `errLinear ρ d`:
+
+* `errPowers ρ d b = errLinear ρ d · (b − 1)` (union bound over `b − 1` power checks),
+* `errMultilinear ρ d b = errLinear ρ d · ⌈log₂ b⌉` (one term per sumcheck round),
+
+and that scalar is `≥ 1/|F|` (the field ceiling bites) and monotone in the dimension `d` (smaller
+instance ⇒ more sound). `Regime.Standard` records exactly those four facts, so a cell lemma proved
+from it holds at **any** regime — no per-regime restatement. -/
+
+/-- **The standard regime shape.** `R.Standard F ρ` says the regime `R`, over the field `F` at rate
+`ρ`, has the algebraic structure every regime in this model has. It is the hypothesis that makes the
+algebraic catalogue regime-independent: `UDR_standard` and `JBR_standard` discharge it. -/
+structure Regime.Standard (R : Regime) (F : FieldParams) (ρ : Rate) : Prop where
+  /-- Powers batching is the linear error scaled by `b − 1` (union bound). -/
+  errPowers_eq : ∀ (d : ℚ) (b : ℕ), R.errPowers ρ d b = R.errLinear ρ d * ((b : ℚ) - 1)
+  /-- Multilinear batching is the linear error scaled by `⌈log₂ b⌉` (one term per sumcheck round). -/
+  errMultilinear_eq :
+    ∀ (d : ℚ) (b : ℕ), R.errMultilinear ρ d b = R.errLinear ρ d * (Nat.clog 2 b : ℚ)
+  /-- The field ceiling bites: the linear error is at least `1/|F|`. -/
+  one_div_card_le : ∀ d : ℚ, 0 ≤ d → 1 / (F.card : ℚ) ≤ R.errLinear ρ d
+  /-- Smaller instance ⇒ more sound: the linear error is monotone in the dimension. -/
+  errLinear_mono_dim : ∀ d d' : ℚ, d ≤ d' → R.errLinear ρ d ≤ R.errLinear ρ d'
+
+namespace Regime.Standard
+
+variable {R : Regime} {F : FieldParams} {ρ : Rate}
+
+/-- The linear error is nonnegative (it is `≥ 1/|F| > 0`). -/
+theorem errLinear_nonneg (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) : 0 ≤ R.errLinear ρ d := by
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  simp only [UDR]
-  have hnum : (1 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have hpos : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) :=
-      mul_nonneg (by linarith) (by positivity)
-    linarith
-  gcongr
+  have h := hR.one_div_card_le d hd
+  have hpos : (0 : ℚ) < 1 / (F.card : ℚ) := by positivity
+  linarith
 
-/-- The field ceiling, **applied**: the linear soundness cell can never report more bits than the
-field baseline `secBits (1/|F|) = ⌊log₂|F|⌋`. -/
-theorem secBits_errLinear_le_field (F : FieldParams) (ρ : Rate) (d : ℕ) :
-    secBits ((UDR F).errLinear ρ d) ≤ secBits (1 / (F.card : ℚ)) :=
-  secBits_le_field F.card_pos (one_div_card_le_errLinear F ρ d)
+/-- The powers-batching error is nonnegative (`b ≥ 1`) — the input to every grind knob on a
+`powerBatch`-path cell. -/
+theorem errPowers_nonneg (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) {b : ℕ} (hb : 1 ≤ b) :
+    0 ≤ R.errPowers ρ d b := by
+  rw [hR.errPowers_eq]
+  have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+  exact mul_nonneg (hR.errLinear_nonneg hd) (by linarith)
 
-/-! ## `errLinear` / `errPowers` monotonicities (lifted by the FRI/WHIR catalogues) -/
+/-- The multilinear-batching error is nonnegative — the grind-knob input on the multilinear path. -/
+theorem errMultilinear_nonneg (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) (b : ℕ) :
+    0 ≤ R.errMultilinear ρ d b := by
+  rw [hR.errMultilinear_eq]
+  exact mul_nonneg (hR.errLinear_nonneg hd) (by positivity)
 
-/-- **Smaller instance ⇒ more sound.** The linear (Schwartz–Zippel) error is monotone in the
-dimension `d`. This is the mechanism behind "later FRI rounds are more secure": each fold shrinks
-the dimension. -/
-theorem UDR_errLinear_mono_dim (F : FieldParams) (ρ : Rate) {d d' : ℕ} (h : d ≤ d') :
-    (UDR F).errLinear ρ d ≤ (UDR F).errLinear ρ d' := by
+/-- **Batching soundness cost, any regime.** `errPowers = errLinear·(b − 1)` is monotone in
+`batchSize`: batching more polynomials weakens the batching cell. -/
+theorem errPowers_mono_batch (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) {b b' : ℕ} (h : b ≤ b') :
+    R.errPowers ρ d b ≤ R.errPowers ρ d b' := by
+  rw [hR.errPowers_eq, hR.errPowers_eq]
+  have hbb : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
+  exact mul_le_mul_of_nonneg_left (by linarith) (hR.errLinear_nonneg hd)
+
+/-- **Multilinear batching cost, any regime** (SP1's mode).
+`errMultilinear = errLinear·⌈log₂ b⌉` is monotone in `batchSize`. -/
+theorem errMultilinear_mono_batch (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) {b b' : ℕ}
+    (h : b ≤ b') :
+    R.errMultilinear ρ d b ≤ R.errMultilinear ρ d b' := by
+  rw [hR.errMultilinear_eq, hR.errMultilinear_eq]
+  have hclog : (Nat.clog 2 b : ℚ) ≤ (Nat.clog 2 b' : ℚ) := by
+    exact_mod_cast Nat.clog_mono_right 2 h
+  exact mul_le_mul_of_nonneg_left hclog (hR.errLinear_nonneg hd)
+
+/-- **The field ceiling, applied — at any regime.** An algebraic cell can never report more bits
+than the field baseline `secBits (1/|F|) = ⌊log₂|F|⌋`. (Unlike the query cell `(1−θ)^t/2^g`, which
+carries no `|F|` and is bounded by *repetition*, not the field.) -/
+theorem secBits_errLinear_le_field (hR : R.Standard F ρ) {d : ℚ} (hd : 0 ≤ d) :
+    secBits (R.errLinear ρ d) ≤ secBits (1 / (F.card : ℚ)) :=
+  secBits_le_field F.card_pos (hR.one_div_card_le d hd)
+
+end Regime.Standard
+
+/-! ## Batching errors are monotone in the underlying linear error
+
+The one lemma behind both the `H` column (same regime, bigger dimension) and the `|F|` column
+(bigger field, hence a *different* regime with a smaller linear error): whatever moves `errLinear`
+moves `errPowers`/`errMultilinear` the same way. Stated across two regimes so the `|F|` cell — which
+necessarily changes `UDR F` into `UDR F'` — is covered by the same theorem. -/
+
+/-- Powers batching is monotone in the linear error, across regimes. -/
+theorem errPowers_le_of_errLinear_le {R R' : Regime} {F F' : FieldParams} {ρ : Rate} {d d' : ℚ}
+    (hR : R.Standard F ρ) (hR' : R'.Standard F' ρ)
+    (hlin : R.errLinear ρ d ≤ R'.errLinear ρ d') {b : ℕ} (hb : 1 ≤ b) :
+    R.errPowers ρ d b ≤ R'.errPowers ρ d' b := by
+  rw [hR.errPowers_eq, hR'.errPowers_eq]
+  have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
+  exact mul_le_mul_of_nonneg_right hlin (by linarith)
+
+/-- Multilinear batching is monotone in the linear error, across regimes. -/
+theorem errMultilinear_le_of_errLinear_le {R R' : Regime} {F F' : FieldParams} {ρ : Rate} {d d' : ℚ}
+    (hR : R.Standard F ρ) (hR' : R'.Standard F' ρ)
+    (hlin : R.errLinear ρ d ≤ R'.errLinear ρ d') (b : ℕ) :
+    R.errMultilinear ρ d b ≤ R'.errMultilinear ρ d' b := by
+  rw [hR.errMultilinear_eq, hR'.errMultilinear_eq]
+  exact mul_le_mul_of_nonneg_right hlin (by positivity)
+
+/-- **The `H` column, any regime.** Powers batching is monotone in the dimension — the mechanism
+behind "later FRI rounds are more secure": each fold shrinks the dimension. -/
+theorem errPowers_mono_dim {R : Regime} {F : FieldParams} {ρ : Rate} (hR : R.Standard F ρ)
+    {d d' : ℚ} (hdd : d ≤ d') {b : ℕ} (hb : 1 ≤ b) :
+    R.errPowers ρ d b ≤ R.errPowers ρ d' b :=
+  errPowers_le_of_errLinear_le hR hR (hR.errLinear_mono_dim d d' hdd) hb
+
+/-- **The `H` column on the multilinear path, any regime.** -/
+theorem errMultilinear_mono_dim {R : Regime} {F : FieldParams} {ρ : Rate} (hR : R.Standard F ρ)
+    {d d' : ℚ} (hdd : d ≤ d') (b : ℕ) :
+    R.errMultilinear ρ d b ≤ R.errMultilinear ρ d' b :=
+  errMultilinear_le_of_errLinear_le hR hR (hR.errLinear_mono_dim d d' hdd) b
+
+/-! ## Instance 1: the Unique Decoding Regime -/
+
+/-- **UDR is standard.** The unique-decoding regime has the standard algebraic shape at every field
+and rate — one of the two regime-specific proofs in the catalogue. -/
+theorem UDR_standard (F : FieldParams) (ρ : Rate) : (UDR F).Standard F ρ := by
   obtain ⟨r, hr0, hr1⟩ := ρ
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have hA : (0 : ℚ) ≤ (1 - r) / 2 := by linarith
-  have hdd : (d : ℚ) ≤ (d' : ℚ) := by exact_mod_cast h
-  simp only [UDR]
-  gcongr
+  refine ⟨fun d b => rfl, fun d b => rfl, ?_, ?_⟩
+  · intro d hd
+    simp only [UDR]
+    have hnum : (1 : ℚ) ≤ (1 - r) / 2 * (d / r) + 1 := by
+      have : (0 : ℚ) ≤ (1 - r) / 2 * (d / r) :=
+        mul_nonneg (by linarith) (div_nonneg hd hr0.le)
+      linarith
+    gcongr
+  · intro d d' hdd
+    simp only [UDR]
+    have hA : (0 : ℚ) ≤ (1 - r) / 2 := by linarith
+    gcongr
 
-/-- **Larger field ⇒ smaller error.** The linear error is antitone in `|F|` (it divides by `|F|`,
-numerator field-independent). Backs the `|F| ↓` column. -/
-theorem UDR_errLinear_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate) (d : ℕ) :
+/-- **Larger field ⇒ smaller error (UDR).** The linear error is antitone in `|F|` (it divides by
+`|F|`, numerator field-independent). This is the regime-specific input to the `|F|` column. -/
+theorem UDR_errLinear_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate)
+    {d : ℚ} (hd : 0 ≤ d) :
     (UDR F').errLinear ρ d ≤ (UDR F).errLinear ρ d := by
   obtain ⟨r, hr0, hr1⟩ := ρ
   have hF : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
   have hcQ : (F.card : ℚ) ≤ (F'.card : ℚ) := by exact_mod_cast hc
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
-    linarith
-  simp only [UDR]
-  gcongr
-
-/-- **Higher rate ⇒ smaller error.** The linear error is antitone in the rate `ρ`: the algebraic
-term `(1−ρ)/2 · (d/ρ) = d(1−ρ)/(2ρ)` falls as `ρ` grows (`1/ρ` shrinks). Backs the `ρ ↓` column. -/
-theorem UDR_errLinear_antitone_rho (F : FieldParams) {ρ ρ' : Rate}
-    (h : (ρ : ℚ) ≤ (ρ' : ℚ)) (d : ℕ) :
-    (UDR F).errLinear ρ' d ≤ (UDR F).errLinear ρ d := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  obtain ⟨r', hr0', hr1'⟩ := ρ'
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have e : ∀ x : ℚ, 0 < x → (1 - x) / 2 * ((d : ℚ) / x) = (d : ℚ) / 2 * (1 / x - 1) := by
-    intro x hx; field_simp
-  have hrec : 1 / r' ≤ 1 / r := one_div_le_one_div_of_le hr0 h
-  have hd : (0 : ℚ) ≤ (d : ℚ) / 2 := by positivity
-  have hkey : (1 - r') / 2 * ((d : ℚ) / r') ≤ (1 - r) / 2 * ((d : ℚ) / r) := by
-    rw [e r' hr0', e r hr0]
-    exact mul_le_mul_of_nonneg_left (by linarith) hd
-  have hnum : (1 - r') / 2 * ((d : ℚ) / r') + 1 ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by linarith
-  simp only [UDR]
-  rw [div_le_div_iff₀ hc hc]
-  exact mul_le_mul_of_nonneg_right hnum hc.le
-
-/-- Powers-batching error is antitone in `|F|` (corollary of `UDR_errLinear_antitone_card`, `b ≥ 1`). -/
-theorem UDR_errPowers_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate) (d : ℕ)
-    {b : ℕ} (hb : 1 ≤ b) :
-    (UDR F').errPowers ρ d b ≤ (UDR F).errPowers ρ d b := by
-  have hlin := UDR_errLinear_antitone_card hc ρ d
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  simp only [UDR] at hlin ⊢
-  exact mul_le_mul_of_nonneg_right hlin hbb
-
-/-- Powers-batching error is antitone in the rate `ρ` (corollary of `UDR_errLinear_antitone_rho`). -/
-theorem UDR_errPowers_antitone_rho (F : FieldParams) {ρ ρ' : Rate} (h : (ρ : ℚ) ≤ (ρ' : ℚ)) (d : ℕ)
-    {b : ℕ} (hb : 1 ≤ b) :
-    (UDR F).errPowers ρ' d b ≤ (UDR F).errPowers ρ d b := by
-  have hlin := UDR_errLinear_antitone_rho F h d
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  obtain ⟨r', hr0', hr1'⟩ := ρ'
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  simp only [UDR] at hlin ⊢
-  exact mul_le_mul_of_nonneg_right hlin hbb
-
-/-- Powers-batching error is monotone in the dimension `d` (corollary of `UDR_errLinear_mono_dim`).
-Backs the `H ↑` column for the commit/batching cell. -/
-theorem UDR_errPowers_mono_dim (F : FieldParams) (ρ : Rate) {d d' : ℕ} (h : d ≤ d')
-    {b : ℕ} (hb : 1 ≤ b) :
-    (UDR F).errPowers ρ d b ≤ (UDR F).errPowers ρ d' b := by
-  have hlin := UDR_errLinear_mono_dim F ρ h
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  simp only [UDR] at hlin ⊢
-  exact mul_le_mul_of_nonneg_right hlin hbb
-
-/-- **Batching soundness cost.** The powers-batching error `errPowers = errLinear·(batch − 1)` is
-monotone in `batchSize`: batching more polynomials weakens the batching cell. -/
-theorem UDR_errPowers_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
-    (UDR F).errPowers ρ d b ≤ (UDR F).errPowers ρ d b' := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  simp only [UDR]
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
-    linarith
-  have hbase : (0 : ℚ) ≤ ((1 - r) / 2 * ((d : ℚ) / r) + 1) / (F.card : ℚ) := div_nonneg hnum hc.le
-  have hbb : ((b : ℚ) - 1) ≤ ((b' : ℚ) - 1) := by
-    have : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
-    linarith
-  gcongr
-
-/-- The powers-batching error is nonnegative (for `b ≥ 1` and a nonnegative dimension) — needed to
-apply the grinding antitonicity to the batching/commit cells. The dimension is a rational so that
-this also serves `commitErr`, whose dimension is `denseLen / ∏ foldingFactors`. -/
-theorem UDR_errPowers_nonneg (F : FieldParams) (ρ : Rate) {d : ℚ} (hd : 0 ≤ d) {b : ℕ} (hb : 1 ≤ b) :
-    0 ≤ (UDR F).errPowers ρ d b := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have h1b : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
   have hnum : (0 : ℚ) ≤ (1 - r) / 2 * (d / r) + 1 := by
     have : (0 : ℚ) ≤ (1 - r) / 2 * (d / r) := mul_nonneg (by linarith) (div_nonneg hd hr0.le)
     linarith
   simp only [UDR]
-  exact mul_nonneg (div_nonneg hnum hc.le) hbb
+  gcongr
 
-/-- **Multilinear-batching soundness cost.** The multilinear-batching error
-`errMultilinear = errLinear·⌈log₂ batch⌉` is monotone in `batchSize` — the `multilinBatch`-path
-counterpart of `UDR_errPowers_mono_batch` (the `powerBatch` path). -/
-theorem UDR_errMultilinear_mono_batch (F : FieldParams) (ρ : Rate) (d : ℕ) {b b' : ℕ} (h : b ≤ b') :
-    (UDR F).errMultilinear ρ d b ≤ (UDR F).errMultilinear ρ d b' := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
-    linarith
-  have hbase : (0 : ℚ) ≤ ((1 - r) / 2 * ((d : ℚ) / r) + 1) / (F.card : ℚ) := div_nonneg hnum hc.le
-  have hclog : (Nat.clog 2 b : ℚ) ≤ (Nat.clog 2 b' : ℚ) := by
-    exact_mod_cast Nat.clog_mono_right 2 h
-  simp only [UDR]
-  exact mul_le_mul_of_nonneg_left hclog hbase
+/-- The `|F|` column on the powers path, at UDR (a `|F|` change *is* a regime change, so this is one
+of the two cells that must name its regime). -/
+theorem UDR_errPowers_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate)
+    {d : ℚ} (hd : 0 ≤ d) {b : ℕ} (hb : 1 ≤ b) :
+    (UDR F').errPowers ρ d b ≤ (UDR F).errPowers ρ d b :=
+  errPowers_le_of_errLinear_le (UDR_standard F' ρ) (UDR_standard F ρ)
+    (UDR_errLinear_antitone_card hc ρ hd) hb
 
-/-- The multilinear-batching error is nonnegative — needed to grind the `multilinBatch` cell. -/
-theorem UDR_errMultilinear_nonneg (F : FieldParams) (ρ : Rate) (d : ℕ) (b : ℕ) :
-    0 ≤ (UDR F).errMultilinear ρ d b := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have hnum : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) + 1 := by
-    have : (0 : ℚ) ≤ (1 - r) / 2 * ((d : ℚ) / r) := mul_nonneg (by linarith) (by positivity)
-    linarith
-  simp only [UDR]
-  exact mul_nonneg (div_nonneg hnum hc.le) (by positivity)
+/-- The `|F|` column on the multilinear path, at UDR. -/
+theorem UDR_errMultilinear_antitone_card {F F' : FieldParams} (hc : F.card ≤ F'.card) (ρ : Rate)
+    {d : ℚ} (hd : 0 ≤ d) (b : ℕ) :
+    (UDR F').errMultilinear ρ d b ≤ (UDR F).errMultilinear ρ d b :=
+  errMultilinear_le_of_errLinear_le (UDR_standard F' ρ) (UDR_standard F ρ)
+    (UDR_errLinear_antitone_card hc ρ hd) b
 
-/-! ## The JBR (Johnson-bound) regime
+/-! ## Instance 2: the JBR (Johnson-bound) regime
 
-`JBR.errLinear = jbrErrLinear`, whose numerator `2·ms⁵ + 3·ms·(θρ)` is nonnegative because the
-`2·ms⁵` term (with `ms = jbrM + ½ ≥ 3.5`, since `jbrM ≥ 3`) dominates. That nonnegativity is the crux
-that lets the batching/commit monotonicities carry over from `UDR` to `JBR` (both have
-`errPowers = errLinear·(b−1)`, `errMultilinear = errLinear·⌈log₂ b⌉`). -/
+`JBR.errLinear = jbrErrLinear`, whose numerator `(2·ms⁵ + 3·ms·(θρ))·n/(3ρ·sr) + ms/sr` is `≥ 1`
+because the `2·ms⁵` term (with `ms = jbrM + ½ ≥ 3.5`, since `jbrM ≥ 3`) dominates the first summand,
+and the second summand `ms/sr ≥ ms ≥ 3.5` on its own clears `1`. That bound is the crux that makes
+JBR `Standard`, and hence lets *every* algebraic cell theorem apply at JBR with no restatement. -/
 
 /-- Domination: `2·ms⁵` beats `3·ms·t` once `ms ≥ 7/2` and `t ≥ −1`. -/
 private theorem jbr_dom {ms t : ℚ} (hms : 7 / 2 ≤ ms) (ht : -1 ≤ t) :
@@ -212,12 +214,13 @@ private theorem jbr_dom {ms t : ℚ} (hms : 7 / 2 ≤ ms) (ht : -1 ≤ t) :
   rw [key]
   exact mul_nonneg h0 (by linarith)
 
-/-- **The JBR linear error is nonnegative** (under the standard config conditions: `0 < ρ < 1`,
-`η ≤ 1`, and `0 < sqrtLB ρ g ≤ 1`). The crux for the JBR batching/commit monotonicities. -/
-theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
+/-- **The field ceiling bites at JBR.** `1/|F| ≤ jbrErrLinear` (under the standard config
+conditions: `0 < ρ < 1`, `η ≤ 1`, `0 < sqrtLB ρ g ≤ 1`): the first summand is nonnegative by
+`jbr_dom`, and the second is `ms/sr ≥ ms ≥ 7/2`. -/
+theorem one_div_card_le_jbrErrLinear (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
     (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (hη : η ≤ 1) (hsr0 : 0 < sqrtLB ρ g) (hsr1 : sqrtLB ρ g ≤ 1)
     {d : ℚ} (hd : 0 ≤ d) :
-    0 ≤ jbrErrLinear F η g ρ d := by
+    1 / (F.card : ℚ) ≤ jbrErrLinear F η g ρ d := by
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
   have hm3 : 3 ≤ jbrM ρ η g := le_max_right _ 3
   have hms : (7 : ℚ) / 2 ≤ (jbrM ρ η g : ℚ) + 1 / 2 := by
@@ -232,106 +235,60 @@ theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
   have hden : (0 : ℚ) < 3 * ρ * sqrtLB ρ g :=
     mul_pos (mul_pos (by norm_num) hρ0) hsr0
   simp only [jbrErrLinear]
-  refine div_nonneg (add_nonneg ?_ ?_) hc.le
+  refine div_le_div_same (le_add_of_nonneg_of_le ?_ ?_) hc
   · exact div_nonneg (mul_nonneg hdom hn) hden.le
-  · exact div_nonneg (by linarith) hsr0.le
+  · rw [le_div_iff₀ hsr0]; linarith
 
-/-- The JBR regime's linear error is nonnegative (packaging `jbrErrLinear_nonneg` at the `JBR`
-regime). The `sqrtLB`/`etaLB` side conditions hold for every real config. -/
-theorem JBR_errLinear_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
-    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) :
-    0 ≤ (JBR F g gap).errLinear ρ d := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR]
-  exact jbrErrLinear_nonneg F hr0 hr1 hη hsr0 hsr1 hd
-
-/-- **Batching cost at JBR.** `JBR.errPowers = jbrErrLinear·(b−1)` is monotone in `batchSize`. -/
-theorem JBR_errPowers_mono_batch (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
-    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b b' : ℕ} (h : b ≤ b') :
-    (JBR F g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d b' := by
-  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  have hbb : ((b : ℚ) - 1) ≤ ((b' : ℚ) - 1) := by
-    have : (b : ℚ) ≤ (b' : ℚ) := by exact_mod_cast h
-    linarith
-  exact mul_le_mul_of_nonneg_left hbb hlin
-
-/-- **Multilinear batching cost at JBR** (SP1's mode). `JBR.errMultilinear = jbrErrLinear·⌈log₂ b⌉`. -/
-theorem JBR_errMultilinear_mono_batch (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
-    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b b' : ℕ} (h : b ≤ b') :
-    (JBR F g gap).errMultilinear ρ d b ≤ (JBR F g gap).errMultilinear ρ d b' := by
-  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  have hclog : (Nat.clog 2 b : ℚ) ≤ (Nat.clog 2 b' : ℚ) := by
-    exact_mod_cast Nat.clog_mono_right 2 h
-  exact mul_le_mul_of_nonneg_left hclog hlin
-
-/-- The JBR powers error is nonnegative (`b ≥ 1`) — for the JBR grind knobs. -/
-theorem JBR_errPowers_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
-    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b : ℕ} (hb : 1 ≤ b) :
-    0 ≤ (JBR F g gap).errPowers ρ d b := by
-  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  exact mul_nonneg hlin hbb
-
-/-- The JBR multilinear error is nonnegative — for the JBR grind knob on SP1's mode. -/
-theorem JBR_errMultilinear_nonneg (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
-    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) (b : ℕ) :
-    0 ≤ (JBR F g gap).errMultilinear ρ d b := by
-  have hlin := JBR_errLinear_nonneg F g gap ρ hd hsr0 hsr1 hη
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  exact mul_nonneg hlin (by positivity)
+/-- **The JBR linear error is nonnegative** — the weaker corollary of
+`one_div_card_le_jbrErrLinear` that the grind knobs consume. -/
+theorem jbrErrLinear_nonneg (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
+    (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (hη : η ≤ 1) (hsr0 : 0 < sqrtLB ρ g) (hsr1 : sqrtLB ρ g ≤ 1)
+    {d : ℚ} (hd : 0 ≤ d) :
+    0 ≤ jbrErrLinear F η g ρ d := by
+  have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
+  have h := one_div_card_le_jbrErrLinear F hρ0 hρ1 hη hsr0 hsr1 hd
+  have hpos : (0 : ℚ) < 1 / (F.card : ℚ) := by positivity
+  linarith
 
 /-- **The `H` cell at JBR.** `jbrErrLinear` is monotone in the dimension `d` (it enters linearly via
-`n = d/ρ`, and the coefficient is nonnegative). Unlike `ρ`/`|F|`, `d` does not thread through the gap
-`etaLB`, so this is clean. -/
-theorem JBR_errLinear_mono_dim (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d d' : ℚ}
-    (hdd : d ≤ d') (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) :
-    (JBR F g gap).errLinear ρ d ≤ (JBR F g gap).errLinear ρ d' := by
-  obtain ⟨r, hr0, hr1⟩ := ρ
+`n = d/ρ`, and the coefficient is nonnegative by `jbr_dom`). Unlike `ρ`/`|F|`, `d` does not thread
+through the gap `η`, so this is clean. -/
+theorem jbrErrLinear_mono_dim (F : FieldParams) {η : ℚ} {g : ℕ} {ρ : ℚ}
+    (hρ0 : 0 < ρ) (hρ1 : ρ < 1) (hη : η ≤ 1) (hsr0 : 0 < sqrtLB ρ g) (hsr1 : sqrtLB ρ g ≤ 1)
+    {d d' : ℚ} (hdd : d ≤ d') :
+    jbrErrLinear F η g ρ d ≤ jbrErrLinear F η g ρ d' := by
   have hc : (0 : ℚ) < (F.card : ℚ) := by exact_mod_cast F.card_pos
-  have hm3 : 3 ≤ jbrM r (etaLB r g F.card gap) g := le_max_right _ 3
-  have hms : (7 : ℚ) / 2 ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) + 1 / 2 := by
-    have : (3 : ℚ) ≤ (jbrM r (etaLB r g F.card gap) g : ℚ) := by exact_mod_cast hm3
+  have hm3 : 3 ≤ jbrM ρ η g := le_max_right _ 3
+  have hms : (7 : ℚ) / 2 ≤ (jbrM ρ η g : ℚ) + 1 / 2 := by
+    have : (3 : ℚ) ≤ (jbrM ρ η g : ℚ) := by exact_mod_cast hm3
     linarith
-  have hθρ : (-1 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g) * r := by
-    have hpos : (0 : ℚ) ≤ ((1 - etaLB r g F.card gap) - sqrtLB r g + 1) * r :=
-      mul_nonneg (by linarith) hr0.le
-    nlinarith [hpos, hr1]
+  have hθρ : (-1 : ℚ) ≤ ((1 - η) - sqrtLB ρ g) * ρ := by
+    have hpos : (0 : ℚ) ≤ ((1 - η) - sqrtLB ρ g + 1) * ρ :=
+      mul_nonneg (by linarith) hρ0.le
+    nlinarith [hpos, hρ1]
   have hdom := jbr_dom hms hθρ
-  have hden : (0 : ℚ) < 3 * r * sqrtLB r g := mul_pos (mul_pos (by norm_num) hr0) hsr0
-  simp only [JBR, jbrErrLinear]
+  have hden : (0 : ℚ) < 3 * ρ * sqrtLB ρ g := mul_pos (mul_pos (by norm_num) hρ0) hsr0
+  simp only [jbrErrLinear]
   gcongr
 
-/-- Powers error at JBR is monotone in the dimension (`H ↑` for the commit/batching cell). -/
-theorem JBR_errPowers_mono_dim (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d d' : ℚ}
-    (hdd : d ≤ d') (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) {b : ℕ} (hb : 1 ≤ b) :
-    (JBR F g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d' b := by
-  have hlin := JBR_errLinear_mono_dim F g gap ρ hdd hsr0 hsr1 hη
+/-- **JBR is standard.** The Johnson-bound regime has the same algebraic shape as UDR, under the
+`sqrtLB`/`etaLB` side conditions that every real config meets. This is the second (and last)
+regime-specific proof: with it, every algebraic cell theorem in the catalogue applies at JBR
+verbatim — Airbender/OpenVM/Pico/ZisK report there. -/
+theorem JBR_standard (F : FieldParams) (g : ℕ) (gap : Option ℚ) (ρ : Rate)
+    (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) :
+    (JBR F g gap).Standard F ρ := by
   obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  exact mul_le_mul_of_nonneg_right hlin hbb
+  refine ⟨fun d b => rfl, fun d b => rfl, ?_, ?_⟩
+  · intro d hd
+    exact one_div_card_le_jbrErrLinear F hr0 hr1 hη hsr0 hsr1 hd
+  · intro d d' hdd
+    exact jbrErrLinear_mono_dim F hr0 hr1 hη hsr0 hsr1 hdd
 
-/-- **The `|F|` cell at JBR.** `jbrErrLinear` is antitone in `|F|` (it divides by `|F|`) **provided the
-gap agrees** — `etaLB` depends on `card` only through the `card > 2^150` threshold, so two fields on the
-same side of it give the same `η`, making the numerator `|F|`-independent. -/
+/-- **The `|F|` cell at JBR.** `jbrErrLinear` is antitone in `|F|` (it divides by `|F|`) **provided
+the gap agrees** — `etaLB` depends on `card` only through the `card > 2^150` threshold, so two fields
+on the same side of it give the same `η`, making the numerator `|F|`-independent. -/
 theorem JBR_errLinear_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
     (hηeq : etaLB (ρ : ℚ) g F'.card gap = etaLB (ρ : ℚ) g F.card gap)
     (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
@@ -356,18 +313,27 @@ theorem JBR_errLinear_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option
   · exact div_nonneg (mul_nonneg hdom hn) hden.le
   · exact div_nonneg (by linarith) hsr0.le
 
-/-- Powers error at JBR is antitone in `|F|` (same gap-agreement condition). -/
+/-- The `|F|` column on the powers path, at JBR (same gap-agreement condition). -/
 theorem JBR_errPowers_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option ℚ) (ρ : Rate) {d : ℚ}
     (hηeq : etaLB (ρ : ℚ) g F'.card gap = etaLB (ρ : ℚ) g F.card gap)
     (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
-    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1) (hcard : F.card ≤ F'.card) {b : ℕ} (hb : 1 ≤ b) :
-    (JBR F' g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d b := by
-  have hlin := JBR_errLinear_antitone_card g gap ρ hηeq hd hsr0 hsr1 hη hcard
-  obtain ⟨r, hr0, hr1⟩ := ρ
-  simp only [JBR] at hlin ⊢
-  have hbb : (0 : ℚ) ≤ (b : ℚ) - 1 := by
-    have : (1 : ℚ) ≤ (b : ℚ) := by exact_mod_cast hb
-    linarith
-  exact mul_le_mul_of_nonneg_right hlin hbb
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1)
+    (hη' : etaLB (ρ : ℚ) g F'.card gap ≤ 1) (hcard : F.card ≤ F'.card) {b : ℕ} (hb : 1 ≤ b) :
+    (JBR F' g gap).errPowers ρ d b ≤ (JBR F g gap).errPowers ρ d b :=
+  errPowers_le_of_errLinear_le (JBR_standard F' g gap ρ hsr0 hsr1 hη')
+    (JBR_standard F g gap ρ hsr0 hsr1 hη)
+    (JBR_errLinear_antitone_card g gap ρ hηeq hd hsr0 hsr1 hη hcard) hb
+
+/-- The `|F|` column on the multilinear path, at JBR (same gap-agreement condition). -/
+theorem JBR_errMultilinear_antitone_card {F F' : FieldParams} (g : ℕ) (gap : Option ℚ) (ρ : Rate)
+    {d : ℚ}
+    (hηeq : etaLB (ρ : ℚ) g F'.card gap = etaLB (ρ : ℚ) g F.card gap)
+    (hd : 0 ≤ d) (hsr0 : 0 < sqrtLB (ρ : ℚ) g) (hsr1 : sqrtLB (ρ : ℚ) g ≤ 1)
+    (hη : etaLB (ρ : ℚ) g F.card gap ≤ 1)
+    (hη' : etaLB (ρ : ℚ) g F'.card gap ≤ 1) (hcard : F.card ≤ F'.card) (b : ℕ) :
+    (JBR F' g gap).errMultilinear ρ d b ≤ (JBR F g gap).errMultilinear ρ d b :=
+  errMultilinear_le_of_errLinear_le (JBR_standard F' g gap ρ hsr0 hsr1 hη')
+    (JBR_standard F g gap ρ hsr0 hsr1 hη)
+    (JBR_errLinear_antitone_card g gap ρ hηeq hd hsr0 hsr1 hη hcard) b
 
 end Soundcalc

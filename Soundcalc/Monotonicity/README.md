@@ -5,10 +5,7 @@ point-wise calculator" layer.
 
 This is the **catalogue** — config-level results that say how a *cell* (soundness error, security
 bits, or proof size) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`)
-or the decoding regime (UDR vs JBR). The cross-cutting table comes first, then one grid per component.
-(The supporting lemmas — the query-cell shape, Merkle proof-size atoms, `scanl`/`foldl` monotonicities,
-`errLinear`/`errPowers` mechanisms, and real-analysis facts — live in `Basic.lean` / `Regime.lean` and
-the foundations of each file; they're the proof toolkit, not catalogued here.)
+or the decoding regime (UDR vs JBR).
 
 ## Shared quantities (referenced by several theorems)
 
@@ -20,20 +17,24 @@ the foundations of each file; they're the proof toolkit, not catalogued here.)
 - **Linear (Schwartz–Zippel) error** — `errLinear = ((1−ρ)/2·(d/ρ) + 1) / |F|`; the powers-batching
   error is `errPowers = errLinear·(batch − 1)`.
 - **Field ceiling** — `secBits(1/|F|) = ⌊log₂ |F|⌋`, the most bits an algebraic cell can report.
+- **`Regime.Standard`** — the bundle that makes the catalogue regime-independent (see below): a
+  regime `R` over field `F` at rate `ρ` is *standard* when `errPowers = errLinear·(b−1)`,
+  `errMultilinear = errLinear·⌈log₂ b⌉`, `1/|F| ≤ errLinear`, and `errLinear` is monotone in the
+  dimension. `UDR_standard` / `JBR_standard` are the **only** regime-specific proofs in the module.
 
 ---
 
 ## Sensitivity catalog
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
-`—` the knob does not occur, `∗` provably non-monotone (interior optimum). Directions verified
-against the UDR formulas; each is backed by a named lemma (below the table). `H` is the trace/dense
-length, `L` the decoder list size.
+`—` the knob does not occur, `∗` provably non-monotone (interior optimum). Every direction is backed
+by a named lemma (below the table) that holds at **every** decoding regime — no cell is verified at
+UDR only. `H` is the trace/dense length, `L` the decoder list size.
 
 | Error term | `q` | grind | `ρ` | `H` | batch | `\|F\|` | `L` |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| FRI query `(1−θ)^q·2^{−g}` | ↓ | ↓ | ↑ | — | — | — | — |
-| FRI commit / batching | — | ↓ | ↓ | ↑ | ↑ | ↓ | — |
+| FRI query `(1−θ)^q·2^{−g}` | ↓ | ↓ | — | — | — | — | — |
+| FRI commit / batching | — | ↓ | — | ↑ | ↑ | ↓ | — |
 | ALI `L⁺·C/\|F\|` | — | — | — | — | — | ↓ | ↑ |
 | DEEP | — | ↓ | ↓ | ↑ | — | ↓ | ↑ |
 | LogUp / GKR | — | ↓ | — | ↑ | ↑ | ↓ | ↑† |
@@ -43,8 +44,8 @@ Backing lemma per cell (`—` cells omitted):
 
 | Error term | backing lemmas |
 |---|---|
-| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind), `queryErr_mono_rho` (ρ — `((1+ρ)/2)^q/2^g` is monotone in ρ) |
-| FRI commit / batching | `batchingErr_antitone_grindBatch` / `commitErr_antitone_grindCommit` (grind), `UDR_errPowers_antitone_rho` (ρ), `UDR_errPowers_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_errPowers_antitone_card` (`\|F\|`) |
+| FRI query | `queryErr_antitone_numQueries` (q), `queryErr_antitone_grindQuery` (grind) |
+| FRI commit / batching | `batchingErr_antitone_grindBatch` / `commitErr_antitone_grindCommit` (grind), `errPowers_mono_dim` / `errMultilinear_mono_dim` (H), `batchingErr_mono_batchSize` (batch), `UDR_`/`JBR_err{Powers,Multilinear}_antitone_card` (`\|F\|`) |
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
@@ -59,23 +60,41 @@ SWIRL behavior).
 "pinned" — the cell cannot be moved by a **single-field record update** (FRI's `h_earlyStop`
 couples `ρ`/`H`; DeepAli's field-coherence invariants couple `|F|`; `ρ`/`H` sit behind the `PCS`
 inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, in one of two ways:
- - FRI commit/batching `ρ`/`H`/`|F|` — by the regime-level `errPowers` lemmas
-   (`UDR_errPowers_antitone_rho` / `_mono_dim` / `_antitone_card`), since those cells *are*
-   `errPowers`-shaped.
+ - FRI commit/batching `H`/`|F|` — by the regime-level batching lemmas (`errPowers_mono_dim` /
+   `errMultilinear_mono_dim`, and `UDR_`/`JBR_err{Powers,Multilinear}_antitone_card`), since those
+   cells *are* `errPowers`/`errMultilinear`-shaped. Both batching paths are covered, not just
+   `powerBatch`.
  - ALI `|F|` and DEEP `ρ`/`H`/`|F|` — by **two-config** lemmas (`aliErr_antitone_card`,
    `deepErr_antitone_card` / `_antitone_rho` / `_mono_traceLen`) that compare two configs agreeing on
    the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
 
-**Both regimes.** The catalogue's soundness theorems are stated at a decoding regime — a general `R`
-for the query cell, and `UDR`/`JBR` for the algebraic (`errPowers`-shaped) cells. Several FRI-based
-zkVMs (Airbender/OpenVM/Pico/ZisK) report at **JBR**, so the batching/commit knobs (`batchSize`, `grindBatch`, `grindCommit`), `H`, and `|F|` are
-proven at **both** `UDR` and `JBR` (the `_jbr` theorems and `JBR_errPowers_*`, built on
-`jbrErrLinear_nonneg`). The `|F|` cell at JBR carries a gap-agreement hypothesis (`etaLB` depends on
-`card` only through the `card > 2^150` threshold, so two fields on the same side of it give the same
-`η`). The **one cell left open** is `ρ` at JBR: there `ρ` threads through `√ρ`, `n = d/ρ`, the gap
-`η = etaLB(ρ)`, and the multiplicity `jbrM` simultaneously, with opposing effects — it is confounded
-and may not even be monotone, so it is deliberately left unproven (like the expected-`numQueries`
-proof-size cell).
+**Regime independence.** Every cell in the catalogue is stated for an **arbitrary** regime — there
+are no UDR-only or JBR-only cells, and no `_udr`/`_jbr` theorem pairs to keep in sync. Two mechanisms
+achieve this:
+
+ - *Query cells* (`queryErr`, `epsilonQuery`) take a bare `R : Regime`. Their shape `(1−θ)^t/2^g`
+   mentions no regime formula except the radius `θLB`, so one theorem covers all regimes.
+ - *Algebraic cells* (`batchingErr`, `commitErr`) take an `R` together with
+   `hR : R.Standard c.field c.ρ`. Every step of their proofs goes through `Regime.Standard`, never
+   through a `UDR`/`JBR` formula. Callers discharge `hR` with `UDR_standard` (no side conditions) or
+   `JBR_standard` (the config's `sqrtLB`/`etaLB` conditions, met by every real config).
+
+This matters because several FRI-based zkVMs (Airbender/OpenVM/Pico/ZisK) report at JBR while others
+report at UDR: they read the *same* theorems. The circuit/lookup cells are regime-independent for a
+different reason — `DeepAliCfg`'s cells are already quantified over `R` (the regime enters only
+through `listSize`, which the lemmas take as a parameter), and `LookupCfg`/`JaggedCfg`'s cells
+contain no regime quantity at all.
+
+The one unavoidable exception is the **`|F|` knob**: changing the field turns `UDR F` into `UDR F'`,
+so it *is* a change of regime and cannot be stated over a single `R`. It is given per regime family
+(`UDR_`/`JBR_err{Powers,Multilinear}_antitone_card`), both of them thin corollaries of the one
+regime-generic lemma `errPowers_le_of_errLinear_le` / `errMultilinear_le_of_errLinear_le`. The JBR
+form carries a gap-agreement hypothesis (`etaLB` depends on `card` only through the `card > 2^150`
+threshold, so two fields on the same side of it give the same `η`).
+
+The rate `ρ` is deliberately **not** a catalogued FRI knob: it is pinned by `h_earlyStop`, and its
+direction is genuinely regime-dependent (confounded at JBR through `√ρ`, `d/ρ`, and `η = etaLB(ρ)`),
+so tracking it would break exactly the regime-independence above.
 `∗` — provably non-monotone: `whir_multiplicity_interior_optimum` proves the reported security
 (`min` over cells) has a *strict interior maximum* in `m`, since query security rises while algebraic
 security falls; so `m` has no monotone direction.
@@ -132,17 +151,18 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 
 ### Sensitivity (`q` = numQueries, `gQ`/`gB`/`gC` = grind query/batch/commit, `H` = denseLen)
 
-| cell | `q` | `gQ` | `gB` | `gC` | `ρ` | `H` | batch | `\|F\|` |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| `queryErr` | ↓ | ↓ | — | — | ↑ | — | — | — |
-| `batchingErr` | — | — | ↓ | — | ↓ | ↑ | ↑ | ↓ |
-| `commitErr` | — | — | — | ↓ | ↓ | ↑ | — | ↓ |
+| cell | `q` | `gQ` | `gB` | `gC` | `H` | batch | `\|F\|` |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| `queryErr` | ↓ | ↓ | — | — | — | — | — |
+| `batchingErr` | — | — | ↓ | — | ↑ | ↑ | ↓ |
+| `commitErr` | — | — | — | ↓ | ↑ | — | ↓ |
 
-`ρ`/`H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`UDR_errPowers_*`);
-`commitErr`'s batch arg is the folding factor `kᵢ` (pinned), so the `batch` column is `—` there.
-(Proof size has its own section above.)
+`H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`errPowers_mono_dim` /
+`errMultilinear_mono_dim`, and the `_antitone_card` pair); `commitErr`'s batch arg is the folding
+factor `kᵢ` (pinned), so the `batch` column is `—` there. (Proof size has its own section above.)
 **Per round** (structural, not a knob): the folded dimension shrinks each round
-(`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`).
+(`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`), hence so does the commit-cell
+error at that dimension (`commitDimErr_antitone_round`).
 
 ### Catalogue
 
@@ -152,12 +172,15 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 | `FRIConfig.queryBits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (`UDR ≤ JBR` on the query cell). |
 | `FRIConfig.queryErr_antitone_numQueries` | `numQueries` | More queries never raise the query-cell error. |
 | `FRIConfig.queryBits_mono_numQueries` | `numQueries` | More queries never lower the query-cell security (benefit side). |
-| `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error — **both** paths (the `powerBatch` `errPowers` path and the multilinear `errMultilinear` path). |
+| `FRIConfig.batchingErr_mono_batchSize` | `batchSize` | **Batching soundness cost:** more batched polys ⇒ larger batching error — any regime, **both** paths (the `powerBatch` `errPowers` path and the multilinear `errMultilinear` path). |
 | `FRIConfig.queryErr_antitone_grindQuery` | `grindQuery` | More query-phase PoW bits ⇒ smaller query error. |
-| `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error. |
-| `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error. |
-| `FRIConfig.batchingErr_mono_batchSize_jbr` / `_antitone_grindBatch_jbr` / `commitErr_antitone_grindCommit_jbr` | `batchSize`/`grindBatch`/`grindCommit` at **JBR** | The same batching/commit knobs at the JBR regime (both batching modes), carrying the config's `sqrtLB`/`etaLB` side conditions. |
-| `FRIConfig.queryErr_mono_rho` | `ρ` (pinned) | Higher rate ⇒ larger query error (`((1+ρ)/2)^q/2^g`); two configs agreeing on the other query inputs, at UDR. |
+| `FRIConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (any regime, both paths). |
+| `FRIConfig.commitErr_antitone_grindCommit` | `grindCommit` | More commit-phase PoW bits ⇒ smaller (per-round) commit error (any regime). |
+| `FRIConfig.commitDimErr_antitone_round` | round `i` | The commit cell falls round over round: `friDimension_antitone` composed with `errPowers_mono_dim` (any regime). |
+
+The three algebraic rows take `hR : R.Standard c.field c.ρ`; instantiate with `UDR_standard` or
+`JBR_standard`. There are no separate `_jbr` theorems — the JBR regime *is* one of the `R`s these
+cover.
 
 ## `WHIR.lean`
 
@@ -192,9 +215,8 @@ multiplicity `m` (a regime quantity, not a config field) is the catalog's one `�
 |---|---|---|
 | `WHIRConfig.epsilonQuery_antitone_radius` | regime | `epsilonQuery` is antitone in the decoding radius `δᵢ` (FRI analog). |
 | `WHIRConfig.epsilonQuery_bits_mono` | regime | Larger radius ⇒ at least as many query-cell bits (FRI analog). |
-| `WHIRConfig.batchingErr_mono_batchSize` | `batchSize` | More batched polys ⇒ larger batching error (FRI analog of `batchingErr_mono_batchSize`). |
-| `WHIRConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (FRI analog). |
-| `WHIRConfig.batchingErr_mono_batchSize_jbr` / `_antitone_grindBatch_jbr` | `batchSize`/`grindBatch` at **JBR** | The batching knobs at the JBR regime (the `errLinear` else-branch is batch-independent). |
+| `WHIRConfig.batchingErr_mono_batchSize` | `batchSize` | More batched polys ⇒ larger batching error (FRI analog of `batchingErr_mono_batchSize`) — any regime, both modes (the `errLinear` else-branch is batch-independent, so it holds with equality there). |
+| `WHIRConfig.batchingErr_antitone_grindBatch` | `grindBatch` | More batch-phase PoW bits ⇒ smaller batching error (FRI analog) — any regime, both modes. |
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
 
@@ -266,8 +288,7 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 
 `zerocheckErr = (C + (deg+2)·⌈log₂ H⌉)/|F|` and `reduceErr = (⌈log₂ w⌉ + …)/|F|`. `JaggedCfg` pins
 `field`/`densePCS`/`lookups`; `traceLength`/`traceWidth`/`numConstraints`/`airMaxDegree` are free
-knobs. Proof size is omitted — `getJaggedProofSizeBits` is private and reads only the pinned dense
-PCS, so it has no Jagged-level knob and inherits the dense PCS's proof-size monotonicity.
+knobs. 
 
 ### Sensitivity (`C` = numConstraints, `deg` = airMaxDegree, `H` = traceLength, `w` = traceWidth)
 
@@ -292,6 +313,11 @@ only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
 
 ---
 
-The supporting lemmas (`Regime.lean` — Johnson-vs-unique, field ceiling, `errLinear`/`errPowers`
+The supporting lemmas (`Regime.lean` — Johnson-vs-unique, the `Regime.Standard` bundle and its
+`UDR`/`JBR` instances, the field ceiling, and the regime-generic `errPowers`/`errMultilinear`
 monotonicities; `Basic.lean` — query-cell shape, `scanl` steps, `secBits` grinding, division helpers)
 are the proof toolkit behind the catalogue above; see the source files.
+
+Adding a regime later costs one theorem: prove `R.Standard F ρ` for it, and every algebraic cell in
+this catalogue applies unchanged (plus one `errLinear`-antitone-in-`|F|` lemma if that regime's `|F|`
+column is wanted).

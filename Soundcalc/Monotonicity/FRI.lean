@@ -13,7 +13,9 @@ Organised in two tiers:
   record-update-safe knobs are `numQueries` and `batchSize`; `denseLen`, `ρ` and `foldingFactors`
   are pinned together by the config's `h_earlyStop` invariant, so they cannot be moved by `{c with …}`
   (their sensitivity is studied at the regime / `errPowers` level instead — see the foundations, and
-  the follow-up rows).
+  the follow-up rows). Every catalogue cell is **regime-independent**: it is stated for a bare
+  `R : Regime`, with the algebraic ones carrying `Regime.Standard` (discharged by `UDR_standard` /
+  `JBR_standard`).
 * **Foundations** — the bare-parameter mechanisms the catalogue is built from: the query-cell shape,
   the Merkle proof-size atoms, the proof-size `foldl` monotonicity, and the folding-product /
   dimension lemmas. Not part of the catalogue; they are the proof toolkit.
@@ -144,8 +146,8 @@ theorem getFRIProofSizeBits_mono_numQueries (hashBits fieldBits batchSize domain
 
 /-! ## Batching tradeoff: more batched polynomials cost soundness *and* proof size
 
-The soundness side (`UDR_errPowers_mono_batch`) lives with the other `errPowers` monotonicities in
-`Monotonicity.Regime`; the proof-size side is below. -/
+The soundness side (`Regime.Standard.errPowers_mono_batch`, regime-independent) lives with the other
+`errPowers` monotonicities in `Monotonicity.Regime`; the proof-size side is below. -/
 
 /-- The worst-case Merkle multi-proof is monotone in the folding-block (leaf) size `tupleSize`. -/
 theorem getSizeOfMerkleMultiProofBits_worst_mono_tupleSize
@@ -177,8 +179,8 @@ theorem getFRIProofSizeBits_mono_batchSize (hashBits fieldBits numQueries domain
 /-! ## Later rounds process smaller instances (the FRI analog of `WHIRConfig.logDegree_anti`)
 
 `commitErr i` runs over the dimension `denseLen / ∏_{j≤i} kⱼ`, which shrinks each round. Composed with
-`UDR_errLinear_mono_dim` (smaller instance ⇒ more sound), this is why the report's commit-round bits
-climb. -/
+`Regime.Standard.errLinear_mono_dim` (smaller instance ⇒ more sound, at any regime), this is why the
+report's commit-round bits climb — see `commitDimErr_antitone_round` in the catalogue. -/
 
 /-- The accumulated folding factor `∏_{j≤i} kⱼ` is non-decreasing in the round `i` (each `kⱼ ≥ 1`). -/
 theorem friAcc_mono {folds : List ℕ} (hpos : ∀ k ∈ folds, 1 ≤ k) (i : ℕ) :
@@ -191,8 +193,8 @@ theorem friAcc_mono {folds : List ℕ} (hpos : ∀ k ∈ folds, 1 ≤ k) (i : �
   · rw [List.take_of_length_le hge, List.take_of_length_le (by omega)]
 
 /-- **The folded dimension shrinks each round**: `denseLen / ∏_{j≤i+1} ≤ denseLen / ∏_{j≤i}`.
-The FRI counterpart of WHIR's `logDegree_anti`; with `UDR_errLinear_mono_dim` it gives that the
-commit-round soundness error decreases (security climbs) round over round. -/
+The FRI counterpart of WHIR's `logDegree_anti`; with `Regime.Standard.errLinear_mono_dim` it gives
+that the commit-round soundness error decreases (security climbs) round over round, at any regime. -/
 theorem friDimension_antitone (denseLen : ℕ) {folds : List ℕ} (hpos : ∀ k ∈ folds, 1 ≤ k) (i : ℕ) :
     denseLen / (folds.take (i + 2)).foldl (· * ·) 1
       ≤ denseLen / (folds.take (i + 1)).foldl (· * ·) 1 := by
@@ -231,10 +233,15 @@ theorem FRIConfig.queryBits_mono (c : FRIConfig) (R R' : Regime)
 /-! ## Configuration knobs
 
 Each theorem fixes a `FRIConfig`, moves exactly one field (via `{c with … }`), and compares one
-cell. The two record-update-safe knobs are `numQueries` and `batchSize`. Soundness cells are stated
-at the `UDR` regime, matching the sensitivity catalog's UDR instantiation. Together the `numQueries`
+cell. The two record-update-safe knobs are `numQueries` and `batchSize`. Together the `numQueries`
 trio (error ↓, security ↑, size ↑) and the `batchSize` pair (error ↑, size ↑) are the "no free
-lunch" story at the config level. -/
+lunch" story at the config level.
+
+**Every cell here is regime-independent.** The query cells hold for a bare `R : Regime` (their shape
+`(1−θ)^t/2^g` involves no regime formula beyond the radius); the algebraic cells hold for any `R`
+satisfying `Regime.Standard c.field c.ρ`, discharged by `UDR_standard` or `JBR_standard`. There are
+no `_udr`/`_jbr` variants to keep in sync — Airbender/OpenVM/Pico/ZisK report at JBR and read the
+same theorems SP1 does. -/
 
 /-- **Query knob → soundness (↓).** More queries never *raise* the query-cell error. -/
 theorem FRIConfig.queryErr_antitone_numQueries (c : FRIConfig) (R : Regime) {q : ℕ}
@@ -262,14 +269,15 @@ theorem FRIConfig.proofSizeWorst_mono_numQueries (c : FRIConfig) {q : ℕ}
   exact getFRIProofSizeBits_mono_numQueries _ _ _ _ _ _ h
 
 /-- **Batch knob → soundness (↑).** Batching more polynomials never *lowers* the batching-cell error —
-on **either** batching path (`powerBatch` ⇒ `errPowers`, or the multilinear path ⇒ `errMultilinear`). -/
-theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) {b : ℕ}
-    (h : c.batchSize ≤ b) :
-    c.batchingErr (UDR c.field) ≤ ({c with batchSize := b}).batchingErr (UDR c.field) := by
+at **any** regime, on **either** batching path (`powerBatch` ⇒ `errPowers`, or the multilinear path
+⇒ `errMultilinear`). -/
+theorem FRIConfig.batchingErr_mono_batchSize (c : FRIConfig) (R : Regime)
+    (hR : R.Standard c.field c.ρ) {b : ℕ} (h : c.batchSize ≤ b) :
+    c.batchingErr R ≤ ({c with batchSize := b}).batchingErr R := by
   dsimp only [FRIConfig.batchingErr]
   split_ifs with hp
-  · gcongr; exact UDR_errPowers_mono_batch c.field c.ρ c.denseLen h
-  · gcongr; exact UDR_errMultilinear_mono_batch c.field c.ρ c.denseLen h
+  · gcongr; exact hR.errPowers_mono_batch (by positivity) h
+  · gcongr; exact hR.errMultilinear_mono_batch (by positivity) h
 
 /-- **Batch knob → proof size (↑).** The batched polynomials all ride the initial Merkle
 multi-proof, so batching more of them never *shrinks* the proof. -/
@@ -299,76 +307,47 @@ theorem FRIConfig.queryErr_antitone_grindQuery (c : FRIConfig) (R : Regime) {g :
   exact div_pow_two_antitone (pow_nonneg hb _) h
 
 /-- **Batch-grind knob → soundness (↓).** More batching-phase PoW bits never raise the batching-cell
-error, on **either** batching path (`errPowers` or `errMultilinear`). -/
-theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig)
-    (hbs : 1 ≤ c.batchSize) {g : ℕ} (h : c.grindBatch ≤ g) :
-    ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
+error — at any regime, on **either** batching path (`errPowers` or `errMultilinear`). -/
+theorem FRIConfig.batchingErr_antitone_grindBatch (c : FRIConfig) (R : Regime)
+    (hR : R.Standard c.field c.ρ) (hbs : 1 ≤ c.batchSize) {g : ℕ} (h : c.grindBatch ≤ g) :
+    ({c with grindBatch := g}).batchingErr R ≤ c.batchingErr R := by
   dsimp only [FRIConfig.batchingErr]
   split_ifs with hp
-  · exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hbs) h
-  · exact div_pow_two_antitone (UDR_errMultilinear_nonneg c.field c.ρ c.denseLen c.batchSize) h
+  · exact div_pow_two_antitone (hR.errPowers_nonneg (by positivity) hbs) h
+  · exact div_pow_two_antitone (hR.errMultilinear_nonneg (by positivity) c.batchSize) h
 
 /-- **Commit-grind knob → soundness (↓).** More commit-phase PoW bits never raise the per-round
-commit-cell error `commitErr i = errPowers(ρ, denseLen/∏kⱼ, kᵢ) / 2^grindCommit`. The companion of
-`batchingErr_antitone_grindBatch` for the commit cell. -/
-theorem FRIConfig.commitErr_antitone_grindCommit (c : FRIConfig) (i : ℕ)
+commit-cell error `commitErr i = errPowers(ρ, denseLen/∏kⱼ, kᵢ) / 2^grindCommit`, at any regime. The
+companion of `batchingErr_antitone_grindBatch` for the commit cell. -/
+theorem FRIConfig.commitErr_antitone_grindCommit (c : FRIConfig) (R : Regime)
+    (hR : R.Standard c.field c.ρ) (i : ℕ)
     (hf : 1 ≤ c.foldingFactors.getD i 1) {g : ℕ} (h : c.grindCommit ≤ g) :
-    ({c with grindCommit := g}).commitErr (UDR c.field) i ≤ c.commitErr (UDR c.field) i := by
+    ({c with grindCommit := g}).commitErr R i ≤ c.commitErr R i := by
   dsimp only [FRIConfig.commitErr]
-  exact div_pow_two_antitone (UDR_errPowers_nonneg c.field c.ρ (by positivity) hf) h
+  exact div_pow_two_antitone (hR.errPowers_nonneg (by positivity) hf) h
 
-/-! ### The same cells at the JBR regime
+/-! ### The `H` and `|F|` cells (regime-level, since `denseLen`/`field` are pinned)
 
-Airbender/OpenVM/Pico/ZisK report at JBR, so the batching/commit cells must move the same way there.
-JBR keeps the `errPowers = errLinear·(b−1)` structure, so these are `JBR_errPowers_*` in place of
-`UDR_errPowers_*` — carrying the config's `sqrtLB`/`etaLB` side conditions (met by every real config).
-`g`/`gap` are the JBR granularity and gap. -/
+`denseLen` and `field` cannot be moved by a single-field record update (`h_earlyStop` couples
+`denseLen`/`ρ`/`foldingFactors`), so their directions are recorded on the cell's *shape*: both
+batching paths are monotone in the dimension at any regime (`errPowers_mono_dim` /
+`errMultilinear_mono_dim`) and antitone in `|F|` (`UDR_`/`JBR_err{Powers,Multilinear}_antitone_card`
+— the `|F|` knob is the one cell that must name its regime, since changing `|F|` *is* changing
+`UDR F` into `UDR F'`).
 
-/-- **Batch knob → soundness (↑) at JBR** (both batching modes). -/
-theorem FRIConfig.batchingErr_mono_batchSize_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ)
-    (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj) (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1)
-    (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1) {b : ℕ} (h : c.batchSize ≤ b) :
-    c.batchingErr (JBR c.field gj gap) ≤ ({c with batchSize := b}).batchingErr (JBR c.field gj gap) := by
-  dsimp only [FRIConfig.batchingErr]
-  split_ifs with hp
-  · gcongr; exact JBR_errPowers_mono_batch c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη h
-  · gcongr; exact JBR_errMultilinear_mono_batch c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη h
+The commit cell's own `H` movement, round over round, is `friDimension_antitone` above composed with
+`errPowers_mono_dim`: the folded dimension shrinks each round, so the commit-round error falls. -/
 
-/-- **Batch-grind knob → soundness (↓) at JBR** (both batching modes). -/
-theorem FRIConfig.batchingErr_antitone_grindBatch_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ)
-    (hbs : 1 ≤ c.batchSize) (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj) (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1)
-    (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1) {gb : ℕ} (h : c.grindBatch ≤ gb) :
-    ({c with grindBatch := gb}).batchingErr (JBR c.field gj gap) ≤ c.batchingErr (JBR c.field gj gap) := by
-  dsimp only [FRIConfig.batchingErr]
-  split_ifs with hp
-  · exact div_pow_two_antitone
-      (JBR_errPowers_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη hbs) h
-  · exact div_pow_two_antitone
-      (JBR_errMultilinear_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη c.batchSize) h
-
-/-- **Commit-grind knob → soundness (↓) at JBR.** -/
-theorem FRIConfig.commitErr_antitone_grindCommit_jbr (c : FRIConfig) (gj : ℕ) (gap : Option ℚ) (i : ℕ)
-    (hf : 1 ≤ c.foldingFactors.getD i 1) (hsr0 : 0 < sqrtLB (c.ρ : ℚ) gj)
-    (hsr1 : sqrtLB (c.ρ : ℚ) gj ≤ 1) (hη : etaLB (c.ρ : ℚ) gj c.field.card gap ≤ 1)
-    {gc : ℕ} (h : c.grindCommit ≤ gc) :
-    ({c with grindCommit := gc}).commitErr (JBR c.field gj gap) i
-      ≤ c.commitErr (JBR c.field gj gap) i := by
-  dsimp only [FRIConfig.commitErr]
-  exact div_pow_two_antitone
-    (JBR_errPowers_nonneg c.field gj gap c.ρ (by positivity) hsr0 hsr1 hη hf) h
-
-/-- **Query, rate column (↑).** At `UDR` the query error is `(1 − θ)^q / 2^g = ((1+ρ)/2)^q / 2^g`,
-which is **monotone in the rate** `ρ`: a higher rate widens `1 − θ`, so the query cell is larger.
-`ρ` is pinned by `h_earlyStop`, so — like the DEEP `ρ`/`H`/`|F|` cells — this compares two configs
-that agree on the other query inputs (`numQueries`, `grindQuery`), at a common `UDR` regime. -/
-theorem FRIConfig.queryErr_mono_rho (c c' : FRIConfig) (F : FieldParams)
-    (hq : c'.numQueries = c.numQueries) (hg : c'.grindQuery = c.grindQuery)
-    (hρ : (c.ρ : ℚ) ≤ (c'.ρ : ℚ)) :
-    c.queryErr (UDR F) ≤ c'.queryErr (UDR F) := by
-  simp only [FRIConfig.queryErr, UDR]
-  rw [hq, hg]
-  refine div_le_div_same (pow_le_pow_left₀ ?_ ?_ _) (by positivity)
-  · have := c.ρ.2.1; linarith
-  · linarith
+/-- **Later commit rounds are more sound, at any regime.** Composing `friDimension_antitone` (the
+folded dimension shrinks) with `errPowers_mono_dim` (smaller instance ⇒ smaller error): the
+commit-cell error at round `i+1`'s dimension is at most the one at round `i`'s. Stated on the
+dimensions rather than on `commitErr i` itself because the cell's batch argument is the *round's*
+folding factor `kᵢ`, which is not monotone in `i`. -/
+theorem FRIConfig.commitDimErr_antitone_round (c : FRIConfig) (R : Regime)
+    (hR : R.Standard c.field c.ρ) (hpos : ∀ k ∈ c.foldingFactors, 1 ≤ k) (i : ℕ)
+    {b : ℕ} (hb : 1 ≤ b) :
+    R.errPowers c.ρ ((c.denseLen / (c.foldingFactors.take (i + 2)).foldl (· * ·) 1 : ℕ) : ℚ) b
+      ≤ R.errPowers c.ρ ((c.denseLen / (c.foldingFactors.take (i + 1)).foldl (· * ·) 1 : ℕ) : ℚ) b :=
+  errPowers_mono_dim hR (by exact_mod_cast friDimension_antitone c.denseLen hpos i) hb
 
 end Soundcalc

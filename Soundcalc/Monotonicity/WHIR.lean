@@ -148,54 +148,32 @@ theorem whir_multiplicity_interior_optimum :
 /-! ## Batching error (`batchSize` / `grindBatch` knobs)
 
 WHIR's `batchingErr = base / 2^grindBatch` (with `base = errPowers (rate 0) (dim 0 0) batchSize` on
-the `powerBatch` path) has the *same shape* as FRI's, so it gets the same monotonicity. `batchSize`
-is a *semi-pinned* knob: `h_batchSize : 1 ≤ batchSize` must be re-supplied on the record update. -/
+the `powerBatch` path, `errLinear` otherwise) has the *same shape* as FRI's, so it gets the same
+monotonicity — and, like FRI's, at **any** regime satisfying `Regime.Standard c.field (c.rate 0)`.
+`batchSize` is a *semi-pinned* knob: `h_batchSize : 1 ≤ batchSize` must be re-supplied on the record
+update. -/
 
-/-- **Batch knob → batching soundness (↑)** — the WHIR analogue of `FRIConfig.batchingErr_mono_batchSize`. -/
-theorem WHIRConfig.batchingErr_mono_batchSize (c : WHIRConfig) (hp : c.powerBatch = true)
-    {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
-    c.batchingErr (UDR c.field)
-      ≤ ({c with batchSize := b, h_batchSize := hb1}).batchingErr (UDR c.field) := by
-  dsimp only [WHIRConfig.batchingErr]
-  rw [if_pos hp, if_pos hp]
-  gcongr
-  exact UDR_errPowers_mono_batch c.field (c.rate 0) (c.dim 0 0) h
-
-/-- **Batch-grind knob → batching soundness (↓)** — the WHIR analogue of
-`FRIConfig.batchingErr_antitone_grindBatch`. -/
-theorem WHIRConfig.batchingErr_antitone_grindBatch (c : WHIRConfig) (hp : c.powerBatch = true)
-    {g : ℕ} (h : c.grindBatch ≤ g) :
-    ({c with grindBatch := g}).batchingErr (UDR c.field) ≤ c.batchingErr (UDR c.field) := by
-  dsimp only [WHIRConfig.batchingErr]
-  rw [if_pos hp, if_pos hp]
-  exact div_pow_two_antitone
-    (UDR_errPowers_nonneg c.field (c.rate 0) (by positivity) c.h_batchSize) h
-
-/-- **Batch knob → batching soundness (↑) at JBR** (both modes; the `errLinear` else-branch is
-`batchSize`-independent). -/
-theorem WHIRConfig.batchingErr_mono_batchSize_jbr (c : WHIRConfig) (gj : ℕ) (gap : Option ℚ)
-    (hsr0 : 0 < sqrtLB (c.rate 0 : ℚ) gj) (hsr1 : sqrtLB (c.rate 0 : ℚ) gj ≤ 1)
-    (hη : etaLB (c.rate 0 : ℚ) gj c.field.card gap ≤ 1) {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
-    c.batchingErr (JBR c.field gj gap)
-      ≤ ({c with batchSize := b, h_batchSize := hb1}).batchingErr (JBR c.field gj gap) := by
+/-- **Batch knob → batching soundness (↑)** — the WHIR analogue of
+`FRIConfig.batchingErr_mono_batchSize`, at any regime and on **both** modes (the `errLinear`
+else-branch is `batchSize`-independent, so it holds with equality there). -/
+theorem WHIRConfig.batchingErr_mono_batchSize (c : WHIRConfig) (R : Regime)
+    (hR : R.Standard c.field (c.rate 0)) {b : ℕ} (hb1 : 1 ≤ b) (h : c.batchSize ≤ b) :
+    c.batchingErr R ≤ ({c with batchSize := b, h_batchSize := hb1}).batchingErr R := by
   dsimp only [WHIRConfig.batchingErr]
   split_ifs with hp
   · gcongr
-    exact JBR_errPowers_mono_batch c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη h
+    exact hR.errPowers_mono_batch (by positivity) h
   · exact le_rfl
 
-/-- **Batch-grind knob → batching soundness (↓) at JBR** (both modes). -/
-theorem WHIRConfig.batchingErr_antitone_grindBatch_jbr (c : WHIRConfig) (gj : ℕ) (gap : Option ℚ)
-    (hsr0 : 0 < sqrtLB (c.rate 0 : ℚ) gj) (hsr1 : sqrtLB (c.rate 0 : ℚ) gj ≤ 1)
-    (hη : etaLB (c.rate 0 : ℚ) gj c.field.card gap ≤ 1) {gb : ℕ} (h : c.grindBatch ≤ gb) :
-    ({c with grindBatch := gb}).batchingErr (JBR c.field gj gap)
-      ≤ c.batchingErr (JBR c.field gj gap) := by
+/-- **Batch-grind knob → batching soundness (↓)** — the WHIR analogue of
+`FRIConfig.batchingErr_antitone_grindBatch`, at any regime and on both modes. -/
+theorem WHIRConfig.batchingErr_antitone_grindBatch (c : WHIRConfig) (R : Regime)
+    (hR : R.Standard c.field (c.rate 0)) {g : ℕ} (h : c.grindBatch ≤ g) :
+    ({c with grindBatch := g}).batchingErr R ≤ c.batchingErr R := by
   dsimp only [WHIRConfig.batchingErr]
   split_ifs with hp
-  · exact div_pow_two_antitone
-      (JBR_errPowers_nonneg c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη c.h_batchSize) h
-  · exact div_pow_two_antitone
-      (JBR_errLinear_nonneg c.field gj gap (c.rate 0) (by positivity) hsr0 hsr1 hη) h
+  · exact div_pow_two_antitone (hR.errPowers_nonneg (by positivity) c.h_batchSize) h
+  · exact div_pow_two_antitone (hR.errLinear_nonneg (by positivity)) h
 
 /-! ## Proof size (`batchSize` knob)
 

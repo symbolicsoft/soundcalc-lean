@@ -78,20 +78,20 @@ def Circuit.isJBR : Circuit → Bool
     | some _ => true
     | none   => false
 
-def Circuit.totalSecBitsUDR : Circuit → ℕ
+def Circuit.totalSecBitsUDR : Circuit → Option ℕ
   | .jagged c  => secBits (c.totalErr)  -- current support: UDR only (we don't specify a regime)
   | .deepali c => let gc : Circuit := .deepali c
                   if gc.isUDR then secBits (c.totalErr (UDR c.field))
-                  else 0
+                  else none
   | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
 
 /- Following our Airbender characterization (`Soundcalc/ZkVM/Airbender.lean`),
    we keep `g = 2^40` as the sqrt granularity in JBR. -/
-def Circuit.totalSecBitsJBR : Circuit → ℕ
-  | .jagged _  => 0                     -- unsupported; **FEAT TODO** ìmprove representation.
+def Circuit.totalSecBitsJBR : Circuit → Option ℕ
+  | .jagged _  => none                     -- unsupported
   | .deepali c => let gc : Circuit := .deepali c
                   if gc.isJBR then secBits (c.totalErr (JBR c.field (2^40) c.gapToRadius))
-                  else 0
+                  else none
   | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
 
 def Circuit.PCS : Circuit → PCS

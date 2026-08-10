@@ -22,7 +22,7 @@ namespace Soundcalc
   Ref: https://github.com/ethereum/soundcalc/blob/cee252916d6d9f8579c3d41b2eddb946c329d743/soundcalc/report_md.py#L86
 
   Current support: UDR, JBR, mirroring `soundcalc`.
-  **FEAT** Revisit whenever regimes are generalized.
+  **TODO** Revisit whenever regimes are generalized.
 -/
 def ZkVM.bestSecurityAcrossCircuits (vm: ZkVM)(h_nonempty_circs : vm.circuits ≠ []) : (Circuit × Nat × String) :=
   let vm_circuits := vm.circuits
@@ -43,31 +43,33 @@ def ZkVM.bestSecurityAcrossCircuits (vm: ZkVM)(h_nonempty_circs : vm.circuits �
     | false, false =>
       let worstCirc := vm_circuits.foldl
         (fun (worst c: Circuit) =>
-          if max c.totalSecBitsUDR c.totalSecBitsJBR < max worst.totalSecBitsUDR worst.totalSecBitsJBR then c
+          if max (c.totalSecBitsUDR.getD 0) (c.totalSecBitsJBR.getD 0) < max (worst.totalSecBitsUDR.getD 0) (worst.totalSecBitsJBR.getD 0) then c
           else worst)
         vm_firstCirc -- first circuit to accumulate over: always exists due to `hne`!
 
-      let bestRegimeSecBits := max (worstCirc.totalSecBitsUDR) (worstCirc.totalSecBitsJBR)
+      /- Current behaviour: assign a missing regime a security of 0 within the evaluation of the max.
+         **TODO** Replace defaults once regimes are appropriately generalized. -/
+      let bestRegimeSecBits := max (worstCirc.totalSecBitsUDR.getD 0) (worstCirc.totalSecBitsJBR.getD 0)
       (worstCirc, bestRegimeSecBits, "mixed")
     /- In what's below, at least one global regime is defined. -/
     | globalUDR, globalJBR =>
       /- Evaluates the circuit with the worst overall secBits using UDR. -/
       let worstCircUDR := vm_circuits.foldl
         (fun (worst c: Circuit) =>
-          if c.totalSecBitsUDR < worst.totalSecBitsUDR then c
+          if c.totalSecBitsUDR.getD 0 < worst.totalSecBitsUDR.getD 0 then c
           else worst)
         vm_firstCirc
 
-      let minSecBitsUDR := worstCircUDR.totalSecBitsUDR
+      let minSecBitsUDR := worstCircUDR.totalSecBitsUDR.getD 0
 
       /- Evaluates the circuit with the worst overall secBits using JBR. -/
       let worstCircJBR := vm_circuits.foldl
         (fun (worst c: Circuit) =>
-          if c.totalSecBitsJBR < worst.totalSecBitsJBR then c
+          if c.totalSecBitsJBR.getD 0 < worst.totalSecBitsJBR.getD 0 then c
           else worst)
         vm_firstCirc
 
-      let minSecBitsJBR := worstCircJBR.totalSecBitsJBR
+      let minSecBitsJBR := worstCircJBR.totalSecBitsJBR.getD 0
 
       /- If all the circuits in the zkVM have exactly one shared regime, we pick that.
         Otherwise, we pick the best among the two. -/

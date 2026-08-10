@@ -112,7 +112,7 @@ def FRIConfig.listErrs (c: FRIConfig) (R: Regime) : List ℚ := do
       leaf so `tupleSize = foldingFactor` and `numLeafs = n / foldingFactor`.
     * Final round: the low-degree polynomial sent in the clear
       (`rate * n_final * fieldSizeBits` bits). -/
-private def getFRIProofSizeBits (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
+def getFRIProofSizeBits (hashSizeBits fieldSizeBits batchSize numQueries domainSize : N)
     (foldingFactors : List N) (rate : Q) (expected : Bool) : N :=
   let initBits :=
     hashSizeBits +

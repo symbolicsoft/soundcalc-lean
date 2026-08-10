@@ -36,7 +36,7 @@ structure LookupCfg where
     Logarithms are upper-bounded as per `log2UB`, ensuring a bounded
     and verifiable over-approximation of the error.
 -/
-private def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
+def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ :=
   let n := log2UB alphabetSize 64
   let m := log2UB numLookupsM 64
   let nm := n + m
@@ -46,7 +46,7 @@ private def gkrErrorUB (F : FieldParams) (alphabetSize numLookupsM : ℕ) : ℚ 
 
     - Multivariate (`multilinear = true`):  `R = max(⌈log₂ S⌉, 1)` (SP1 path).
     - Univariate   (`multilinear = false`): `R = S`                 (Airbender logup path). -/
-private def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
+def columnAggregFactor (S : ℕ) (multilinear : Bool) : ℚ :=
   if multilinear then max (log2UB S 64) 1 else (S : ℚ)
 
 def LookupCfg.errUB (c : LookupCfg) : ℚ :=

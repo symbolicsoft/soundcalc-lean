@@ -4,23 +4,7 @@ Monotonicity / optimality theorems for the PCS soundness formulas: the "more tha
 calculator" layer.
 
 This is the **catalogue** — config-level results that say how a *cell* (soundness error, security
-bits) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`) or the
-decoding regime (UDR vs JBR).
-
-## Shared quantities (referenced by several theorems)
-
-- **Query cell** — FRI's `queryErr` and WHIR's `epsilonQuery` share the shape
-  `ε = (1 − θ)ᵗ / 2ᵍ`, for a decoding radius `θ`, query count `t`, and query-phase grinding `g`.
-- **FRI decoding radius** — UDR: `θ = (1 − ρ)/2`; JBR (Johnson): `θ ≈ (1 − η) − √ρ`.
-- **WHIR per-iteration recurrence** — `mᵢ₊₁ = mᵢ − kᵢ` (log-degree) and `μᵢ₊₁ = μᵢ + (kᵢ − 1)`
-  (log-inverse-rate), so the rate `ρᵢ = 2^(−μᵢ)` falls every iteration while the degree shrinks.
-- **Linear (Schwartz–Zippel) error** — `errLinear = ((1−ρ)/2·(d/ρ) + 1) / |F|`; the powers-batching
-  error is `errPowers = errLinear·(batch − 1)`.
-- **Field ceiling** — `secBits(1/|F|) = ⌊log₂ |F|⌋`, the most bits an algebraic cell can report.
-- **`Regime.Standard`** — the bundle that makes the catalogue regime-independent (see below): a
-  regime `R` over field `F` at rate `ρ` is *standard* when `errPowers = errLinear·(b−1)`,
-  `errMultilinear = errLinear·⌈log₂ b⌉`, `1/|F| ≤ errLinear`, and `errLinear` is monotone in the
-  dimension. `UDR_standard` / `JBR_standard` are the **only** regime-specific proofs in the module.
+bits) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`).
 
 ---
 
@@ -28,8 +12,6 @@ decoding regime (UDR vs JBR).
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
 `—` the knob does not occur. **Every bound in this catalogue is backed at both decoding regimes.**
-That is the entry criterion: a direction that holds only at UDR, or only at JBR, is not listed here
-at all. `H` is the trace/dense length, `L` the decoder list size.
 
 | Error term | `q` | grind | `H` | batch | `\|F\|` | `L` |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -150,12 +132,6 @@ in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signat
 | `WHIRConfig.logInvRate_mono` | round `i` | The rate falls every iteration (`μᵢ ≤ μᵢ₊₁`) — WHIR's fixed-domain-shift signature (no FRI analog). |
 | `WHIRConfig.logDegree_anti` | round `i` | The degree shrinks every iteration (`mᵢ₊₁ ≤ mᵢ`). |
 
-WHIR's remaining per-round cells — `epsilonFold`, `epsilonOut`, `epsilonShift` — are not individually
-catalogued. `epsilonFinal = epsilonQuery` is covered by the query rows above; the other three have
-list-valued per-round grinds (not scalar config knobs) and regime-confounded terms, so their moving
-parts are covered only at the mechanism level (the shared `div_pow_two_antitone` grind lever and the
-`errPowers`/query-shape lemmas), not as cell-level catalogue rows.
-
 ## `Lookup.lean`
 
 `errUB = (baseError + gkrError) / 2^grindBitsLookup` with `baseError = numLookupsM·H·R / |F|`
@@ -213,7 +189,11 @@ record-update knobs; the DEEP cells carry the side condition `|F| − H − D > 
 
 `zerocheckErr = (C + (deg+2)·⌈log₂ H⌉)/|F|` and `reduceErr = (⌈log₂ w⌉ + …)/|F|`. `JaggedCfg` pins
 `field`/`densePCS`/`lookups`; `traceLength`/`traceWidth`/`numConstraints`/`airMaxDegree` are free
-knobs. 
+knobs.
+
+Jagged is UDR-only (`Circuit.isJBR` is `false` for it): SP1, its only consumer, reports at UDR, and
+the parser follows suit — `JaggedCfg` has no `explicitRegime` field to read. The bounds below are
+regime-independent anyway, since neither formula mentions a `Regime`.
 
 ### Sensitivity (`C` = numConstraints, `deg` = airMaxDegree, `H` = traceLength, `w` = traceWidth)
 

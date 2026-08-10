@@ -33,7 +33,7 @@ def DeepAliCfg.renderCircParams (c: DeepAliCfg) : IO String := do
     else s!""
 
   /- Currently-supported PCS: FRI
-    **FEAT TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
+    **SOUNDCALC TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
   match c.densePCS with
   | .fri fcfg =>
     /- Conditional strings -/
@@ -93,7 +93,7 @@ def DeepAliCfg.getSecurityLevels (c: DeepAliCfg) (R: Regime) : IO (List (String 
   l := l ++ [("DEEP", (secBits (c.deepErr R)))]
 
   /- Currently-supported PCS: FRI
-    **FEAT TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
+    **SOUNDCALC TODO** Extend soundcalc to decouple DEEP-ALI+FRI. -/
   match c.densePCS with
   | .fri fcfg =>
   /- FRIConfig secBits: batching, commit round {i}, query phase -/

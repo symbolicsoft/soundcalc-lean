@@ -54,34 +54,45 @@ def Circuit.proofSizeExp : Circuit → ℕ
 
 /-
   - Jagged circuits are always (and only) UDR.
-  - DeepAli circuits support both UDR and JBR.
-  - SWIRL circuits are either UDR or JBR, according to the
-    contents of the `explicitM` field. -/
+  - DeepAli circuits support both UDR and JBR, unless the `explicitRegime` field is specified.
+  |-> Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/circuits/deep_ali.py#L61
+  - SWIRL circuits are either UDR or JBR, according to the `explicitM` field.
+-/
 def Circuit.isUDR : Circuit → Bool
   | .jagged _  => true
-  | .deepali _ => true
+  | .deepali c => match c.explicitRegime with
+    | some .UDR => true
+    | some .JBR => false
+    | none      => true
   | .swirl c   => match c.explicitM with
     | some _ => false
     | none   => true
 
 def Circuit.isJBR : Circuit → Bool
   | .jagged _  => false
-  | .deepali _ => true
+  | .deepali c => match c.explicitRegime with
+    | some .UDR => false
+    | some .JBR => true
+    | none      => true
   | .swirl c   => match c.explicitM with
     | some _ => true
     | none   => false
 
-def Circuit.totalSecBitsUDR : Circuit → ℕ
+def Circuit.totalSecBitsUDR : Circuit → Option ℕ
   | .jagged c  => secBits (c.totalErr)  -- current support: UDR only (we don't specify a regime)
-  | .deepali c => secBits (c.totalErr (UDR c.field))
-  | .swirl c   => secBits (c.totalErr)
+  | .deepali c => let gc : Circuit := .deepali c
+                  if gc.isUDR then secBits (c.totalErr (UDR c.field))
+                  else none
+  | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
 
 /- Following our Airbender characterization (`Soundcalc/ZkVM/Airbender.lean`),
    we keep `g = 2^40` as the sqrt granularity in JBR. -/
-def Circuit.totalSecBitsJBR : Circuit → ℕ
-  | .jagged _  => 0                     -- unsupported; *TODO* ìmprove representation.
-  | .deepali c => secBits (c.totalErr (JBR c.field (2^40) c.gapToRadius))
-  | .swirl c   => secBits (c.totalErr)
+def Circuit.totalSecBitsJBR : Circuit → Option ℕ
+  | .jagged _  => none                     -- unsupported
+  | .deepali c => let gc : Circuit := .deepali c
+                  if gc.isJBR then secBits (c.totalErr (JBR c.field (2^40) c.gapToRadius))
+                  else none
+  | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
 
 def Circuit.PCS : Circuit → PCS
   | .jagged c  => c.densePCS

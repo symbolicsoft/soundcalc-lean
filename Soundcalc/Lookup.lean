@@ -9,13 +9,6 @@ import Soundcalc.Common.Log
 * `log2UB` and its certified enclosure theorems live in `Soundcalc.Common.Log`.
 -/
 
-/-
-* *TODO*: The current formalization only captures the multivariate setting, as SP1
-  only considers lookup errors of this type. While the structure now supports
-  the univariate setting, a complete formalization comes later in the roadmap.
-  Explicit TODO markers have been added throughout this file for this purpose.
--/
-
 namespace Soundcalc
 
 structure LookupCfg where

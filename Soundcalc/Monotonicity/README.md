@@ -1,11 +1,11 @@
 # Monotonicity — theorem reference
 
-Monotonicity / optimality theorems for the PCS soundness and proof-size formulas: the "more than a
-point-wise calculator" layer.
+Monotonicity / optimality theorems for the PCS soundness formulas: the "more than a point-wise
+calculator" layer.
 
 This is the **catalogue** — config-level results that say how a *cell* (soundness error, security
-bits, or proof size) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`)
-or the decoding regime (UDR vs JBR).
+bits) moves when you turn one *knob*: a configuration field (`{c with numQueries := …}`) or the
+decoding regime (UDR vs JBR).
 
 ## Shared quantities (referenced by several theorems)
 
@@ -49,19 +49,11 @@ Backing lemma per cell (`—` cells omitted):
 | DEEP | grind: `deepErr_antitone_grindDeep`; ρ: `deepErr_antitone_rho`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
 
-(Proof **size** is a separate quantity — see its own section below; it is only carried for FRI/WHIR.)
-
-Notes.
-"pinned" — the cell cannot be moved by a **single-field record update** (FRI's `h_earlyStop`
-couples `ρ`/`H`; DeepAli's field-coherence invariants couple `|F|`; `ρ`/`H` sit behind the `PCS`
-inductive and its `FRIConfig.h_earlyStop`). These cells are still lemma-backed, in one of two ways:
- - FRI commit/batching `H`/`|F|` — by the regime-level batching lemmas (`errPowers_mono_dim` /
-   `errMultilinear_mono_dim`, and `UDR_`/`JBR_err{Powers,Multilinear}_antitone_card`), since those
-   cells *are* `errPowers`/`errMultilinear`-shaped. Both batching paths are covered, not just
-   `powerBatch`.
- - ALI `|F|` and DEEP `ρ`/`H`/`|F|` — by **two-config** lemmas (`aliErr_antitone_card`,
-   `deepErr_antitone_card` / `_antitone_rho` / `_mono_traceLen`) that compare two configs agreeing on
-   the other projections (the "same circuit, bigger field / slower rate / longer trace" comparison).
+Two terms used throughout. A knob is **pinned** when it cannot be moved by a single-field record
+update, because a config invariant couples it to others (FRI's `h_earlyStop` couples `ρ`/`H`;
+DeepAli's field-coherence invariants couple `|F|`). A **two-config** lemma backs such a knob by
+comparing two configs that agree on the other projections — the "same circuit, bigger field / slower
+rate / longer trace" comparison. Pinned cells are lemma-backed like any other; see the table above.
 
 **Regime independence.** Every cell in the catalogue is stated for an **arbitrary** regime — there
 are no UDR-only or JBR-only cells, and no `_udr`/`_jbr` theorem pairs to keep in sync. Two mechanisms
@@ -87,56 +79,13 @@ regime-generic lemma `errPowers_le_of_errLinear_le` / `errMultilinear_le_of_errL
 form carries a gap-agreement hypothesis (`etaLB` depends on `card` only through the `card > 2^150`
 threshold, so two fields on the same side of it give the same `η`).
 
-The rate `ρ` is deliberately **not** a catalogued FRI knob: it is pinned by `h_earlyStop`, and its
-direction is genuinely regime-dependent (confounded at JBR through `√ρ`, `d/ρ`, and `η = etaLB(ρ)`),
-so tracking it would break exactly the regime-independence above.
-
----
-
-## Proof size
-
-Proof *size* (bits) is a separate quantity from the soundness error, and only **FRI and WHIR** carry
-proof-size monotonicity theorems — the circuit/lookup cells route their proof size through the dense
-PCS, so they inherit these. Both the worst-case (`proofSizeWorst`, `expected = false`) and the
-amortized (`proofSizeExp`, `expected = true`) sizes are covered. `↑` = proven monotone; `open` = the
-direction is expected but not yet a theorem.
-
-We catalogue only the parameters that **trade proof size against a soundness gain** — the design
-levers `numQueries` and `batchSize` (more queries/batching buys security *and* costs proof size).
-Proof size also grows with other parameters (hash/field element size, domain size, folding structure,
-and WHIR's `constraintDegree`/`numOodSamples`), but those don't buy soundness — and several are pinned
-— so they're outside the "no free lunch" story this table is about.
-
-### FRI proof size
-
-| cell | `numQueries` | `batchSize` |
-|---|:---:|:---:|
-| `proofSizeWorst` | ↑ | ↑ |
-| `proofSizeExp` | open† | ↑ |
-
-Theorems: `FRIConfig.proofSizeWorst_mono_numQueries`, `FRIConfig.proofSizeWorst_mono_batchSize`,
-`FRIConfig.proofSizeExp_mono_batchSize`.
-
-### WHIR proof size
-
-| cell | `batchSize` |
-|---|:---:|
-| `proofSizeWorst` | ↑ |
-| `proofSizeExp` | ↑ |
-
-Theorems: `WHIRConfig.proofSizeWorst_mono_batchSize`, `WHIRConfig.proofSizeExp_mono_batchSize`
-(`batchSize` semi-pinned: `1 ≤ batchSize` is re-supplied on the record update).
-
-`†` — the `expected = true` `numQueries` cell is open: it needs monotonicity of the `numHashes`
-inclusion–exclusion sum in the number of openings.
-
 ---
 
 ## `FRI.lean`
 
-Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size accumulator
-`getFRIProofSizeBits`. The record-update knobs are `numQueries` and `batchSize` (the others —
-`denseLen`, `ρ`, `foldingFactors` — are pinned together by the config's `h_earlyStop` invariant).
+Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`. The record-update knobs are
+`numQueries` and `batchSize` (the others — `denseLen`, `ρ`, `foldingFactors` — are pinned together
+by the config's `h_earlyStop` invariant).
 
 ### Sensitivity (`q` = numQueries, `gQ`/`gB`/`gC` = grind query/batch/commit, `H` = denseLen)
 
@@ -148,7 +97,7 @@ Query cell `queryErr R = (1 − θLB)^numQueries / 2^grindQuery`; proof-size acc
 
 `H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`errPowers_mono_dim` /
 `errMultilinear_mono_dim`, and the `_antitone_card` pair); `commitErr`'s batch arg is the folding
-factor `kᵢ` (pinned), so the `batch` column is `—` there. (Proof size has its own section above.)
+factor `kᵢ` (pinned), so the `batch` column is `—` there.
 **Per round** (structural, not a knob): the folded dimension shrinks each round
 (`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`), hence so does the commit-cell
 error at that dimension (`commitDimErr_antitone_round`).
@@ -176,8 +125,8 @@ cover.
 Query cell `epsilonQuery R i = (1 − δᵢ)^tᵢ / 2^gᵢ`; per-iteration recurrence `mᵢ₊₁ = mᵢ − kᵢ`,
 `μᵢ₊₁ = μᵢ + (kᵢ − 1)`. The query counts `tᵢ` are a list (query-count sensitivity is the shared shape
 lemma in `Basic.lean`), but `batchSize` **is** a record-update knob — a *semi-pinned* one, since
-`h_batchSize : 1 ≤ batchSize` must be re-supplied. Its batching-error and proof-size monotonicities
-mirror FRI exactly.
+`h_batchSize : 1 ≤ batchSize` must be re-supplied. Its batching-error monotonicities mirror FRI
+exactly.
 
 ### Sensitivity (`batch` = batchSize, `gB` = grindBatch; plus regime radius `δ`, round index `i`)
 
@@ -190,8 +139,6 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 | `batchingErr` | ↑ | ↓ | — | — |
 | `logInvRate μᵢ` (rate `= 2^−μ` falls) | — | — | — | ↑ |
 | `logDegree mᵢ` (degree) | — | — | — | ↓ |
-
-(Proof size has its own section above.)
 
 `batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
 in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature.

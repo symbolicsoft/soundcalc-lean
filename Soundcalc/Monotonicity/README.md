@@ -73,13 +73,6 @@ threshold, so two fields on the same side of it give the same `η`).
 | `batchingErr` | — | — | ↓ | — | ↑ | ↑ | ↓ |
 | `commitErr` | — | — | — | ↓ | ↑ | — | ↓ |
 
-`H`/`\|F\|` on `batchingErr`/`commitErr` are proved at the regime level (`errPowers_mono_dim` /
-`errMultilinear_mono_dim`, and the `_antitone_card` pair); `commitErr`'s batch arg is the folding
-factor `kᵢ` (pinned), so the `batch` column is `—` there.
-**Per round** (structural, not a knob): the folded dimension shrinks each round
-(`friDimension_antitone`, the FRI analog of WHIR's `logDegree_anti`), hence so does the commit-cell
-error at that dimension (`commitDimErr_antitone_round`).
-
 ### Catalogue
 
 | theorem | knob | description |
@@ -117,9 +110,6 @@ round index `i` (structural — the fixed-domain-shift recurrences, no FRI analo
 | `batchingErr` | ↑ | ↓ | — | — |
 | `logInvRate μᵢ` (rate `= 2^−μ` falls) | — | — | — | ↑ |
 | `logDegree mᵢ` (degree) | — | — | — | ↓ |
-
-`batch`/`gB` are the config knobs (`batch` semi-pinned); `δ` is cross-regime (`epsilonQuery` antitone
-in the radius); the round-`i` rows are WHIR's rate-falls / degree-shrinks signature.
 
 ### Catalogue
 

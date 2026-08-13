@@ -67,11 +67,10 @@ If a refactor makes one of these acquire a new axiom (or `sorry`), the
 The catalog states how a cell moves when a configuration knob or the decoding
 regime changes. Unlike the numeric cells, *none* of it is discharged by
 evaluation — the proofs are ordinary Mathlib arguments over `ℚ` and `ℝ`, so the
-whole layer must stay on the three standard axioms. The proof-size results are
-the ones worth watching: they reason about `Nat.clog`, `foldl` accumulators and
-the Merkle inclusion–exclusion sum, all of which are tempting to close by
-`decide`/`native_decide` under maintenance pressure. One representative per
-module, so a regression anywhere in `Soundcalc/Monotonicity/` trips CI. -/
+whole layer must stay on the three standard axioms. The `Nat.clog` and `foldl`
+reasoning is what to watch: both are tempting to close by `decide`/`native_decide`
+under maintenance pressure. One representative per module, so a regression
+anywhere in `Soundcalc/Monotonicity/` trips CI. -/
 
 /-- info: 'Soundcalc.two_sqrt_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.two_sqrt_le
@@ -85,8 +84,8 @@ module, so a regression anywhere in `Soundcalc/Monotonicity/` trips CI. -/
 /-- info: 'Soundcalc.FRIConfig.queryErr_antitone_numQueries' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.FRIConfig.queryErr_antitone_numQueries
 
-/-- info: 'Soundcalc.FRIConfig.proofSizeWorst_mono_numQueries' depends on axioms: [propext, Classical.choice, Quot.sound] -/
-#guard_msgs in #print axioms Soundcalc.FRIConfig.proofSizeWorst_mono_numQueries
+/-- info: 'Soundcalc.FRIConfig.commitDimErr_antitone_round' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.FRIConfig.commitDimErr_antitone_round
 
 /-- info: 'Soundcalc.whir_multiplicity_interior_optimum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.whir_multiplicity_interior_optimum

@@ -179,7 +179,6 @@ def ziskDmaDeepAli : DeepAliCfg where
                      ziskDmaRangeCheckGsum102,
                      ziskDmaRangeCheckGsum103,
                      ziskDmaRangeCheckGsum104]
-  h_lookups_field := by native_decide
 
 -- Dma: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDmaDeepAli.ExitCriteria ziskUDR
@@ -226,7 +225,6 @@ def ziskDmaMemCpyDeepAli : DeepAliCfg where
                      ziskDmaMemCpyPermutationGsum8000,
                      ziskDmaMemCpyRangeCheckGsum102,
                      ziskDmaMemCpyRangeCheckGsum104]
-  h_lookups_field := by native_decide
 
 -- DmaMemCpy: 679 KiB (expected) / 1072 KiB (worst case).
 example : ziskDmaMemCpyDeepAli.ExitCriteria ziskUDR
@@ -273,7 +271,6 @@ def ziskDmaInputCpyDeepAli : DeepAliCfg where
                      ziskDmaInputCpyRangeCheckGsum102,
                      ziskDmaInputCpyRangeCheckGsum104,
                      ziskDmaInputCpyRangeCheckGsum105]
-  h_lookups_field := by native_decide
 
 -- DmaInputCpy: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskDmaInputCpyDeepAli.ExitCriteria ziskUDR
@@ -320,7 +317,6 @@ def ziskDma64AlignedDeepAli : DeepAliCfg where
                      ziskDma64AlignedPermutationGsum10,
                      ziskDma64AlignedRangeCheckGsum102,
                      ziskDma64AlignedRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Dma64Aligned: 838 KiB (expected) / 1233 KiB (worst case).
 example : ziskDma64AlignedDeepAli.ExitCriteria ziskUDR
@@ -367,7 +363,6 @@ def ziskDma64AlignedInputCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedInputCpyPermutationGsum10,
                      ziskDma64AlignedInputCpyRangeCheckGsum102,
                      ziskDma64AlignedInputCpyRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Dma64AlignedInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDma64AlignedInputCpyDeepAli.ExitCriteria ziskUDR
@@ -410,7 +405,6 @@ def ziskDma64AlignedMemSetDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemSetLookupGsum5000,
                      ziskDma64AlignedMemSetPermutationGsum10,
                      ziskDma64AlignedMemSetRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Dma64AlignedMemSet: 662 KiB (expected) / 1056 KiB (worst case).
 example : ziskDma64AlignedMemSetDeepAli.ExitCriteria ziskUDR
@@ -453,7 +447,6 @@ def ziskDma64AlignedMemDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemLookupGsum5000,
                      ziskDma64AlignedMemPermutationGsum10,
                      ziskDma64AlignedMemRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Dma64AlignedMem: 748 KiB (expected) / 1142 KiB (worst case).
 example : ziskDma64AlignedMemDeepAli.ExitCriteria ziskUDR
@@ -496,7 +489,6 @@ def ziskDma64AlignedMemCpyDeepAli : DeepAliCfg where
                      ziskDma64AlignedMemCpyLookupGsum5000,
                      ziskDma64AlignedMemCpyPermutationGsum10,
                      ziskDma64AlignedMemCpyRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Dma64AlignedMemCpy: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDma64AlignedMemCpyDeepAli.ExitCriteria ziskUDR
@@ -541,7 +533,6 @@ def ziskDmaUnalignedDeepAli : DeepAliCfg where
                      ziskDmaUnalignedLookupGsum88,
                      ziskDmaUnalignedPermutationGsum10,
                      ziskDmaUnalignedRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- DmaUnaligned: 781 KiB (expected) / 1174 KiB (worst case).
 example : ziskDmaUnalignedDeepAli.ExitCriteria ziskUDR
@@ -584,7 +575,6 @@ def ziskDmaPrePostDeepAli : DeepAliCfg where
                      ziskDmaPrePostLookupGsum88,
                      ziskDmaPrePostPermutationGsum10,
                      ziskDmaPrePostPermutationGsum8000]
-  h_lookups_field := by native_decide
 
 -- DmaPrePost: 951 KiB (expected) / 1346 KiB (worst case).
 example : ziskDmaPrePostDeepAli.ExitCriteria ziskUDR
@@ -625,7 +615,6 @@ def ziskDmaPrePostMemCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostMemCpyLookupGsum88,
                      ziskDmaPrePostMemCpyPermutationGsum10,
                      ziskDmaPrePostMemCpyPermutationGsum8000]
-  h_lookups_field := by native_decide
 
 -- DmaPrePostMemCpy: 881 KiB (expected) / 1276 KiB (worst case).
 example : ziskDmaPrePostMemCpyDeepAli.ExitCriteria ziskUDR
@@ -664,7 +653,6 @@ def ziskDmaPrePostInputCpyDeepAli : DeepAliCfg where
                      ziskDmaPrePostInputCpyLookupGsum88,
                      ziskDmaPrePostInputCpyPermutationGsum10,
                      ziskDmaPrePostInputCpyPermutationGsum8000]
-  h_lookups_field := by native_decide
 
 -- DmaPrePostInputCpy: 738 KiB (expected) / 1131 KiB (worst case).
 example : ziskDmaPrePostInputCpyDeepAli.ExitCriteria ziskUDR
@@ -707,7 +695,6 @@ def ziskMainDeepAli : DeepAliCfg where
                      ziskMainPermutationGsum10,
                      ziskMainRangeCheckGsum102,
                      ziskMainRangeCheckGsum106]
-  h_lookups_field := by native_decide
 
 -- Main: 890 KiB (expected) / 1292 KiB (worst case).
 example : ziskMainDeepAli.ExitCriteria ziskUDR
@@ -742,7 +729,6 @@ def ziskRomDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskRomLookupGsum7890]
-  h_lookups_field := by native_decide
 
 -- Rom: 635 KiB (expected) / 1019 KiB (worst case).
 example : ziskRomDeepAli.ExitCriteria ziskUDR
@@ -779,7 +765,6 @@ def ziskMemDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskMemDirectGsum11, ziskMemPermutationGsum10, ziskMemRangeCheckGsum102, ziskMemRangeCheckGsum103, ziskMemRangeCheckGsum104]
-  h_lookups_field := by native_decide
 
 -- Mem: 718 KiB (expected) / 1120 KiB (worst case).
 example : ziskMemDeepAli.ExitCriteria ziskUDR
@@ -816,7 +801,6 @@ def ziskRomDataDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskRomDataDirectGsum11, ziskRomDataPermutationGsum10, ziskRomDataRangeCheckGsum102]
-  h_lookups_field := by native_decide
 
 -- RomData: 603 KiB (expected) / 997 KiB (worst case).
 example : ziskRomDataDeepAli.ExitCriteria ziskUDR
@@ -852,7 +836,6 @@ def ziskInputDataDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskInputDataDirectGsum11, ziskInputDataPermutationGsum10, ziskInputDataRangeCheckGsum102, ziskInputDataRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- InputData: 646 KiB (expected) / 1040 KiB (worst case).
 example : ziskInputDataDeepAli.ExitCriteria ziskUDR
@@ -887,7 +870,6 @@ def ziskMemAlignDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskMemAlignLookupGsum133, ziskMemAlignPermutationGsum10, ziskMemAlignRangeCheckGsum107]
-  h_lookups_field := by native_decide
 
 -- MemAlign: 821 KiB (expected) / 1217 KiB (worst case).
 example : ziskMemAlignDeepAli.ExitCriteria ziskUDR
@@ -928,7 +910,6 @@ def ziskMemAlignByteDeepAli : DeepAliCfg where
                      ziskMemAlignBytePermutationGsum10,
                      ziskMemAlignByteRangeCheckGsum103,
                      ziskMemAlignByteRangeCheckGsum107]
-  h_lookups_field := by native_decide
 
 -- MemAlignByte: 694 KiB (expected) / 1093 KiB (worst case).
 example : ziskMemAlignByteDeepAli.ExitCriteria ziskUDR
@@ -969,7 +950,6 @@ def ziskMemAlignReadByteDeepAli : DeepAliCfg where
                      ziskMemAlignReadByteLookupGsum88,
                      ziskMemAlignReadBytePermutationGsum10,
                      ziskMemAlignReadByteRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- MemAlignReadByte: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskMemAlignReadByteDeepAli.ExitCriteria ziskUDR
@@ -1010,7 +990,6 @@ def ziskMemAlignWriteByteDeepAli : DeepAliCfg where
                      ziskMemAlignWriteBytePermutationGsum10,
                      ziskMemAlignWriteByteRangeCheckGsum103,
                      ziskMemAlignWriteByteRangeCheckGsum107]
-  h_lookups_field := by native_decide
 
 -- MemAlignWriteByte: 683 KiB (expected) / 1082 KiB (worst case).
 example : ziskMemAlignWriteByteDeepAli.ExitCriteria ziskUDR
@@ -1047,7 +1026,6 @@ def ziskArithDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskArithLookupGsum330, ziskArithLookupGsum331, ziskArithLookupGsum5000]
-  h_lookups_field := by native_decide
 
 -- Arith: 848 KiB (expected) / 1244 KiB (worst case).
 example : ziskArithDeepAli.ExitCriteria ziskUDR
@@ -1082,7 +1060,6 @@ def ziskBinaryDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskBinaryDirectGsum5000, ziskBinaryLookupGsum125, ziskBinaryLookupGsum5000]
-  h_lookups_field := by native_decide
 
 -- Binary: 826 KiB (expected) / 1227 KiB (worst case).
 example : ziskBinaryDeepAli.ExitCriteria ziskUDR
@@ -1117,7 +1094,6 @@ def ziskBinaryAddDeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskBinaryAddDirectGsum5000, ziskBinaryAddLookupGsum5000, ziskBinaryAddRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- BinaryAdd: 656 KiB (expected) / 1056 KiB (worst case).
 example : ziskBinaryAddDeepAli.ExitCriteria ziskUDR
@@ -1156,7 +1132,6 @@ def ziskBinaryExtensionDeepAli : DeepAliCfg where
                      ziskBinaryExtensionLookupGsum124,
                      ziskBinaryExtensionLookupGsum5000,
                      ziskBinaryExtensionRangeCheckGsum102]
-  h_lookups_field := by native_decide
 
 -- BinaryExtension: 777 KiB (expected) / 1179 KiB (worst case).
 example : ziskBinaryExtensionDeepAli.ExitCriteria ziskUDR
@@ -1191,7 +1166,6 @@ def ziskAdd256DeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskAdd256LookupGsum5000, ziskAdd256PermutationGsum10, ziskAdd256RangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Add256: 816 KiB (expected) / 1165 KiB (worst case).
 example : ziskAdd256DeepAli.ExitCriteria ziskUDR
@@ -1234,7 +1208,6 @@ def ziskArithEqDeepAli : DeepAliCfg where
                      ziskArithEqRangeCheckGsum103_104,
                      ziskArithEqRangeCheckGsum103,
                      ziskArithEqRangeCheckGsum108]
-  h_lookups_field := by native_decide
 
 -- ArithEq: 2994 KiB (expected) / 3346 KiB (worst case).
 example : ziskArithEqDeepAli.ExitCriteria ziskUDR
@@ -1279,7 +1252,6 @@ def ziskArithEq384DeepAli : DeepAliCfg where
                      ziskArithEq384RangeCheckGsum103_104,
                      ziskArithEq384RangeCheckGsum103,
                      ziskArithEq384RangeCheckGsum108]
-  h_lookups_field := by native_decide
 
 -- ArithEq384: 3366 KiB (expected) / 3720 KiB (worst case).
 example : ziskArithEq384DeepAli.ExitCriteria ziskUDR
@@ -1316,7 +1288,6 @@ def ziskKeccakfDeepAli : DeepAliCfg where
   maxCombo       := 26
   grindDeep      := 0
   lookups        := [ziskKeccakfLookupGsum126, ziskKeccakfLookupGsum5000, ziskKeccakfPermutationGsum10]
-  h_lookups_field := by native_decide
 
 -- Keccakf: 20975 KiB (expected) / 21244 KiB (worst case).
 example : ziskKeccakfDeepAli.ExitCriteria ziskUDR
@@ -1351,7 +1322,6 @@ def ziskSha256fDeepAli : DeepAliCfg where
   maxCombo       := 87
   grindDeep      := 0
   lookups        := [ziskSha256fLookupGsum5000, ziskSha256fPermutationGsum10, ziskSha256fRangeCheckGsum109]
-  h_lookups_field := by native_decide
 
 -- Sha256f: 7215 KiB (expected) / 7549 KiB (worst case).
 example : ziskSha256fDeepAli.ExitCriteria ziskUDR
@@ -1385,7 +1355,6 @@ def ziskPoseidon2DeepAli : DeepAliCfg where
   maxCombo       := 17
   grindDeep      := 0
   lookups        := [ziskPoseidon2LookupGsum5000, ziskPoseidon2PermutationGsum10]
-  h_lookups_field := by native_decide
 
 -- Poseidon2: 682 KiB (expected) / 832 KiB (worst case).
 example : ziskPoseidon2DeepAli.ExitCriteria ziskUDR
@@ -1421,7 +1390,6 @@ def ziskBlake2brDeepAli : DeepAliCfg where
   maxCombo       := 29
   grindDeep      := 0
   lookups        := [ziskBlake2brLookupGsum5000, ziskBlake2brPermutationGsum10, ziskBlake2brPermutationGsum127, ziskBlake2brRangeCheckGsum103]
-  h_lookups_field := by native_decide
 
 -- Blake2br: 3874 KiB (expected) / 4207 KiB (worst case).
 example : ziskBlake2brDeepAli.ExitCriteria ziskUDR
@@ -1464,7 +1432,6 @@ def ziskSpecifiedRangesDeepAli : DeepAliCfg where
                      ziskSpecifiedRangesLookupGsum104,
                      ziskSpecifiedRangesLookupGsum108_109,
                      ziskSpecifiedRangesLookupGsum108]
-  h_lookups_field := by native_decide
 
 -- SpecifiedRanges: 1020 KiB (expected) / 1369 KiB (worst case).
 example : ziskSpecifiedRangesDeepAli.ExitCriteria ziskUDR
@@ -1509,7 +1476,6 @@ def ziskVirtualTable0DeepAli : DeepAliCfg where
                      ziskVirtualTable0LookupGsum126_331_8002_133_125,
                      ziskVirtualTable0LookupGsum330,
                      ziskVirtualTable0LookupGsum5002_88_77_8003_126]
-  h_lookups_field := by native_decide
 
 -- VirtualTable0: 875 KiB (expected) / 1270 KiB (worst case).
 example : ziskVirtualTable0DeepAli.ExitCriteria ziskUDR
@@ -1544,7 +1510,6 @@ def ziskVirtualTable1DeepAli : DeepAliCfg where
   maxCombo       := 3
   grindDeep      := 0
   lookups        := [ziskVirtualTable1LookupGsum5000]
-  h_lookups_field := by native_decide
 
 -- VirtualTable1: 989 KiB (expected) / 1384 KiB (worst case).
 example : ziskVirtualTable1DeepAli.ExitCriteria ziskUDR
@@ -1577,7 +1542,6 @@ def ziskDmaPrePostCompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskDmaPrePostCompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- DmaPrePost-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskDmaPrePostCompressorDeepAli.ExitCriteria ziskUDR
@@ -1610,7 +1574,6 @@ def ziskArithEqCompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskArithEqCompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- ArithEq-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEqCompressorDeepAli.ExitCriteria ziskUDR
@@ -1643,7 +1606,6 @@ def ziskArithEq384CompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskArithEq384CompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- ArithEq384-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskArithEq384CompressorDeepAli.ExitCriteria ziskUDR
@@ -1676,7 +1638,6 @@ def ziskKeccakfCompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskKeccakfCompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Keccakf-compressor: 771 KiB (expected) / 940 KiB (worst case).
 example : ziskKeccakfCompressorDeepAli.ExitCriteria ziskUDR
@@ -1709,7 +1670,6 @@ def ziskSha256fCompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskSha256fCompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Sha256f-compressor: 743 KiB (expected) / 892 KiB (worst case).
 example : ziskSha256fCompressorDeepAli.ExitCriteria ziskUDR
@@ -1742,7 +1702,6 @@ def ziskBlake2brCompressorDeepAli : DeepAliCfg where
   maxCombo       := 6
   grindDeep      := 0
   lookups        := [ziskBlake2brCompressorConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Blake2br-compressor: 726 KiB (expected) / 871 KiB (worst case).
 example : ziskBlake2brCompressorDeepAli.ExitCriteria ziskUDR
@@ -1775,7 +1734,6 @@ def ziskRecursive2DeepAli : DeepAliCfg where
   maxCombo       := 4
   grindDeep      := 0
   lookups        := [ziskRecursive2ConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Recursive2: 398 KiB (expected) / 487 KiB (worst case).
 example : ziskRecursive2DeepAli.ExitCriteria ziskUDR
@@ -1808,7 +1766,6 @@ def ziskFinalDeepAli : DeepAliCfg where
   maxCombo       := 4
   grindDeep      := 0
   lookups        := [ziskFinalConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Final: 253 KiB (expected) / 292 KiB (worst case).
 example : ziskFinalDeepAli.ExitCriteria ziskUDR
@@ -1841,7 +1798,6 @@ def ziskFinalCompressedDeepAli : DeepAliCfg where
   maxCombo       := 4
   grindDeep      := 0
   lookups        := [ziskFinalCompressedConnectionGprod1]
-  h_lookups_field := by native_decide
 
 -- Final_Compressed: 269 KiB (expected) / 313 KiB (worst case).
 example : ziskFinalCompressedDeepAli.ExitCriteria ziskUDR

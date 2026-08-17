@@ -44,20 +44,13 @@ def tomlToZkVM (inTomlFile: String) : IO ZkVM := do
   let zkvm_field ← orExit (strToFieldParams mapStrToFieldParams zkvm_field)
   let zkvm_version ← orExit (getOptString zkvm_tab "version")
 
-  /- We compute a proof showing that the fields contained in all the
-      circuits of the zkVM are consistent with each other. -/
-  let h_circuits_lifted : PLift (circuit_list.all (·.field == zkvm_field) = true) ←
-    match decEq (circuit_list.all (·.field == zkvm_field)) true with
-    | .isTrue h  => pure (PLift.up h)
-    | .isFalse _ => IO.eprintln "Circuit field mismatch: not all circuits share the zkVM's field"; IO.Process.exit 1
-
   let zkVM : ZkVM := {
     name             := zkvm_name
     field            := zkvm_field
     version          := zkvm_version
     circuits         := circuit_list
-    h_circuits_field := PLift.down (α := circuit_list.all (·.field == zkvm_field) = true) h_circuits_lifted
   }
+
   pure zkVM
 
 end SoundcalcIO

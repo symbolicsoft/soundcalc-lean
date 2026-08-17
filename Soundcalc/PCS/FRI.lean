@@ -45,7 +45,7 @@ structure FRIConfig where
   grindCommit    : N             := 0        -- = 5 for Airbender; 0 keeps SP1 configs valid
   /-- After all folds, the residual domain size equals `earlyStopDeg`. -/
   h_earlyStop    : ((denseLen : Q) / (ρ : Q)) / ((foldingFactors.foldl (· * ·) 1 : N) : Q)
-                   = (earlyStopDeg : Q) := by native_decide
+                   = (earlyStopDeg : Q) := by push_cast; norm_num
 
 /-- Powers-batching error: uses `errPowers` (Airbender's `power_batching = true` path)
     then applies the batching grind. -/

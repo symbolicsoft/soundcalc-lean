@@ -399,5 +399,55 @@ theorem jbrErrLinear_conservative
 
   simpa [trueErrLinearJBR, jbrErrLinear] using hdiv
 
+/-! ## The true JBR decoding radius, and that `θLB` really lower-bounds it
+
+`jbrErrLinear_conservative` shows the rational *error* over-approximates the true one. The decoding
+*radius* needs the mirror-image statement: `θLB` must sit **below** the true `θ = (1−η) − √ρ`, since
+the query cell `(1−θ)^t` is decreasing in `θ` and must come out as an upper bound.
+
+Both replacements in `JBR.θLB` push the same way: `etaUB ≥ η_true` and `sqrtUB ≥ √ρ`, and `θ` is
+decreasing in each, so `θLB ≤ θ_true`. -/
+
+/-- The **true** BCHKS25 proximity gap `η`, with the genuine irrational `√ρ` — the quantity
+`etaLB`/`etaUB` bracket. Noncomputable; only ever bounded. -/
+noncomputable def trueEtaJBR (ρ : ℚ) (fieldCard : ℕ) (gapToRadius : Option ℚ := none) : ℝ :=
+  match gapToRadius with
+  | some gap => (gap : ℝ)
+  | none =>
+    if fieldCard > 2 ^ 150 then Real.sqrt (ρ : ℝ) / 100
+    else max ((ρ : ℝ) / 20) (Real.sqrt (ρ : ℝ) / 100)
+
+/-- The **true** Johnson decoding radius `θ = (1 − η) − √ρ`. -/
+noncomputable def trueThetaJBR (ρ : ℚ) (fieldCard : ℕ) (gapToRadius : Option ℚ := none) : ℝ :=
+  (1 - trueEtaJBR ρ fieldCard gapToRadius) - Real.sqrt (ρ : ℝ)
+
+/-- `etaUB` is a genuine upper bound on the true gap. Each branch is `√ρ ↦ sqrtUB` under
+operations (`/100`, `max`) that preserve `≤`. -/
+theorem trueEtaJBR_le_etaUB {ρ : ℚ} (hρ : 0 ≤ ρ) {g : ℕ} (hg : 0 < g)
+    (fieldCard : ℕ) (gapToRadius : Option ℚ) :
+    trueEtaJBR ρ fieldCard gapToRadius ≤ (etaUB ρ g fieldCard gapToRadius : ℝ) := by
+  have hsr : Real.sqrt (ρ : ℝ) ≤ (sqrtUB ρ g : ℝ) := le_sqrtUB hρ hg
+  unfold trueEtaJBR etaUB
+  cases gapToRadius with
+  | some gap => simp
+  | none =>
+    by_cases hc : fieldCard > 2 ^ 150
+    · simp only [hc, if_true]; push_cast; linarith
+    · simp only [hc, if_false]; push_cast
+      exact max_le_max le_rfl (by linarith)
+
+/-- **`JBR.θLB` lower-bounds the true decoding radius.** The query-cell counterpart of
+`jbrErrLinear_conservative`: because `θ` is decreasing in both `η` and `√ρ`, feeding it the *upper*
+bounds `etaUB`/`sqrtUB` yields a value below the truth — exactly what a `θLB` must do. -/
+theorem JBR_thetaLB_le_true (F : FieldParams) (ρ : Rate) {g : ℕ} (hg : 0 < g)
+    (gapToRadius : Option ℚ) (d : ℚ) :
+    (((JBR F g gapToRadius).θLB ρ d : ℚ) : ℝ) ≤ trueThetaJBR (ρ : ℚ) F.card gapToRadius := by
+  obtain ⟨r, hr0, hr1⟩ := ρ
+  have hr0' : (0 : ℚ) ≤ r := hr0.le
+  have heta := trueEtaJBR_le_etaUB hr0' hg F.card gapToRadius
+  have hsr : Real.sqrt (r : ℝ) ≤ (sqrtUB r g : ℝ) := le_sqrtUB hr0' hg
+  simp only [JBR, trueThetaJBR]
+  push_cast
+  linarith
 
 end Soundcalc

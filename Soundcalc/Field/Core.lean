@@ -64,6 +64,12 @@ abbrev FieldParams.prime (F : FieldParams) : F.p.Prime := F.base.prime
 /-- `|F| = p ^ e`, an exact natural number — never a float. -/
 def FieldParams.card (F : FieldParams) : ℕ := F.base.p ^ F.e
 
+/-- The field cardinality is positive (`p ^ e` with `p` prime). Lives here, next to `card`, so
+every consumer has it — the soundness-of-approximation results in `Lookup`/`PCS` need it and do not
+import the monotonicity layer. -/
+theorem FieldParams.card_pos (F : FieldParams) : 0 < F.card := by
+  simpa [FieldParams.card] using pow_pos F.prime.pos F.e
+
 /-- Bits per base-field element: `⌈log₂ p⌉`
 (Python `base_field_element_size_bits = math.ceil(math.log2(p))`). -/
 def FieldParams.baseElementSizeBits (F : FieldParams) : ℕ := Nat.clog 2 F.base.p

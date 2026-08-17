@@ -117,4 +117,56 @@ theorem log2UB_approx_bound {x m : ℕ} (hxm : 1 < x^m) (hm : 0 < m) :
   (log2UB x m) - (1 : ℚ) / m < Real.logb 2 x ∧ Real.logb 2 x ≤ log2UB x m :=
   ⟨log2UB_lower_bound hxm hm, log2UB_upper_bound hxm hm⟩
 
+/-! ## The enclosure in `sqrtLB`/`sqrtUB` shape
+
+`Common.Sqrt` names both ends of its enclosure (`sqrtLB`/`sqrtUB`) and states the width as a
+standalone identity (`sqrtUB_sub_sqrtLB : sqrtUB ρ g - sqrtLB ρ g = 1/g`). The `log₂` enclosure has
+the same shape but only its upper end was named, leaving the lower end spelled out as
+`log2UB x m - 1/m` at each use site. Naming it lines the two APIs up. -/
+
+/-- Rational **lower** approximation to `log₂ x` at dyadic granularity `m` — the companion of
+`log2UB`, exactly one granularity unit below it. Mirrors `sqrtLB` next to `sqrtUB`. -/
+def log2LB (x m : ℕ) : ℚ := log2UB x m - 1 / m
+
+/-- `log2LB` lower-bounds the true logarithm (strictly). The `sqrtLB_le` counterpart. -/
+theorem log2LB_lt {x m : ℕ} (hxm : 1 < x^m) (hm : 0 < m) :
+    (log2LB x m : ℝ) < Real.logb 2 x := by
+  -- `log2UB_lower_bound`'s statement is elaborated by `binop%`, which coerces at the *leaves*
+  -- (`↑(log2UB x m) - 1/↑m`), while unfolding `log2LB` yields a cast of the whole ℚ difference.
+  -- `push_cast` moves the goal to the leaf-coerced form; `linarith` then closes it regardless of
+  -- how the two sides ring-normalise.
+  have h := log2UB_lower_bound hxm hm
+  unfold log2LB
+  push_cast
+  linarith [h]
+
+/-- The enclosure, both ends named: `log2LB x m < logb 2 x ≤ log2UB x m`. -/
+theorem log2LB_lt_logb_le_log2UB {x m : ℕ} (hxm : 1 < x^m) (hm : 0 < m) :
+    (log2LB x m : ℝ) < Real.logb 2 x ∧ Real.logb 2 x ≤ (log2UB x m : ℝ) :=
+  ⟨log2LB_lt hxm hm, log2UB_upper_bound hxm hm⟩
+
+/-- **The width of the `log₂` enclosure is exactly one granularity unit** — the direct counterpart
+of `sqrtUB_sub_sqrtLB`. So increasing `m` narrows the bracket, at `1/m` per step. -/
+theorem log2UB_sub_log2LB (x m : ℕ) : log2UB x m - log2LB x m = 1 / m := by
+  unfold log2LB; ring
+
+/-- `log2UB` is nonnegative — it is a quotient of naturals. -/
+theorem log2UB_nonneg (x m : ℕ) : (0 : ℚ) ≤ log2UB x m := by
+  unfold log2UB; positivity
+
+/-- **`log2UB` over-approximates `Real.logb 2` unconditionally.** `log2UB_upper_bound` needs
+`1 < x^m`, which rules out `x ≤ 1`; but there the logarithm is `0` while `log2UB` is nonnegative,
+so the bound in fact holds for every `x`. This is the form the soundness-of-approximation results
+want, since `numLookupsM` and `numColumnsS` are routinely `1`. -/
+theorem logb_le_log2UB (x : ℕ) {m : ℕ} (hm : 0 < m) :
+    Real.logb 2 x ≤ (log2UB x m : ℝ) := by
+  have hnn : (0 : ℝ) ≤ (log2UB x m : ℝ) := by exact_mod_cast log2UB_nonneg x m
+  rcases Nat.lt_or_ge x 2 with hx | hx
+  · -- `x = 0` or `x = 1`: the logarithm is `0`, and `log2UB` is nonnegative.
+    interval_cases x
+    · simpa using hnn
+    · simpa using hnn
+  · have hxm : 1 < x ^ m := Nat.one_lt_pow (by omega) (by omega)
+    exact_mod_cast log2UB_upper_bound hxm hm
+
 end Soundcalc

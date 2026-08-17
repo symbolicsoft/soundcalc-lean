@@ -30,10 +30,6 @@ theorem log2UB_mono {x x' : ℕ} (h : x ≤ x') (m : ℕ) : log2UB x m ≤ log2U
     exact_mod_cast Nat.clog_mono_right 2 (Nat.pow_le_pow_left h m)
   gcongr
 
-/-- `log2UB` is nonnegative. -/
-theorem log2UB_nonneg (x m : ℕ) : 0 ≤ log2UB x m := by
-  unfold log2UB; positivity
-
 /-- The quadratic `t ↦ t·(3t+1)` (the GKR error numerator shape) is monotone for `t ≥ 0`. -/
 private theorem quad_mono {x y : ℚ} (hx : 0 ≤ x) (h : x ≤ y) :
     x * (3 * x + 1) ≤ y * (3 * y + 1) := by

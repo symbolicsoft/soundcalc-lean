@@ -139,4 +139,39 @@ def FRIConfig.proofSizeWorst (c : FRIConfig) : N :=
   getFRIProofSizeBits c.hashBits c.field.elementSizeBits c.batchSize c.numQueries
     c.D c.foldingFactors (c.ρ : Q) false
 
+/-! ## Soundness of the rational query cell at JBR
+
+`queryErr` is `(1 − θLB)^t / 2^g`. At UDR, `θLB` *is* `θ` — the radius `(1−ρ)/2` is rational, so
+the cell is exact and there is nothing to bound. At JBR the radius is `(1 − η) − √ρ`, irrational in
+general, and `θLB` replaces `√ρ` and `η` by `sqrtUB`/`etaUB`. The cell is decreasing in `θ`, so
+under-shooting the radius over-shoots the error, which is the conservative direction.
+
+This is the query-cell counterpart of `jbrErrLinear_conservative`, and it closes the gap that the
+algebraic cells were already covered for while the query cell was not. -/
+
+/-- The **true** real-valued FRI query error at JBR: `(1 − θ)^t / 2^g` with the genuine
+irrational Johnson radius `θ = (1 − η) − √ρ`. Noncomputable — only ever bounded. -/
+noncomputable def FRIConfig.trueQueryErrJBR
+    (c : FRIConfig) (gapToRadius : Option ℚ := none) : ℝ :=
+  (1 - trueThetaJBR (c.ρ : ℚ) c.field.card gapToRadius) ^ c.numQueries / 2 ^ c.grindQuery
+
+/-- **The rational JBR query cell over-approximates the true one.** `JBR_thetaLB_le_true` puts
+`θLB` below the true radius; the cell is antitone in the radius, so the rational value comes out
+above. The hypothesis `θ_true ≤ 1` keeps the base `1 − θ_true` nonnegative (it is the same
+"radius below 1" condition the monotonicity catalogue carries). -/
+theorem FRIConfig.queryErr_conservative_jbr (c : FRIConfig) {g : ℕ} (hg : 0 < g)
+    (gapToRadius : Option ℚ)
+    (hθ : trueThetaJBR (c.ρ : ℚ) c.field.card gapToRadius ≤ 1) :
+    c.trueQueryErrJBR gapToRadius
+      ≤ ((c.queryErr (JBR c.field g gapToRadius) : ℚ) : ℝ) := by
+  have hle := JBR_thetaLB_le_true c.field c.ρ hg gapToRadius (c.denseLen : ℚ)
+  -- Both facts `gcongr` needs, in context: the base is nonnegative (side goal, `hθ`) and the
+  -- true base is below the rational one (main goal, from `hle`).
+  have hbase : (0 : ℝ) ≤ 1 - trueThetaJBR (c.ρ : ℚ) c.field.card gapToRadius := by linarith
+  have hstep : (1 : ℝ) - trueThetaJBR (c.ρ : ℚ) c.field.card gapToRadius
+      ≤ 1 - (((JBR c.field g gapToRadius).θLB c.ρ (c.denseLen : ℚ) : ℚ) : ℝ) := by linarith
+  simp only [FRIConfig.trueQueryErrJBR, FRIConfig.queryErr]
+  push_cast
+  gcongr
+
 end Soundcalc

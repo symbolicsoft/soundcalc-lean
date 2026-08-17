@@ -11,7 +11,8 @@ bits) moves when you turn one *knob*: a configuration field (`{c with numQueries
 ## Sensitivity catalog
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
-`—` the knob does not occur. **Every bound in this catalogue is backed at both decoding regimes.**
+`—` the knob does not occur, `·` it occurs but is not catalogued. **Every bound in this catalogue is
+backed at both decoding regimes.**
 
 | Error term | `q` | grind | `H` | batch | `\|F\|` | `L` |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -20,6 +21,7 @@ How each error term moves as a knob **grows** — `↓` error falls (security ri
 | ALI `L⁺·C/\|F\|` | — | — | — | — | ↓ | ↑ |
 | DEEP | — | ↓ | ↑ | — | ↓ | ↑ |
 | LogUp / GKR | — | ↓ | ↑ | ↑ | ↓ | — |
+| SWIRL (`ℓ`-linear cells) | — | · | · | — | · | ↑ |
 
 Backing lemma per cell (`—` cells omitted):
 
@@ -30,6 +32,11 @@ Backing lemma per cell (`—` cells omitted):
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
+| SWIRL | `L`: `cells_unique_le_list` (unique ≤ list) and `cells_mono_multiplicity` (the `m` knob), both from the four `*_mono_listSize` cell lemmas over `listSize_unique_le_list` / `listSize_mono_multiplicity` |
+
+SWIRL is catalogued on `L` only. Its four `ℓ`-linear cells (`logupErr`, `zerocheckErr`,
+`constraintBatchingErr`, `stackedReductionErr`) do read grinding, the trace bounds and `|F|` through
+their coefficient, but those directions have no theorems yet — hence `·` rather than a direction.
 
 Two terms used throughout. A knob is **pinned** when it cannot be moved by a single-field record
 update, because a config invariant couples it to others (FRI's `h_earlyStop` couples `ρ`/`H`;

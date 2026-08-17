@@ -11,7 +11,8 @@ bits) moves when you turn one *knob*: a configuration field (`{c with numQueries
 ## Sensitivity catalog
 
 How each error term moves as a knob **grows** — `↓` error falls (security rises), `↑` error rises,
-`—` the knob does not occur. **Every bound in this catalogue is backed at both decoding regimes.**
+`—` the knob does not occur, `·` it occurs but is not catalogued. **Every bound in this catalogue is
+backed at both decoding regimes.**
 
 | Error term | `q` | grind | `H` | batch | `\|F\|` | `L` |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -20,6 +21,7 @@ How each error term moves as a knob **grows** — `↓` error falls (security ri
 | ALI `L⁺·C/\|F\|` | — | — | — | — | ↓ | ↑ |
 | DEEP | — | ↓ | ↑ | — | ↓ | ↑ |
 | LogUp / GKR | — | ↓ | ↑ | ↑ | ↓ | — |
+| SWIRL (`ℓ`-linear cells) | — | · | · | — | · | ↑ |
 
 Backing lemma per cell (`—` cells omitted):
 
@@ -30,6 +32,11 @@ Backing lemma per cell (`—` cells omitted):
 | ALI | `\|F\|`: `aliErr_antitone_card`; `L`: `aliErr_mono_listSize`; also `aliErr_mono_numConstraints` (`C`, not a table column) |
 | DEEP | grind: `deepErr_antitone_grindDeep`; H: `deepErr_mono_traceLen`; `\|F\|`: `deepErr_antitone_card`; `L`: `deepErr_mono_listSize`; also `deepErr_mono_airMaxDegree`, `deepErr_mono_maxCombo` (`deg`/`m_max`) |
 | LogUp / GKR | grind: `errUB_antitone_grindBitsLookup`; H: `errUB_mono_rowsL`/`errUB_mono_rowsT`; batch: `errUB_mono_numLookupsM`, `errUB_mono_numColumnsS`; `\|F\|`: `errUB_antitone_card` |
+| SWIRL | `L`: `cells_unique_le_list` (unique ≤ list) and `cells_mono_multiplicity` (the `m` knob), both from the four `*_mono_listSize` cell lemmas over `listSize_unique_le_list` / `listSize_mono_multiplicity` |
+
+SWIRL is catalogued on `L` only. Its four `ℓ`-linear cells (`logupErr`, `zerocheckErr`,
+`constraintBatchingErr`, `stackedReductionErr`) do read grinding, the trace bounds and `|F|` through
+their coefficient, but those directions have no theorems yet — hence `·` rather than a direction.
 
 Two terms used throughout. A knob is **pinned** when it cannot be moved by a single-field record
 update, because a config invariant couples it to others (FRI's `h_earlyStop` couples `ρ`/`H`;
@@ -205,6 +212,39 @@ only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
 | `JaggedCfg.reduceErr_mono_traceWidth` | `traceWidth` | Wider trace ⇒ larger reduction error (via `⌈log₂ w⌉`). |
 | `JaggedCfg.zerocheckErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller zerocheck error. |
 | `JaggedCfg.reduceErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller reduction error. |
+
+## `SWIRL.lean`
+
+Four of SWIRL's six non-WHIR cells have the shape `coef·ℓ / |F|` with `ℓ = listSize logBlowup`
+(`gkrSumcheckErr = 3/|F|` and `gkrBatchingErr = 1/|F|` carry no `ℓ`). The regime is the config field
+`explicitM` — `none` = unique (`ℓ = 1`), `some m` = list at multiplicity `m` (`ℓ = (m+½)/√ρ`) — and
+no `SWIRLCfg` invariant mentions it, so unlike `DeepAliCfg`'s regime it is a record-update knob.
+
+### Sensitivity (`ℓ` = list size, `m` = `explicitM` multiplicity)
+
+| cell | `ℓ` | `m` | unique → list |
+|---|:---:|:---:|:---:|
+| `logupErr` | ↑ | ↑ | ↑ |
+| `zerocheckErr` | ↑ | ↑ | ↑ |
+| `constraintBatchingErr` | ↑ | ↑ | ↑ |
+| `stackedReductionErr` | ↑ | ↑ | ↑ |
+| `gkrSumcheckErr` / `gkrBatchingErr` | — | — | — |
+
+`ℓ` is a two-config lemma (the coefficient must agree); `m` and the regime column are record updates
+on `explicitM`, both carrying the config's `0 < sqrtLB` side condition.
+
+### Catalogue
+
+| theorem | knob | description |
+|---|---|---|
+| `SWIRLCfg.listSize_mono_multiplicity` | `explicitM` | Larger multiplicity ⇒ larger list size. |
+| `SWIRLCfg.listSize_unique_le_list` | regime | List decoding never shrinks `ℓ` (`1 ≤ (m+½)/√ρ`) — the SWIRL counterpart of `whir_listSize_ge_one`. |
+| `SWIRLCfg.logupErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger LogUp error. |
+| `SWIRLCfg.zerocheckErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger zerocheck error. |
+| `SWIRLCfg.constraintBatchingErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger constraint-batching error. |
+| `SWIRLCfg.stackedReductionErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger stacked-reduction error. |
+| `SWIRLCfg.cells_mono_multiplicity` | `explicitM` | All four cells at once, as `m` grows. |
+| `SWIRLCfg.cells_unique_le_list` | regime | All four cells at once: unique decoding is at least as sound as list decoding — the algebraic price of the list regime. |
 
 ---
 

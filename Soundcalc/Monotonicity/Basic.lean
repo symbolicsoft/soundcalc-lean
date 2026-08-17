@@ -90,10 +90,6 @@ theorem secBits_queryShape_mono_numQueries {θ : ℚ} (h0 : 0 ≤ θ) (h1 : θ <
 
 /-! ## The field ceiling and grinding decomposition -/
 
-/-- The base field cardinality is positive. -/
-theorem FieldParams.card_pos (F : FieldParams) : 0 < F.card := by
-  simpa [FieldParams.card] using pow_pos F.prime.pos F.e
-
 /-- **Field ceiling.** Every algebraic cell error has the form `(≥ 1)/|F|`, so `1/|F| ≤ ε`; hence no
 such cell can report more security bits than the field baseline `secBits (1/|F|) = ⌊log₂|F|⌋`. -/
 theorem secBits_le_field {ε : ℚ} {card : ℕ} (hcard : 0 < card) (hlo : 1 / (card : ℚ) ≤ ε) :

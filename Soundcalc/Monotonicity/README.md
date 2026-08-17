@@ -206,6 +206,39 @@ only `zerocheckErr`); `\|F\|` is a two-config lemma (field pinned).
 | `JaggedCfg.zerocheckErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller zerocheck error. |
 | `JaggedCfg.reduceErr_antitone_card` | field (2-config) | Larger `\|F\|` ⇒ smaller reduction error. |
 
+## `SWIRL.lean`
+
+Four of SWIRL's six non-WHIR cells have the shape `coef·ℓ / |F|` with `ℓ = listSize logBlowup`
+(`gkrSumcheckErr = 3/|F|` and `gkrBatchingErr = 1/|F|` carry no `ℓ`). The regime is the config field
+`explicitM` — `none` = unique (`ℓ = 1`), `some m` = list at multiplicity `m` (`ℓ = (m+½)/√ρ`) — and
+no `SWIRLCfg` invariant mentions it, so unlike `DeepAliCfg`'s regime it is a record-update knob.
+
+### Sensitivity (`ℓ` = list size, `m` = `explicitM` multiplicity)
+
+| cell | `ℓ` | `m` | unique → list |
+|---|:---:|:---:|:---:|
+| `logupErr` | ↑ | ↑ | ↑ |
+| `zerocheckErr` | ↑ | ↑ | ↑ |
+| `constraintBatchingErr` | ↑ | ↑ | ↑ |
+| `stackedReductionErr` | ↑ | ↑ | ↑ |
+| `gkrSumcheckErr` / `gkrBatchingErr` | — | — | — |
+
+`ℓ` is a two-config lemma (the coefficient must agree); `m` and the regime column are record updates
+on `explicitM`, both carrying the config's `0 < sqrtLB` side condition.
+
+### Catalogue
+
+| theorem | knob | description |
+|---|---|---|
+| `SWIRLCfg.listSize_mono_multiplicity` | `explicitM` | Larger multiplicity ⇒ larger list size. |
+| `SWIRLCfg.listSize_unique_le_list` | regime | List decoding never shrinks `ℓ` (`1 ≤ (m+½)/√ρ`) — the SWIRL counterpart of `whir_listSize_ge_one`. |
+| `SWIRLCfg.logupErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger LogUp error. |
+| `SWIRLCfg.zerocheckErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger zerocheck error. |
+| `SWIRLCfg.constraintBatchingErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger constraint-batching error. |
+| `SWIRLCfg.stackedReductionErr_mono_listSize` | `ℓ` (2-config) | Larger list size ⇒ larger stacked-reduction error. |
+| `SWIRLCfg.cells_mono_multiplicity` | `explicitM` | All four cells at once, as `m` grows. |
+| `SWIRLCfg.cells_unique_le_list` | regime | All four cells at once: unique decoding is at least as sound as list decoding — the algebraic price of the list regime. |
+
 ---
 
 The supporting lemmas (`Regime.lean` — Johnson-vs-unique, the `Regime.Standard` bundle and its

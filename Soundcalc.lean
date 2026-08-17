@@ -32,3 +32,4 @@ import Soundcalc.Monotonicity.WHIR
 import Soundcalc.Monotonicity.Lookup
 import Soundcalc.Monotonicity.DeepAli
 import Soundcalc.Monotonicity.Jagged
+import Soundcalc.Monotonicity.SWIRL

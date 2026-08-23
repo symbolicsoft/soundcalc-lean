@@ -144,7 +144,7 @@ example : openvmAppDeepAli.ExitCriteria openvmUDR
                   115, 116, 117, 118, 119, 120, 121, 122, 122, 123, 100, 109, 103])
     (totalBits := 100)
     (proofSizeExpKib := 234635) (proofSizeWorstKib := 235651) := by
-  native_decide
+  decide +kernel
 
 example : openvmAppDeepAli.ExitCriteria openvmAppJBR
     (aliBits := 104) (deepBits := 98)
@@ -153,7 +153,7 @@ example : openvmAppDeepAli.ExitCriteria openvmAppJBR
                   94, 95, 96, 97, 98, 99, 100, 101, 106, 104, 98])
     (totalBits := 79)
     (proofSizeExpKib := 234635) (proofSizeWorstKib := 235651) := by
-  native_decide
+  decide +kernel
 
 example : openvmLeafDeepAli.ExitCriteria openvmUDR
     (aliBits := 109) (deepBits := 103)
@@ -162,7 +162,7 @@ example : openvmLeafDeepAli.ExitCriteria openvmUDR
                   115, 116, 117, 118, 119, 120, 121, 122, 122, 123, 100, 109, 103])
     (totalBits := 100)
     (proofSizeExpKib := 234635) (proofSizeWorstKib := 235651) := by
-  native_decide
+  decide +kernel
 
 example : openvmLeafDeepAli.ExitCriteria openvmLeafJBR
     (aliBits := 104) (deepBits := 98)
@@ -171,7 +171,7 @@ example : openvmLeafDeepAli.ExitCriteria openvmLeafJBR
                   94, 95, 96, 97, 98, 99, 100, 101, 106, 104, 98])
     (totalBits := 79)
     (proofSizeExpKib := 234635) (proofSizeWorstKib := 235651) := by
-  native_decide
+  decide +kernel
 
 -- internal: 7687 KiB (expected) / 8231 KiB (worst case).
 example : openvmInternalDeepAli.ExitCriteria openvmUDR
@@ -181,7 +181,7 @@ example : openvmInternalDeepAli.ExitCriteria openvmUDR
                   116, 117, 118, 118, 119, 120, 121, 122, 100, 109, 105, 134])
     (totalBits := 100)
     (proofSizeExpKib := 7687) (proofSizeWorstKib := 8231) := by
-  native_decide
+  decide +kernel
 
 example : openvmInternalDeepAli.ExitCriteria openvmInternalJBR
     (aliBits := 103) (deepBits := 98)
@@ -190,13 +190,13 @@ example : openvmInternalDeepAli.ExitCriteria openvmInternalJBR
                   92, 93, 94, 95, 96, 97, 133, 103, 98, 134])
     (totalBits := 77)
     (proofSizeExpKib := 7687) (proofSizeWorstKib := 8231) := by
-  native_decide
+  decide +kernel
 
 /-! ### Enclosure-granularity guard (verified where it bites) -/
 
-example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
-example : sqrtLB (1/4) (2^40) < sqrtUB (1/4) (2^40) := by native_decide
-example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
-example : jbrM (1/4) (1/80) (2^40) = 21 := by native_decide
+example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by decide +kernel
+example : sqrtLB (1/4) (2^40) < sqrtUB (1/4) (2^40) := by decide +kernel
+example : jbrM (1/2) (1/40) (2^40) = 15 := by decide +kernel
+example : jbrM (1/4) (1/80) (2^40) = 21 := by decide +kernel
 
 end Soundcalc

@@ -10,7 +10,7 @@ Join point for A0–A5: all cell theorems and both regime totals.
 
 `airbenderFRI` and `airbenderDeepAli` are plain Lean literals generated from
 `airbender.toml` — not parsed at proof time (same S7 discipline as SP1). Keeping
-them as literals makes every cell theorem transparent to `native_decide`.
+them as literals makes every cell theorem transparent to `decide +kernel`.
 
 ## Two-regime strategy
 
@@ -18,17 +18,17 @@ them as literals makes every cell theorem transparent to `native_decide`.
   All cells are exact rationals; proofs are the same flavour as every SP1 theorem.
 * **JBR** (`airbenderJBR`): Johnson Bound Regime with `η = 1/40`, `g = 2^40`.
   `√ρ` is enclosed by `sqrtLB`/`sqrtUB`; cells are certified upper bounds proved
-  via `native_decide` over rational arithmetic.
+  via `decide +kernel` over rational arithmetic.
 
 ## TCB note
 
-All cell and total theorems use `native_decide`, which compiles the decision
-procedure to native code via the `ofReduceBool` kernel reduction. This extends
-the TCB by the Lean compiler for those goals. The stress cases are the
+All cell and total theorems use `decide +kernel`: the kernel evaluates the
+decision procedure itself, with GMP-accelerated `Nat` arithmetic, so no
+compiler enters the TCB. The stress cases are the
 `(m + 1/2)^5 = (31/2)^5`-scale numerators over `|F| ≈ 2^124` multiplied by the
-`g = 2^40` enclosure denominators; `decide` (kernel reduction) would time out on
-these. The regime-independent lookup cells (A5) are the only ones provable by
-plain `decide`.
+`g = 2^40` enclosure denominators; the full JBR bundle below checks in the
+kernel on Lean v4.30.0. (`native_decide` was used before the switch and is no
+longer needed anywhere in the development.)
 -/
 
 namespace Soundcalc
@@ -110,7 +110,7 @@ example : airbenderDeepAli.ExitCriteria airbenderUDR
     (rowBits := [90, 106, 110, 114, 118, 121, 64, 114, 110, 94, 99, 98, 100])
     (totalBits := 64)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  native_decide
+  decide +kernel
 
 example : airbenderDeepAli.ExitCriteria airbenderJBR
     (aliBits := 109) (deepBits := 105)
@@ -118,11 +118,11 @@ example : airbenderDeepAli.ExitCriteria airbenderJBR
     (rowBits := [68, 83, 87, 91, 95, 98, 67, 109, 105, 94, 99, 98, 100])
     (totalBits := 67)
     (proofSizeExpKib := 1836) (proofSizeWorstKib := 1951) := by
-  native_decide
+  decide +kernel
 
 /-! ### Enclosure-granularity guard (A1/A2 knob, verified where it bites) -/
 
-example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
-example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
+example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by decide +kernel
+example : jbrM (1/2) (1/40) (2^40) = 15 := by decide +kernel
 
 end Soundcalc

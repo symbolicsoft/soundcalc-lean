@@ -45,85 +45,85 @@ private def getSP1CoreReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
   "\n" ++
   "/- **Security bits table** -/\n" ++
-  "example : secBits (SP1_core_jagged.totalErr) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_core_jagged.totalErr) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_core_lookup_lookup.errUB) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_core_lookup_lookup.errUB) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_core_FRI.batchingErr (UDR koalaBear4)) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 0) = 103 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 9) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 10) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 11) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 12) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 13) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 14) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 15) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 16) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 17) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 18) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 1) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 19) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 20) = 122 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 2) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 3) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 4) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 5) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 6) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 7) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 8) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_core_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_core_FRI.batchingErr (UDR koalaBear4)) = 104 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 0) = 103 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 9) = 112 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 10) = 113 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 11) = 114 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 12) = 115 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 13) = 116 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 14) = 117 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 15) = 118 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 16) = 119 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 17) = 120 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 18) = 121 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 1) = 104 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 19) = 121 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 20) = 122 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 2) = 105 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 3) = 106 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 4) = 107 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 5) = 108 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 6) = 109 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 7) = 110 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.commitErr (UDR koalaBear4) 8) = 111 := by decide +kernel\n" ++
+  "example : secBits (SP1_core_FRI.queryErr (UDR koalaBear4)) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits SP1_core_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_core_jagged.zerocheckErr = 112 := by native_decide\n" ++
+  "example : secBits SP1_core_jagged.reduceErr = 116 := by decide +kernel\n" ++
+  "example : secBits SP1_core_jagged.zerocheckErr = 112 := by decide +kernel\n" ++
   "\n" ++
   "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
-  "example : sp1CoreFRI.proofSizeExp          / KIB = 913  := by native_decide\n" ++
-  "example : sp1CoreFRI.proofSizeWorst        / KIB = 1474 := by native_decide\n" ++
+  "example : sp1CoreFRI.proofSizeExp          / KIB = 913  := by decide +kernel\n" ++
+  "example : sp1CoreFRI.proofSizeWorst        / KIB = 1474 := by decide +kernel\n" ++
   "\n" ++
-  "example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by native_decide\n" ++
-  "example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by native_decide\n" ++
+  "example : sp1CoreJagged.proofSizeExp       / KIB = 918  := by decide +kernel\n" ++
+  "example : sp1CoreJagged.proofSizeWorst     / KIB = 1479 := by decide +kernel\n" ++
   "\n"
 
 private def getSP1CompressReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
   "\n" ++
   "/- **Security bits table** -/\n" ++
-  "example : secBits (SP1_compress_jagged.totalErr) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_compress_jagged.totalErr) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_compress_lookup_lookup.errUB) = 107 := by native_decide\n" ++
+  "example : secBits (SP1_compress_lookup_lookup.errUB) = 107 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_compress_FRI.batchingErr (UDR koalaBear4)) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 0) = 104 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 9) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 10) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 11) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 12) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 13) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 14) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 15) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 16) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 17) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 18) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 1) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 19) = 122 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 2) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 3) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 4) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 5) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 6) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 7) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 8) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_compress_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_compress_FRI.batchingErr (UDR koalaBear4)) = 105 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 0) = 104 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 9) = 113 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 10) = 114 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 11) = 115 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 12) = 116 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 13) = 117 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 14) = 118 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 15) = 119 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 16) = 120 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 17) = 121 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 18) = 121 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 1) = 105 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 19) = 122 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 2) = 106 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 3) = 107 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 4) = 108 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 5) = 109 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 6) = 110 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 7) = 111 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.commitErr (UDR koalaBear4) 8) = 112 := by decide +kernel\n" ++
+  "example : secBits (SP1_compress_FRI.queryErr (UDR koalaBear4)) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits SP1_compress_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_compress_jagged.zerocheckErr = 115 := by native_decide\n" ++
+  "example : secBits SP1_compress_jagged.reduceErr = 116 := by decide +kernel\n" ++
+  "example : secBits SP1_compress_jagged.zerocheckErr = 115 := by decide +kernel\n" ++
   "\n" ++
   "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
-  "example : sp1CompressFRI.proofSizeExp      / KIB = 730  := by native_decide\n" ++
-  "example : sp1CompressFRI.proofSizeWorst    / KIB = 1261 := by native_decide\n" ++
+  "example : sp1CompressFRI.proofSizeExp      / KIB = 730  := by decide +kernel\n" ++
+  "example : sp1CompressFRI.proofSizeWorst    / KIB = 1261 := by decide +kernel\n" ++
   "\n" ++
-  "example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by native_decide\n" ++
-  "example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by native_decide\n" ++
+  "example : sp1CompressJagged.proofSizeExp   / KIB = 735  := by decide +kernel\n" ++
+  "example : sp1CompressJagged.proofSizeWorst / KIB = 1267 := by decide +kernel\n" ++
   "\n"
 
 
@@ -131,40 +131,40 @@ private def getSP1ShrinkReportStr : String :=
   "/- Sanity check against `sp1.md`'s reported values.-/\n" ++
   "\n" ++
   "/- **Security bits table** -/\n" ++
-  "example : secBits (SP1_shrink_jagged.totalErr) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_shrink_jagged.totalErr) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_shrink_lookup_lookup.errUB) = 109 := by native_decide\n" ++
+  "example : secBits (SP1_shrink_lookup_lookup.errUB) = 109 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits (SP1_shrink_FRI.batchingErr (UDR koalaBear4)) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 0) = 105 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 9) = 114 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 10) = 115 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 11) = 116 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 12) = 117 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 13) = 118 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 14) = 119 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 15) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 16) = 120 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 17) = 121 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 1) = 106 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 2) = 107 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 3) = 108 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 4) = 109 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 5) = 110 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 6) = 111 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 7) = 112 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 8) = 113 := by native_decide\n" ++
-  "example : secBits (SP1_shrink_FRI.queryErr (UDR koalaBear4)) = 100 := by native_decide\n" ++
+  "example : secBits (SP1_shrink_FRI.batchingErr (UDR koalaBear4)) = 106 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 0) = 105 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 9) = 114 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 10) = 115 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 11) = 116 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 12) = 117 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 13) = 118 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 14) = 119 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 15) = 120 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 16) = 120 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 17) = 121 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 1) = 106 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 2) = 107 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 3) = 108 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 4) = 109 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 5) = 110 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 6) = 111 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 7) = 112 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.commitErr (UDR koalaBear4) 8) = 113 := by decide +kernel\n" ++
+  "example : secBits (SP1_shrink_FRI.queryErr (UDR koalaBear4)) = 100 := by decide +kernel\n" ++
   "\n" ++
-  "example : secBits SP1_shrink_jagged.reduceErr = 116 := by native_decide\n" ++
-  "example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by native_decide\n" ++
+  "example : secBits SP1_shrink_jagged.reduceErr = 116 := by decide +kernel\n" ++
+  "example : secBits SP1_shrink_jagged.zerocheckErr = 115 := by decide +kernel\n" ++
   "\n" ++
   "/- **Proof sizes (FRI-only, Jagged circuit)** -/\n" ++
-  "example : sp1ShrinkFRI.proofSizeExp        / KIB = 524  := by native_decide\n" ++
-  "example : sp1ShrinkFRI.proofSizeWorst      / KIB = 882  := by native_decide\n" ++
+  "example : sp1ShrinkFRI.proofSizeExp        / KIB = 524  := by decide +kernel\n" ++
+  "example : sp1ShrinkFRI.proofSizeWorst      / KIB = 882  := by decide +kernel\n" ++
   "\n" ++
-  "example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by native_decide\n" ++
-  "example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by native_decide\n" ++
+  "example : sp1ShrinkJagged.proofSizeExp     / KIB = 529  := by decide +kernel\n" ++
+  "example : sp1ShrinkJagged.proofSizeWorst   / KIB = 887  := by decide +kernel\n" ++
   "\n"
 
 /--

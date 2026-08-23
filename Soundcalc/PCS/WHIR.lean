@@ -275,14 +275,14 @@ abbrev dwJBR : Regime := JBR goldilocks3 (2 ^ 40)
 -- `epsilonShift`/`batchingErr`/`epsilonFinal` value; no separate per-cell examples are needed.
 
 -- proof size (regime-independent): 1475 KiB expected / 1500 KiB worst case
-example : dwRiscvWHIR.proofSizeExp   / KIB = 1475 := by native_decide
-example : dwRiscvWHIR.proofSizeWorst / KIB = 1500 := by native_decide
+example : dwRiscvWHIR.proofSizeExp   / KIB = 1475 := by decide +kernel
+example : dwRiscvWHIR.proofSizeWorst / KIB = 1500 := by decide +kernel
 -- full cell enumeration (get_pcs_security_levels): the entire WHIR row of reports/dummywhir.md
 example : (dwRiscvWHIR.listErrs dwUDR).map secBits =
     [180, 184, 183, 182, 181, 174, 72, 183, 182, 181, 180, 178, 52, 187, 186, 185, 184,
-     182, 41, 190, 189, 188, 187, 186, 35, 194, 192, 191, 190, 30] := by native_decide
+     182, 41, 190, 189, 188, 187, 186, 35, 194, 192, 191, 190, 30] := by decide +kernel
 example : (dwRiscvWHIR.listErrs dwJBR).map secBits =
     [145, 149, 148, 147, 146, 149, 131, 143, 142, 141, 140, 147, 130, 143, 142, 141, 140,
-     145, 129, 141, 140, 139, 138, 143, 129, 141, 140, 139, 138, 128] := by native_decide
+     145, 129, 141, 140, 139, 138, 143, 129, 141, 140, 139, 138, 128] := by decide +kernel
 
 end Soundcalc

@@ -107,7 +107,7 @@ def DeepAliCfg.proofSizeWorst (c: DeepAliCfg) : ℕ :=
 /-- Bundles a `DeepAliCfg` circuit's exit criteria in regime `R`: the multi-point FRI
     precondition (`multiPointOk`), the ALI/DEEP cells, the (regime-independent) lookup
     cells, the full per-cell row, the regime total, and the (regime-independent) proof
-    sizes in KiB. One instance of this `Prop`, discharged by `native_decide`, replaces the
+    sizes in KiB. One instance of this `Prop`, discharged by `decide +kernel`, replaces the
     scattered per-circuit `example`s (and `_multiPoint_ok` theorems) previously written by
     hand for each of Airbender/OpenVM/etc. -/
 abbrev DeepAliCfg.ExitCriteria (c : DeepAliCfg) (R : Regime)

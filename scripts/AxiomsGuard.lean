@@ -14,9 +14,9 @@ Pins the trusted computing base claimed in the README as machine-checked facts:
   about how a cell moves when a knob turns — is likewise kernel-only. This is
   the sharper half of the two-tier claim: the point-wise cells lean on the
   compiler, but the structural results *about the formulas* do not.
-* The numeric report-cell theorems extend the TCB by exactly one generated
-  `native_decide` axiom each (validated through the Lean compiler) — pinned
-  on a representative below so any change to the TCB shape shows up in CI.
+* The numeric report-cell theorems are discharged by `decide +kernel` and so
+  sit on the same three axioms; representatives are pinned below so that a
+  regression to `native_decide` shows up in CI.
 
 If a refactor makes one of these acquire a new axiom (or `sorry`), the
 `#guard_msgs` mismatch fails this file, and CI with it.
@@ -107,17 +107,19 @@ anywhere in `Soundcalc/Monotonicity/` trips CI. -/
 /-- info: 'Soundcalc.JaggedCfg.lookup_le_totalErr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.JaggedCfg.lookup_le_totalErr
 
-/-! ## native_decide cells: TCB extension pinned
+/-! ## Numeric cells: kernel-checked, no `native_decide` anywhere
 
-Each `native_decide` use introduces one generated axiom
-(`<decl>._native.native_decide.ax_1_1`, validated through the compiler);
-pinning a representative documents that shape — and that *nothing else*
-(no `sorryAx`) enters these theorems' axiom sets. -/
+Every report cell and bundle is discharged by `decide +kernel`, so the numeric
+layer sits on the same three axioms as the structural theory. Pinning a
+representative cell, a full bundle-sized total, and the SP1 corollaries
+documents that shape; a regression to `native_decide` (or a `sorry`) shows up
+here as an extra axiom. -/
 
-/--
-info: 'Soundcalc.sp1_core_lookup_bits' depends on axioms: [propext,
- Classical.choice,
- Quot.sound,
- Soundcalc.sp1_core_lookup_bits._native.native_decide.ax_1_1]
--/
+/-- info: 'Soundcalc.sp1_core_lookup_bits' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.sp1_core_lookup_bits
+
+/-- info: 'Soundcalc.sp1Core_queries_minimal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.sp1Core_queries_minimal
+
+/-- info: 'Soundcalc.sp1Core_total_le_100' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.sp1Core_total_le_100

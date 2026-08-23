@@ -356,13 +356,13 @@ theorem sqrtUB_sub_sqrtLB {ρ : ℚ} {g : ℕ} (hg : 0 < g) :
 
 These examples are the "hello world" certificate check: the bounds `sqrtLB` and
 `sqrtUB` each satisfy the pure rational inequality that witnesses they bracket √(1/2).
-Both are discharged by `native_decide` (kernel-evaluated on concrete `ℕ`/`ℚ` values).
+Both are discharged by `decide +kernel` (kernel-evaluated on concrete `ℕ`/`ℚ` values).
 -/
 
 /-- Lower-bound certificate: `(sqrtLB (1/2) (2^40))² ≤ 1/2`. -/
-example : sqrtLB (1 / 2) (2 ^ 40) ^ 2 ≤ 1 / 2 := by native_decide
+example : sqrtLB (1 / 2) (2 ^ 40) ^ 2 ≤ 1 / 2 := by decide +kernel
 
 /-- Upper-bound certificate: `1/2 ≤ (sqrtUB (1/2) (2^40))²`. -/
-example : 1 / 2 ≤ sqrtUB (1 / 2) (2 ^ 40) ^ 2 := by native_decide
+example : 1 / 2 ≤ sqrtUB (1 / 2) (2 ^ 40) ^ 2 := by decide +kernel
 
 end Soundcalc

@@ -16,9 +16,9 @@ calculator runs can establish. Two examples on SP1 core:
   (`sp1Core_total_le_100`): the lookup cell is 100 bits and does not
   mention the query count, and the total is the `min` over cells.
 
-Both are kernel-checked except for the point evaluations they rest on (the
-query cell at 123 and 124 queries, and the lookup cell), each discharged by
-`native_decide`.
+Both are kernel-checked throughout: the point evaluations they rest on (the
+query cell at 123 and 124 queries, and the lookup cell) are discharged by
+`decide +kernel`, so no compiler enters the trusted base.
 -/
 
 namespace Soundcalc
@@ -82,15 +82,15 @@ theorem sp1CoreJaggedq_lookups (q : ℕ) : (sp1CoreJaggedq q).lookups = [sp1Core
 
 /-- The query cell at the deployed count: 100 bits. -/
 theorem sp1Core_queryBits_124 :
-    secBits ((sp1CoreFRIq 124).queryErr (UDR koalaBear4)) = 100 := by native_decide
+    secBits ((sp1CoreFRIq 124).queryErr (UDR koalaBear4)) = 100 := by decide +kernel
 
 /-- One query fewer: 99 bits. -/
 theorem sp1Core_queryBits_123 :
-    secBits ((sp1CoreFRIq 123).queryErr (UDR koalaBear4)) = 99 := by native_decide
+    secBits ((sp1CoreFRIq 123).queryErr (UDR koalaBear4)) = 99 := by decide +kernel
 
 /-- The lookup cell is `sp1_core_lookup_bits` (`Soundcalc/ZkVM/SP1.lean`): 100 bits,
 independent of the query count. Its error is positive: -/
-theorem sp1Core_lookupErr_pos : 0 < sp1CoreLookup.errUB := by native_decide
+theorem sp1Core_lookupErr_pos : 0 < sp1CoreLookup.errUB := by decide +kernel
 
 /-! ## Minimality -/
 

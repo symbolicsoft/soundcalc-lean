@@ -48,7 +48,7 @@ example : secBits ((UDR koalaBear4).errMultilinear Rate.quarter (2 ^ 21) 193) = 
   simp only [UDR, hlog]
   push_cast
   norm_num [secBits, koalaBear4, FieldParams.card]
-  native_decide
+  decide +kernel
 
 /-! ## FRI
 
@@ -70,10 +70,10 @@ def sp1CoreFRI : FRIConfig where
   grindBatch     := 5
 
 /-! `queryErr = (1 − 3/8)^124 / 2^16 = (5/8)^124 / 2^16`, whose `⌊−log₂⌋` is `100`. -/
-example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by native_decide
-example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4)  0)  = 103 := by native_decide
-example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4) 20)  = 122 := by native_decide
+example : secBits (sp1CoreFRI.queryErr   (UDR koalaBear4))     = 100 := by decide +kernel
+example : secBits (sp1CoreFRI.batchingErr (UDR koalaBear4))    = 104 := by decide +kernel
+example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4)  0)  = 103 := by decide +kernel
+example : secBits (sp1CoreFRI.commitErr  (UDR koalaBear4) 20)  = 122 := by decide +kernel
 
 /-! ## FRI proof sizes
 
@@ -121,14 +121,14 @@ def sp1ShrinkFRI : FRIConfig where
 
 -- FRI-only sizes (matching the Python get_FRI_proof_size_bits):
 -- core: 913 KiB (expected) / 1474 KiB (worst case)
-example : sp1CoreFRI.proofSizeExp       / KIB = 913  := by native_decide
-example : sp1CoreFRI.proofSizeWorst     / KIB = 1474 := by native_decide
+example : sp1CoreFRI.proofSizeExp       / KIB = 913  := by decide +kernel
+example : sp1CoreFRI.proofSizeWorst     / KIB = 1474 := by decide +kernel
 -- compress: 730 KiB (expected) / 1261 KiB (worst case)
-example : sp1CompressFRI.proofSizeExp   / KIB = 730  := by native_decide
-example : sp1CompressFRI.proofSizeWorst / KIB = 1261 := by native_decide
+example : sp1CompressFRI.proofSizeExp   / KIB = 730  := by decide +kernel
+example : sp1CompressFRI.proofSizeWorst / KIB = 1261 := by decide +kernel
 -- shrink: 524 KiB (expected) / 882 KiB (worst case)
-example : sp1ShrinkFRI.proofSizeExp     / KIB = 524  := by native_decide
-example : sp1ShrinkFRI.proofSizeWorst   / KIB = 882  := by native_decide
+example : sp1ShrinkFRI.proofSizeExp     / KIB = 524  := by decide +kernel
+example : sp1ShrinkFRI.proofSizeWorst   / KIB = 882  := by decide +kernel
 
 /-! ## Lookup
 
@@ -227,7 +227,7 @@ def sp1ShrinkJagged : JaggedCfg where
   S6 exit criteria: `secBits` evaluates correctly on all three SP1 circuits.
   Used within `scripts/AxiomsGuard.lean`
 -/
-theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by native_decide
+theorem sp1_core_lookup_bits : secBits sp1CoreLookup.errUB = 100 := by decide +kernel
 
 /-! ## Jagged exit criteria (bundled)
 
@@ -242,7 +242,7 @@ example : sp1CoreJagged.ExitCriteria
                   114, 115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 100])
     (totalBits := 100)
     (proofSizeExpKib := 918) (proofSizeWorstKib := 1479) := by
-  native_decide
+  decide +kernel
 
 -- compress: 735 KiB (expected) / 1267 KiB (worst case)
 example : sp1CompressJagged.ExitCriteria
@@ -251,7 +251,7 @@ example : sp1CompressJagged.ExitCriteria
                   115, 116, 117, 118, 119, 120, 121, 121, 122, 100, 107])
     (totalBits := 100)
     (proofSizeExpKib := 735) (proofSizeWorstKib := 1267) := by
-  native_decide
+  decide +kernel
 
 
 -- shrink: 529 KiB (expected) / 887 KiB (worst case)
@@ -261,7 +261,7 @@ example : sp1ShrinkJagged.ExitCriteria
                   116, 117, 118, 119, 120, 120, 121, 100, 109])
     (totalBits := 100)
     (proofSizeExpKib := 529) (proofSizeWorstKib := 887) := by
-  native_decide
+  decide +kernel
 
 /-! ## SP1 (all circuits)
 

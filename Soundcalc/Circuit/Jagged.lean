@@ -136,7 +136,7 @@ def JaggedCfg.proofSizeWorst (c: JaggedCfg) : ℕ :=
 
 /-- Bundles a `JaggedCfg` circuit's exit criteria: the reduce/zerocheck cells, the lookup
     cells, the full per-cell row, the total, and the expected/worst proof sizes in KiB. One
-    instance of this `Prop`, discharged by `native_decide`, replaces the scattered per-circuit
+    instance of this `Prop`, discharged by `decide +kernel`, replaces the scattered per-circuit
     `example`s previously written by hand. Jagged is UDR-only, so — unlike
     `DeepAliCfg.ExitCriteria` — it takes no `Regime`. -/
 abbrev JaggedCfg.ExitCriteria (c : JaggedCfg)

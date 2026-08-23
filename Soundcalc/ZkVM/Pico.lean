@@ -248,7 +248,7 @@ example : picoRiscvDeepAli.ExitCriteria picoUDR
                   93, 92, 96, 93, 94, 95, 99])
     (totalBits := 50)
     (proofSizeExpKib := 2225) (proofSizeWorstKib := 2583) := by
-  native_decide
+  decide +kernel
 
 example : picoRiscvDeepAli.ExitCriteria picoRiscvJBR
     (aliBits := 106) (deepBits := 95)
@@ -258,7 +258,7 @@ example : picoRiscvDeepAli.ExitCriteria picoRiscvJBR
                   93, 92, 96, 93, 94, 95, 99])
     (totalBits := 53)
     (proofSizeExpKib := 2225) (proofSizeWorstKib := 2583) := by
-  native_decide
+  decide +kernel
 
 -- convert: 934 KiB (expected) / 1255 KiB (worst case).
 example : picoConvertDeepAli.ExitCriteria picoUDR
@@ -268,7 +268,7 @@ example : picoConvertDeepAli.ExitCriteria picoUDR
                   118, 119, 120, 121, 122, 122, 123, 50, 115, 101, 96])
     (totalBits := 50)
     (proofSizeExpKib := 934) (proofSizeWorstKib := 1255) := by
-  native_decide
+  decide +kernel
 
 example : picoConvertDeepAli.ExitCriteria picoConvertJBR
     (aliBits := 110) (deepBits := 97)
@@ -277,7 +277,7 @@ example : picoConvertDeepAli.ExitCriteria picoConvertJBR
                   96, 97, 98, 99, 100, 101, 102, 53, 110, 97, 96])
     (totalBits := 53)
     (proofSizeExpKib := 934) (proofSizeWorstKib := 1255) := by
-  native_decide
+  decide +kernel
 
 -- combine: 861 KiB (expected) / 1146 KiB (worst case).
 example : picoCombineDeepAli.ExitCriteria picoUDR
@@ -287,7 +287,7 @@ example : picoCombineDeepAli.ExitCriteria picoUDR
                   120, 121, 122, 122, 123, 50, 115, 103, 97])
     (totalBits := 50)
     (proofSizeExpKib := 861) (proofSizeWorstKib := 1146) := by
-  native_decide
+  decide +kernel
 
 example : picoCombineDeepAli.ExitCriteria picoCombineJBR
     (aliBits := 110) (deepBits := 99)
@@ -296,7 +296,7 @@ example : picoCombineDeepAli.ExitCriteria picoCombineJBR
                   98, 99, 100, 101, 102, 53, 110, 99, 97])
     (totalBits := 53)
     (proofSizeExpKib := 861) (proofSizeWorstKib := 1146) := by
-  native_decide
+  decide +kernel
 
 -- compress: 253 KiB (expected) / 308 KiB (worst case).
 example : picoCompressDeepAli.ExitCriteria picoUDR
@@ -306,7 +306,7 @@ example : picoCompressDeepAli.ExitCriteria picoUDR
                   118, 119, 119, 120, 35, 115, 104, 98])
     (totalBits := 35)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 308) := by
-  native_decide
+  decide +kernel
 
 example : picoCompressDeepAli.ExitCriteria picoCompressJBR
     (aliBits := 106) (deepBits := 95)
@@ -315,7 +315,7 @@ example : picoCompressDeepAli.ExitCriteria picoCompressJBR
                   84, 85, 86, 87, 57, 106, 95, 98])
     (totalBits := 57)
     (proofSizeExpKib := 253) (proofSizeWorstKib := 308) := by
-  native_decide
+  decide +kernel
 
 -- embed: 232 KiB (expected) / 281 KiB (worst case).
 example : picoEmbedDeepAli.ExitCriteria picoUDR
@@ -325,7 +325,7 @@ example : picoEmbedDeepAli.ExitCriteria picoUDR
                   119, 120, 35, 115, 106, 100])
     (totalBits := 35)
     (proofSizeExpKib := 232) (proofSizeWorstKib := 281) := by
-  native_decide
+  decide +kernel
 
 example : picoEmbedDeepAli.ExitCriteria picoEmbedJBR
     (aliBits := 106) (deepBits := 97)
@@ -334,13 +334,13 @@ example : picoEmbedDeepAli.ExitCriteria picoEmbedJBR
                   86, 87, 57, 106, 97, 100])
     (totalBits := 57)
     (proofSizeExpKib := 232) (proofSizeWorstKib := 281) := by
-  native_decide
+  decide +kernel
 
 /-! ### Enclosure-granularity guard (verified where it bites) -/
 
-example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by native_decide
-example : sqrtLB (1/16) (2^40) < sqrtUB (1/16) (2^40) := by native_decide
-example : jbrM (1/2) (1/40) (2^40) = 15 := by native_decide
-example : jbrM (1/16) (1/320) (2^40) = 41 := by native_decide
+example : sqrtLB (1/2) (2^40) < sqrtUB (1/2) (2^40) := by decide +kernel
+example : sqrtLB (1/16) (2^40) < sqrtUB (1/16) (2^40) := by decide +kernel
+example : jbrM (1/2) (1/40) (2^40) = 15 := by decide +kernel
+example : jbrM (1/16) (1/320) (2^40) = 41 := by decide +kernel
 
 end Soundcalc

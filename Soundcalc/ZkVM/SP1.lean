@@ -267,8 +267,8 @@ example : sp1ShrinkJagged.ExitCriteria
 
 Bundles all of SP1's circuits into the generic `ZkVM` (`Soundcalc.ZkVM`). Each
 `JaggedCfg` already enforces its own FRI/lookup field consistency
-(`h_densePCS_field`/`h_lookups_field`); `ZkVM.h_circuits_field` additionally
-enforces that every circuit agrees with the zkVM's own `field`. Metadata from
+(`h_densePCS_field`/`h_lookups_field`). The `ZkVM` structure itself carries no
+field invariant: zkDTVM mixes circuits over different extension degrees. Metadata from
 `soundcalc/zkvms/sp1/sp1.toml`'s `[zkevm]` section. -/
 def sp1 : ZkVM where
   name         := "SP1"

@@ -2,7 +2,7 @@ import Soundcalc.ZkVM.SP1
 import Soundcalc.Monotonicity.FRI
 
 /-!
-# `Soundcalc.Monotonicity.SP1` — what the catalogue buys on a deployed circuit
+# `Soundcalc.Monotonicity.SP1`: what the catalogue buys on a deployed circuit
 
 Point theorems fix values; the catalogue fixes directions. Composing the two
 gives statements that quantify over a parameter, which no number of

@@ -71,12 +71,12 @@ jobs:
               run: |
                 ! grep -F "declaration uses 'sorry'" "$RUNNER_TEMP/lake-build.log"
 
-            # TCB guard: the structural theory (secBits characterization,
-            # sqrt/log enclosures, JBR conservativity, all field primality
-            # certificates incl. the Goldilocks Pratt certificate) must
-            # depend only on Lean's three standard axioms — no sorryAx, no
-            # native_decide — and the native_decide TCB extension for the
-            # numeric report cells stays pinned to exactly ofReduceBool.
+            # TCB guard: every pinned theorem (secBits characterization,
+            # sqrt/log enclosures, JBR conservativity, field primality incl.
+            # the Goldilocks Pratt certificate, the monotonicity catalogue,
+            # the headline theorem, and representative numeric cells) must
+            # depend only on Lean's three standard axioms: no sorryAx and
+            # no native_decide anywhere.
             - name: Check axiom hygiene (TCB guard)
               run: lake env lean scripts/AxiomsGuard.lean
 

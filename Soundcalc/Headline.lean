@@ -1,7 +1,7 @@
 import Soundcalc.ZkVM
 
 /-!
-# `Soundcalc.Headline` — the report hierarchy, with its theorem
+# `Soundcalc.Headline`: the report hierarchy, with its theorem
 
 A zkVM report ends in one number: the headline security level. soundcalc
 derives it from the per-circuit, per-regime totals in three ways, depending

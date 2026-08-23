@@ -17,6 +17,7 @@ import Soundcalc.Common.Utils
 import Soundcalc.Common.Log
 import Soundcalc.Common.Sqrt
 import Soundcalc.ZkVM
+import Soundcalc.Headline
 import Soundcalc.ZkVM.SP1
 import Soundcalc.ZkVM.Airbender
 import Soundcalc.ZkVM.OpenVM
@@ -33,3 +34,4 @@ import Soundcalc.Monotonicity.Lookup
 import Soundcalc.Monotonicity.DeepAli
 import Soundcalc.Monotonicity.Jagged
 import Soundcalc.Monotonicity.SWIRL
+import Soundcalc.Monotonicity.SP1

@@ -99,6 +99,14 @@ anywhere in `Soundcalc/Monotonicity/` trips CI. -/
 /-- info: 'Soundcalc.LookupCfg.errUB_antitone_card' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs in #print axioms Soundcalc.LookupCfg.errUB_antitone_card
 
+/-! ## Report hierarchy: the headline theorem is kernel-clean -/
+
+/-- info: 'Soundcalc.ZkVM.headline_le_bestSecBits' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.ZkVM.headline_le_bestSecBits
+
+/-- info: 'Soundcalc.JaggedCfg.lookup_le_totalErr' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs in #print axioms Soundcalc.JaggedCfg.lookup_le_totalErr
+
 /-! ## native_decide cells: TCB extension pinned
 
 Each `native_decide` use introduces one generated axiom

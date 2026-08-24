@@ -56,7 +56,6 @@ def Circuit.parseFromToml (circTab : Table)
   Following soundcalc, SWIRL circuits are ALWAYS bundled with WHIR, whereas in zkVMs
   captured by the summarizer, Jagged and DeepAli circuits are ALWAYS bundled with FRI.
   Ref: https://github.com/ethereum/soundcalc/blob/d9078d64c9c3ae15b0931f6d249b2dc073194f15/soundcalc/zkvms/zkvm.py#L89
-  **TODO** Revise the above in line with WHIR.
 
   **SOUNDCALC TODO** Allow for switching of PCS schemes.
   |-> Possible solution: add a PCS field explicitly within .toml files.

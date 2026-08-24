@@ -12,7 +12,7 @@ namespace SoundcalcIO.MdRenderer
 
 /--
   Renders the markdown security table of a generic
-  Circuit, following soundcalc's reference.
+  `Circuit`, following `soundcalc`'s reference.
 -/
 private def renderSecurityLevels (c: Circuit) : IO String := do
   let mut headerStr := "| regime "
@@ -20,15 +20,20 @@ private def renderSecurityLevels (c: Circuit) : IO String := do
   let mut secbitsUDRStr := "| UDR "
   let mut secbitsJBRStr := "| JBR "
 
-  /- Contains tuples of the form (fieldName, secBits). -/
-  let secLevelsUDR ← c.secParamsUDR
-  let secLevelsJBR ← c.secParamsJBR
+
+  let secLevelsUDROpt ← c.secParamsUDR
+  let secLevelsJBROpt ← c.secParamsJBR
+
+  /- Contains tuples of the form (fieldName, secBits).
+     If the regime is unsupported, return an empty array. -/
+  let secLevelsUDR := secLevelsUDROpt.getD []
+  let secLevelsJBR := secLevelsJBROpt.getD []
 
   let isUDR := c.isUDR
   let isJBR := c.isJBR
 
   /- **FEAT TODO** Revisit once an appropriate generalization
-    of fields is introduced at circuit-level. -/
+    of regimes is introduced at circuit-level. -/
   if isUDR then
     for elem in secLevelsUDR do
       headerStr := headerStr ++ s!"| {elem.1} "
@@ -111,7 +116,7 @@ private def renderOverviewStats (vm: ZkVM) : IO String := do
   Renders a generic VM.
 -/
 private def renderVMStr (vm: ZkVM) : IO String := do
-  /- Incremental contents of the output MD file. We overwrite the
+  /- Incremental contents of the output `.md` file. We overwrite the
      (potentially exisiting) file only if the parsing succeeds. -/
   let mut outStr := ""
 
@@ -186,7 +191,7 @@ private def renderVMStr (vm: ZkVM) : IO String := do
       s!"{circ_security_levels}"
 
       /- We append a trailing space only if more than a circuit is available.
-         Reproduces soundcalc's behaviour. -/
+         Reproduces `soundcalc`'s behaviour. -/
       if vm_circLen > 1 then
         outStr := outStr ++ "\n"
     else do
@@ -274,7 +279,7 @@ def supportedvms : List String := [
   "sp1",                                             -- Jagged
   "airbender", "openvm", "pico", "zisk", "venus",    -- DEEP-ALI
   "openvm2",                                         -- SWIRL
-  "zkdtvm"
+  "zkdtvm"                                           -- Mixed-circuit
 ]
 
 def main (args: List String): IO Unit := do

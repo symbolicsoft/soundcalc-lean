@@ -16,8 +16,8 @@ namespace Soundcalc
 
   Current support: Jagged, DeepAli, SWIRL.
 
-  **FEAT TODO** Revisit regimes methods (`is*`, `getSecBits*`) and defaults
-  once an appropriate generalization is introduced at circuit-level.
+  **FEAT TODO** Revisit regimes methods (`is*`, `getSecBits*`) once
+  an appropriate generalization is introduced at circuit-level.
 -/
 
 inductive Circuit where
@@ -83,7 +83,9 @@ def Circuit.totalSecBitsUDR : Circuit → Option ℕ
   | .deepali c => let gc : Circuit := .deepali c
                   if gc.isUDR then secBits (c.totalErr (UDR c.field))
                   else none
-  | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
+  | .swirl c   => let gc : Circuit := .swirl c
+                  if gc.isUDR then secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
+                  else none
 
 /- Following our Airbender characterization (`Soundcalc/ZkVM/Airbender.lean`),
    we keep `g = 2^40` as the sqrt granularity in JBR. -/
@@ -92,7 +94,9 @@ def Circuit.totalSecBitsJBR : Circuit → Option ℕ
   | .deepali c => let gc : Circuit := .deepali c
                   if gc.isJBR then secBits (c.totalErr (JBR c.field (2^40) c.gapToRadius))
                   else none
-  | .swirl c   => secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
+  | .swirl c   => let gc : Circuit := .swirl c
+                  if gc.isJBR then secBits (c.totalErr)  -- regimes are internally handled by `explicit_m`
+                  else none
 
 def Circuit.PCS : Circuit → PCS
   | .jagged c  => c.densePCS

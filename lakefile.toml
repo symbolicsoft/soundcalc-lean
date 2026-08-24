@@ -1,5 +1,5 @@
 name = "soundcalc"
-defaultTargets = ["Soundcalc", "SoundcalcIO", "leanemitter", "mdrenderer"]
+defaultTargets = ["Soundcalc", "SoundcalcIO", "mdrenderer"]
 
 [[require]]
 name = "mathlib"
@@ -11,10 +11,6 @@ name = "Soundcalc"
 
 [[lean_lib]]
 name = "SoundcalcIO"
-
-[[lean_exe]]
-name = "leanemitter"
-root = "SoundcalcIO.LeanEmitter"
 
 [[lean_exe]]
 name = "mdrenderer"

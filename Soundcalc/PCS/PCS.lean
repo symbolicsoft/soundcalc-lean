@@ -10,9 +10,7 @@ namespace Soundcalc
   `PCS` bundles all polynomial commitment schemes supported by zkVM circuits,
   acting as a normalization layer among PCS schemes of different types.
 
-  Current support: FRI, WHIR (WIP).
-
-  **TODO:** Complete integration with WHIR.
+  Current support: FRI, WHIR.
 -/
 
 inductive PCS where
@@ -25,7 +23,7 @@ def PCS.label : PCS -> String
 
 def PCS.traceLen : PCS → ℕ
   | .fri c  => c.denseLen
-  | .whir _ => 0 -- **TODO**
+  | .whir c => c.dimension -- matches Python's `get_trace_length`
 
 def PCS.batchSize : PCS → ℕ
   | .fri c  => c.batchSize
@@ -33,7 +31,7 @@ def PCS.batchSize : PCS → ℕ
 
 def PCS.ρ : PCS → Rate
   | .fri c => c.ρ
-  | .whir _ => ⟨1/2, by norm_num⟩ -- **TODO**
+  | .whir c => c.rate 0 -- matches Python's `get_rate`
 
 def PCS.field : PCS → FieldParams
   | .fri c  => c.field
@@ -42,7 +40,7 @@ def PCS.field : PCS → FieldParams
 def PCS.listErrs (c: PCS) (R: Regime) : List ℚ :=
   match c with
   | .fri c  => c.listErrs R
-  | .whir _ => [] -- **TODO**
+  | .whir c => c.listErrs R
 
 def PCS.proofSizeWorst : PCS → ℕ
   | .fri c  => c.proofSizeWorst

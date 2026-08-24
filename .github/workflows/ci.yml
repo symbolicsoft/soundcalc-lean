@@ -48,12 +48,11 @@ jobs:
             - name: Fetch Mathlib dependency cache
               run: lake exe cache get
 
-            # Build against the committed golden `SP1.lean` generated from
-            # `leanemitter`. `lake build` checks every theorem; the loop then
-            # verifies every module actually took part in the build, so a
-            # file not reachable from any root import fails CI instead of
-            # being silently skipped (this caught OpenVM2.lean).
-            - name: Build with committed golden SP1.lean
+            # Preliminary build to verify that every module actually
+            # took part in the build, so a file not reachable from any
+            # root import fails CI instead of being silently skipped
+            # (this caught OpenVM2.lean).
+            - name: File reachability build
               run: |
                   lake build 2>&1 | tee "$RUNNER_TEMP/lake-build.log"
                   test "${PIPESTATUS[0]}" -eq 0
@@ -80,19 +79,10 @@ jobs:
             - name: Check axiom hygiene (TCB guard)
               run: lake env lean scripts/AxiomsGuard.lean
 
-            # Regenerate `SP1.lean` (default exe param)
-            - name: Regenerate SP1.lean
-              run: lake exe leanemitter
-
             # Reproduce soundcalc's `.md` reports (default exe param):
             # every golden in `SoundcalcIO/ZkVM/Ref/` is checked below.
             - name: Reproduce soundcalc's .md files
               run: lake exe mdrenderer
-
-            # Any drift in a tracked file after regeneration — the golden
-            # `SP1.lean` first of all — fails CI (exit code > 0 on changes).
-            - name: Check regenerated SP1.lean matches committed golden
-              run: git diff --exit-code
 
             # Compare every reference report in `Ref/` against its
             # re-rendered counterpart. The list is derived from `Ref/*.md`,

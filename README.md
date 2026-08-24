@@ -47,18 +47,16 @@ The decoding regimes are parameters of the soundness analysis, not of the prover
 lake exe cache get                       # prebuilt Mathlib oleans; run this first
 LEAN_NUM_THREADS=1 lake build            # build the library and tools; this checks every theorem
 lake env lean scripts/AxiomsGuard.lean   # confirm the axiom footprint (see below)
-lake exe leanemitter                     # regenerate the emitted golden SoundcalcIO/ZkVM/SP1.lean
 lake exe mdrenderer                      # re-render the Markdown reports into SoundcalcIO/ZkVM/Reports/
 ```
 
-Pinned to Lean `v4.30.0` and Mathlib `v4.30.0`. There is no separate test suite: the tests are the theorems, and `lake build` checks all of them. CI additionally fails on any `sorry`, on any drift in the emitted golden, and on any byte of difference between a re-rendered report and its reference.
+Pinned to Lean `v4.30.0` and Mathlib `v4.30.0`. There is no separate test suite: the tests are the theorems, and `lake build` checks all of them. CI additionally fails on any `sorry` and on any byte of difference between a re-rendered report and its reference.
 
 ## How a report becomes a theorem
 
 1. Configs (`SoundcalcIO/ZkVM/Ref/`): each zkVM's `.toml` file and reference `.md` report are taken unchanged from soundcalc.
 2. Parse (`SoundcalcIO/TomlParser/`): floats that denote rates are accepted only if they equal one of `2⁻¹, …, 2⁻⁵`, which binary floating point represents exactly; `gap_to_radius` is accepted only if it is the float rendering of some `i/3000`. Anything else is rejected. Every structure invariant (rate range, early-stop consistency, cross-config field agreement) is decided here, and a parsed config carries its proofs.
-3. Emit (`SoundcalcIO/LeanEmitter.lean`): the parsed SP1 configs are written back out as Lean literals, with one `decide +kernel` theorem per report cell and `rfl` theorems tying the emitted configs to the hand-written ones in `Soundcalc/ZkVM/SP1.lean`. The emitted file is committed as a golden.
-4. Render (`SoundcalcIO/MdRenderer/`): the same structures are rendered as Markdown and compared byte-for-byte against the reference.
+3. Render (`SoundcalcIO/MdRenderer/`): the same structures are rendered as Markdown and compared byte-for-byte against the reference.
 
 The hand-written instances in `Soundcalc/ZkVM/*.lean` bundle each circuit's cells into one `ExitCriteria` proposition (every per-term bit count, the total, and the proof sizes) discharged by a single `decide +kernel`. A formula change that moves any cell fails the build until the bundle is revised.
 
@@ -81,8 +79,8 @@ The hand-written instances in `Soundcalc/ZkVM/*.lean` bundle each circuit's cell
 | `Soundcalc/ZkVM.lean`, `Soundcalc/ZkVM/*.lean` | the `ZkVM` structure; literal SP1, Airbender, OpenVM, OpenVM2, Pico, ZisK, and zkDTVM instances with their cell bundles | `zkvms/` |
 | `Soundcalc/Headline.lean` | the headline aggregation and `headline_le_bestSecBits` | `report_md.py` |
 | `Soundcalc/Monotonicity/` | the shape-theorem catalogue, one module per formula family, plus the SP1 corollaries | |
-| `SoundcalcIO/` | TOML parser, Lean emitter, Markdown renderer | `report_md.py` |
-| `SoundcalcIO/ZkVM/` | reference TOML configs and reports (`Ref/`), the committed emitted golden (`SP1.lean`), re-rendered reports (`Reports/`) | `zkvms/`, `reports/` |
+| `SoundcalcIO/` | TOML parser, Markdown renderer | `report_md.py` |
+| `SoundcalcIO/ZkVM/` | reference TOML configs and reports (`Ref/`), re-rendered reports (`Reports/`) | `zkvms/`, `reports/` |
 | `scripts/AxiomsGuard.lean` | pins the axiom footprint of representative theorems of each kind | |
 
 ## Trusted computing base

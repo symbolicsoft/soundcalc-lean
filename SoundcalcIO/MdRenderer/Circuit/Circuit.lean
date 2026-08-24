@@ -16,28 +16,36 @@ open SoundcalcIO.MdRenderer
 namespace Soundcalc
 
 /--
-  Returns a string containing all the circuit parameters of a generic Circuit.
+  Returns a string containing all the circuit parameters of a generic `Circuit`.
 -/
 def Circuit.circParamsStr : Circuit → IO String
   | .jagged c  => c.renderCircParams
   | .deepali c => c.renderCircParams
   | .swirl c   => c.renderCircParams
 /--
-  Returns a [header, secbits] list containing all the UDR security bits of a generic Circuit.
+  Returns a [header, secbits] list containing all the UDR security bits of a generic `Circuit`.
+  If the regime is unsupported, return `none` instead.
 -/
-def Circuit.secParamsUDR : Circuit → IO (List (String × Nat))
+def Circuit.secParamsUDR : Circuit → IO (Option (List (String × Nat)))
   | .jagged c  => c.getSecurityLevels
-  | .deepali c => c.getSecurityLevels (UDR c.field)
-  | .swirl c   => c.getSecurityLevels -- regimes are internally handled by `explicit_m`
-
+  | .deepali c => let gc : Circuit := .deepali c
+                  if gc.isUDR then c.getSecurityLevels (UDR c.field)
+                  else pure none
+  | .swirl c   => let gc : Circuit := .swirl c
+                  if gc.isUDR then c.getSecurityLevels -- regimes are internally handled by `explicit_m`
+                  else pure none
 /--
-  Returns a [header, secbits] list containing all the JBR security bits of a generic Circuit.
+  Returns a [header, secbits] list containing all the JBR security bits of a generic `Circuit`.
+  If the regime is unsupported, return `none` instead.
 -/
-def Circuit.secParamsJBR : Circuit → IO (List (String × Nat))
-  | .jagged _  => pure []             -- unsupported; **FEAT TODO** ìmprove representation,
-                                      -- in line with refactoring of regimes.
-  | .deepali c => c.getSecurityLevels (JBR c.field (2^40) c.gapToRadius)
-  | .swirl c   => c.getSecurityLevels -- regimes are internally handled by `explicit_m`
+def Circuit.secParamsJBR : Circuit → IO (Option (List (String × Nat)))
+  | .jagged _  => pure none           -- unsupported
+  | .deepali c => let gc : Circuit := .deepali c
+                  if gc.isJBR then c.getSecurityLevels (JBR c.field (2^40) c.gapToRadius)
+                  else pure none
+  | .swirl c   => let gc : Circuit := .swirl c
+                  if gc.isJBR then c.getSecurityLevels -- regimes are internally handled by `explicit_m`
+                  else pure none
 
 
 end Soundcalc

@@ -4,6 +4,8 @@ import Soundcalc.Field.Core
 
 namespace Soundcalc
 
+set_option maxRecDepth 100000
+
 /-- The Mersenne31 prime field, `p = 2^31 − 1`. -/
 def mersenne31 : PrimeField where
   p               := 2 ^ 31 - 1

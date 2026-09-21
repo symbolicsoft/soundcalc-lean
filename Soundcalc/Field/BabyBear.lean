@@ -4,6 +4,8 @@ import Soundcalc.Field.Core
 
 namespace Soundcalc
 
+set_option maxRecDepth 100000
+
 /-- The BabyBear prime field, `p = 2^31 - 2^27 + 1`. -/
 def babyBear : PrimeField where
   p               := 2 ^ 31 - 2 ^ 27 + 1

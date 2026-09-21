@@ -4,13 +4,21 @@ defaultTargets = ["Soundcalc", "SoundcalcIO", "leanemitter", "mdrenderer"]
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-version = "git#v4.30.0"
+version = "git#v4.34.0"
+
+[[require]]
+name = "Arklib"
+git = "https://github.com/Verified-zkEVM/ArkLib"
+rev = "de472fc63927a5a1b57be8335de2c0aa403c3bef"
 
 [[lean_lib]]
 name = "Soundcalc"
 
 [[lean_lib]]
 name = "SoundcalcIO"
+
+[[lean_lib]]
+name = "SoundcalcArkLib"
 
 [[lean_exe]]
 name = "leanemitter"

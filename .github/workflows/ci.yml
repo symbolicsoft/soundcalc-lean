@@ -80,6 +80,14 @@ jobs:
             - name: Check axiom hygiene (TCB guard)
               run: lake env lean scripts/AxiomsGuard.lean
 
+            # Keep ArkLib out of the core build log because its wider import cone contains
+            # tracked, unrelated admissions. Build the adapter separately, then audit the exact
+            # upstream and transported declarations used by Soundcalc.
+            - name: Build and audit ArkLib integration
+              run: |
+                  lake build SoundcalcArkLib
+                  lake env lean scripts/ArkLibAxiomsGuard.lean
+
             # Regenerate `SP1.lean` (default exe param)
             - name: Regenerate SP1.lean
               run: lake exe leanemitter

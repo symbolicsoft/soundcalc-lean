@@ -24,17 +24,17 @@ theorem logb_le_div {x m c : ℕ}
   (hc : 1 ≤ c)
   (h : x ^ m ≤ 2 ^ c) :
   Real.logb 2 x ≤ (c : ℝ) / m := by
-have hmR : (0:ℝ) < (m:ℝ) := by exact_mod_cast hm
-rcases Nat.eq_zero_or_pos x with hx0 | hxpos
-· subst hx0
-  simp only [Nat.cast_zero, Real.logb_zero]
-  positivity
-· have hcertR : (x:ℝ) ^ m ≤ (2:ℝ) ^ c := by exact_mod_cast h
-  have hstep : Real.logb 2 ((x:ℝ) ^ m) ≤ Real.logb 2 ((2:ℝ) ^ c) :=
-    Real.logb_le_logb_of_le (by norm_num) (by positivity) hcertR
-  rw [Real.logb_pow, Real.logb_pow, Real.logb_self_eq_one (by norm_num), mul_one] at hstep
-  rw [le_div_iff₀ hmR, mul_comm]
-  exact_mod_cast hstep
+  have hmR : (0:ℝ) < (m:ℝ) := by exact_mod_cast hm
+  rcases Nat.eq_zero_or_pos x with hx0 | hxpos
+  · subst hx0
+    simp only [Nat.cast_zero, Real.logb_zero]
+    positivity
+  · have hcertR : (x:ℝ) ^ m ≤ (2:ℝ) ^ c := by exact_mod_cast h
+    have hstep : Real.logb 2 ((x:ℝ) ^ m) ≤ Real.logb 2 ((2:ℝ) ^ c) :=
+      Real.logb_le_logb_of_le (by norm_num) (by positivity) hcertR
+    rw [Real.logb_pow, Real.logb_pow, Real.logb_self_eq_one (by norm_num), mul_one] at hstep
+    rw [le_div_iff₀ hmR, mul_comm]
+    exact_mod_cast hstep
 
 /-- `(c-1)/m < log_2 x` reduces to the integer inequality `2^(c-1) < x^m`.
     Human-stated theorem; AI-assisted proof and comments. -/

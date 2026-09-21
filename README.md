@@ -51,7 +51,11 @@ lake exe leanemitter                     # regenerate the emitted golden Soundca
 lake exe mdrenderer                      # re-render the Markdown reports into SoundcalcIO/ZkVM/Reports/
 ```
 
-Pinned to Lean `v4.30.0` and Mathlib `v4.30.0`. There is no separate test suite: the tests are the theorems, and `lake build` checks all of them. CI additionally fails on any `sorry`, on any drift in the emitted golden, and on any byte of difference between a re-rendered report and its reference.
+Pinned to Lean `v4.34.0` and Mathlib `v4.34.0`. There is no separate test suite: the tests are the theorems, and `lake build` checks all of them. CI additionally fails on any `sorry`, on any drift in the emitted golden, and on any byte of difference between a re-rendered report and its reference.
+
+Experimental ArkLib and independent Clean-checker work is documented in
+[`docs/INTEGRATIONS.md`](docs/INTEGRATIONS.md). These integrations are kept outside the core trust
+claims until their bridge theorems and validation coverage are explicit.
 
 ## How a report becomes a theorem
 

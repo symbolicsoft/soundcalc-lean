@@ -49,7 +49,7 @@ def WHIRConfig.parseFromToml (circTab : Table)
   let circ_whir_num_queries ← orExit (getListNat circTab "whir_num_queries")
 
   let circ_constraint_degree ← orExit (getNat circTab "constraint_degree")
-  let h_constraint_degree : PLift (3 ≤ constraintDegree) ←
+  let h_constraint_degree : PLift (3 ≤ circ_constraint_degree) ←
   match Nat.decLe 3 circ_constraint_degree with
   | .isTrue h  => pure (PLift.up h)
   | .isFalse _ => IO.eprintln "Condition violated: constraint_degree < 3"; IO.Process.exit 1

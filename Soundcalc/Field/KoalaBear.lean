@@ -4,6 +4,8 @@ import Soundcalc.Field.Core
 
 namespace Soundcalc
 
+set_option maxRecDepth 100000
+
 /-- The KoalaBear prime field, `p = 2^31 - 2^24 + 1`. -/
 def koalaBear : PrimeField where
   p               := 2 ^ 31 - 2 ^ 24 + 1
